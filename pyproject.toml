@@ -5,20 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "picht"
 version = "0.1.0"
-authors = [
-    {name = "Rishiit Sharma", email = "rishiitsharma@gmail.com"}
-]
 description = "Electron optics simulation library for electron microscopy applications"
 readme = "README.md"
 requires-python = ">=3.6"
 license = "MIT"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Intended Audience :: Science/Research",
-    "Development Status :: 3 - Alpha",
+authors = [
+    {name = "Rishiit Sharma", email = "rishiitsharma@gmail.com"}
 ]
 dependencies = [
     "numpy",
@@ -28,3 +20,17 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/rolypolytoy/picht"
+
+[project.classifiers]
+"Programming Language :: Python :: 3" = ""
+"Programming Language :: Python :: 3.6" = ""
+"Programming Language :: Python :: 3.7" = ""
+"Programming Language :: Python :: 3.8" = ""
+"Programming Language :: Python :: 3.9" = ""
+"Programming Language :: Python :: 3.10" = ""
+"Programming Language :: Python :: 3.11" = ""
+"Programming Language :: Python :: 3.12" = ""
+"Operating System :: OS Independent" = ""
+"Topic :: Scientific/Engineering :: Physics" = ""
+"Intended Audience :: Science/Research" = ""
+"Development Status :: 3 - Alpha" = ""
