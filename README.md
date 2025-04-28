@@ -50,8 +50,8 @@ system.visualize_system(
 plt.show()
 ```
 
-The image this produces is:
-
+This will then display the electron trajectories in a matplotlib-style image:
+![Figure_1](https://github.com/user-attachments/assets/4cf887fa-c9cb-4e6a-9aec-a8a68c11b858)
 
 ## Why Did You Make This?
 
