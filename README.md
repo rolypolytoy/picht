@@ -2,13 +2,6 @@
 
 A Python library for simulating electron beam trajectories through unipotential lens systems for applications in electron microscopy. Currently an extremely basic prototype, and it supports custom electrode geometries and unipotential lenses.
 
-## Features
-
-- Field calculation using finite difference method
-- Predefined optical elements (unipotential lenses)
-- Customizable electrode configurations
-- Visualizations of particle trajectories
-
 ## Installation
 
 ```bash
