@@ -53,6 +53,61 @@ plt.show()
 This will then display the electron trajectories in a matplotlib-style image:
 ![Figure_1](https://github.com/user-attachments/assets/4cf887fa-c9cb-4e6a-9aec-a8a68c11b858)
 
+This is an example of a system of lenses with three unipotential lenses in an array, with 50 electrons being tracked:
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from picht import IonOpticsSystem
+
+system = IonOpticsSystem(nx=500, ny=100, physical_size=0.1)
+
+system.add_einzel_lens(
+    position=20, 
+    width=8, 
+    aperture_center=50, 
+    aperture_width=10, 
+    focus_voltage=-5000
+)
+
+system.add_einzel_lens(
+    position=70, 
+    width=10, 
+    aperture_center=50, 
+    aperture_width=10, 
+    focus_voltage=-5000
+)
+
+system.add_einzel_lens(
+    position=190, 
+    width=10, 
+    aperture_center=50, 
+    aperture_width=10, 
+    focus_voltage=-3000
+)
+
+
+system.solve_fields()
+
+trajectories = system.simulate_beam(
+    energy_eV=10000,
+    start_x=0,
+    y_range=(0.0499925, 0.0500075),
+    num_particles=50,
+    simulation_time=2e-9
+)
+
+system.visualize_system(
+    trajectories=trajectories,
+    y_limits=(49.9925, 50.0075)
+)
+
+plt.show()
+```
+
+The visualization is beautiful but messy:
+![Electron_Trajectories](https://github.com/user-attachments/assets/f28a61a5-0051-45fb-8708-e2f6baca8c5a)
+There's a focal point of 37/50 of the electrons at ~210 units, with a spot size of a few hundred nanometers, coming from a 15 micrometer diameter spread initially. This is comparable to the demagnification actual scanning electron microscopes do internally, and so this system is a good reference for actual SEM geometries. 
+
 ## Why Did You Make This?
 
-The paraxial ray equation is a second-order ODE which means it's relatively difficult to solve it analytically, and relatively easy to solve numerically. This is also small enough to be coded in a few hours and useful enough to package in this manner, so that it's easily re-usable. This isn't meant as a serious electron modeling tool and is more of a toy model- if you're looking for a serious tool, I highly recommend you refer to: https://github.com/leon-vv/traceon. It's significantly more mature, and provides much cleaner visualizations than picht.
+The paraxial ray equation is a second-order ODE which means it's relatively difficult to solve it analytically, and relatively easy to solve numerically. There are very few open-source options for simulating electron optics, that are easy to set up, are on Python, are Pythonic in their syntax, and are easily customizable. You can vary the discretization of the grid by varying nx and ny, vary the dimensions by varying physical_size, modify the parameters of the einzel lenses, and vary the timescales you observe the particle trajectories in. This is an open-source alternative to commercial multiphysics systems, if identifying charged particle trajectories in electrostatic lenses is your problem.
