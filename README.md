@@ -40,16 +40,14 @@ trajectories = system.simulate_beam(
     simulation_time=1e-9
 )
 
-system.visualize_system(trajectories=trajectories)
+system.visualize_system(
+    trajectories=trajectories,
+    y_limits=(49.9925, 50.0075)
+)
+
 plt.show()
 ```
 
-## Core Classes
+## Why Did You Make This?
 
-- `PotentialField`: This class calculates the electron potential fields. 
-- `ParticleTracer`: This class simulates the electron trajectories inside the electron potential fields.
-- `ElectrodeConfig`: This is the class which configures a single electrode.
-- `EinzelLens`: This class specifically exists to represent einzel (unipotential) lenses, to speed up their simulation.
-- `IonOpticsSystem`: Example class of a multi-element ion/electron optics system.
-
-More classes will be added in the future based on utility.
+Mathematical modelling is fun, and electron optics are really hard to solve analytically, and really easy to solve numerically. This is also small enough to be coded in a few hours and useful enough to package in this manner, so that it's easily re-usable.
