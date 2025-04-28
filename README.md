@@ -15,7 +15,7 @@ A Python library for simulating electron beam trajectories through unipotential 
 pip install picht
 ```
 
-##How Do I Make Unipotential Lenses?
+## How Do I Make Unipotential Lenses?
 
 Unipotential (or einzel) lenses are amongst the simplest kind of lenses to compute the electrodynamics of. To make unipotential lenses using Picht, use (or repurpose) the following example code. Adjust the parameters of system.add_einzel_lens() to adjust the dimensions of your unipotential lens, and adjust system.simulate_beam() to adjust the parameters of the electron beam. Note that, for unipotential lenses, only the middle electrode is adjustable- the first and third electrodes are at ground. 
 
