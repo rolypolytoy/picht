@@ -35,7 +35,7 @@ system.solve_fields()
 trajectories = system.simulate_beam(
     energy_eV=10000,
     start_x=0,
-    y_range=(0.0499, 0.0501),
+    y_range=(0.0499925, 0.0500075),
     num_particles=10,
     simulation_time=1e-9
 )
