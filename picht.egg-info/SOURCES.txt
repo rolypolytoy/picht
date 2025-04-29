@@ -4,6 +4,7 @@ pyproject.toml
 setup.py
 picht/__init__.py
 picht/core.py
+picht/sem.py
 picht/test.py
 picht.egg-info/PKG-INFO
 picht.egg-info/SOURCES.txt
