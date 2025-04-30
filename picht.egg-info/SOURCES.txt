@@ -1,6 +1,7 @@
 LICENSE
 README.md
 pyproject.toml
+setup.cfg
 setup.py
 picht/__init__.py
 picht/core.py

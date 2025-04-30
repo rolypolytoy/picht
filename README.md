@@ -36,18 +36,16 @@ system.solve_fields()
 
 #parameters of the Electron Beam
 trajectories = system.simulate_beam(
-    energy_eV=10000, #energy of the electron beam
-    start_x=0, #where it begins in x-coordinates
-    y_range=(0.0499925, 0.0500075), #lower and upper limit of the electrons, in the y-axis, in meters
-    angle_range=(0, 0), #lower and upper limit of angles of the electrons, in radians
-    num_particles=20, #number of discrete electrons
-    simulation_time=2e-9 #timescale of the simulation in seconds
+    energy_eV=10000,
+    start_z=0,
+    r_range=(0.0499925, 0.0500075),
+    angle_range=(0, 0),
+    num_particles=20,
+    simulation_time=2e-9
 )
 
 system.visualize_system(
-    trajectories=trajectories,
-    y_limits=(49.9925, 50.0075) #y-limits of the trajectory in grid units
-)
+    trajectories=trajectories)
 
 plt.show()
 ```
