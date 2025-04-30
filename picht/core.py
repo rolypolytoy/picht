@@ -171,25 +171,28 @@ class IonOpticsSystem:
         
     def solve_fields(self):
         return self.field.solve_potential()
-    
-    def simulate_beam(self, 
-                    energy_eV: float,
-                    start_x: float,
-                    y_range: Tuple[float, float],
-                    num_particles: int,
-                    simulation_time: float):
-        velocity = self.tracer.get_velocity_from_energy(energy_eV)
-        y_positions = np.linspace(y_range[0], y_range[1], num_particles)
-        
+    def simulate_beam(self, energy_eV: float, start_x: float,
+                                y_range: Tuple[float, float],
+                                  angle_range: tuple,
+                                  num_particles: int,
+                                  simulation_time: float):
+        velocity_magnitude = self.tracer.get_velocity_from_energy(energy_eV)
+        min_angle_rad = np.radians(angle_range[0])
+        max_angle_rad = np.radians(angle_range[1])
+        angles = np.linspace(min_angle_rad, max_angle_rad, num_particles)
+        y_position = (y_range[0] + y_range[1]) / 2
         trajectories = []
-        for y_pos in y_positions:
+        for angle in angles:
+            vx = velocity_magnitude * np.cos(angle)
+            vy = velocity_magnitude * np.sin(angle)
+       
             sol = self.tracer.trace_trajectory(
-                initial_position=(start_x, y_pos),
-                initial_velocity=(velocity, 0),
+                initial_position=(start_x, y_position),
+                initial_velocity=(vx, vy),
                 simulation_time=simulation_time
             )
             trajectories.append(sol)
-            
+       
         return trajectories
         
     def visualize_system(self, 
