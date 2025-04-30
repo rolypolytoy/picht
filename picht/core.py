@@ -63,6 +63,7 @@ class PotentialField:
 class ParticleTracer:
     ELECTRON_CHARGE = -1.602e-19 
     ELECTRON_MASS = 9.11e-31
+    SPEED_OF_LIGHT = 299792458.0
     
     def __init__(self, potential_field: PotentialField):
         self.field = potential_field
@@ -71,15 +72,23 @@ class ParticleTracer:
     def set_charge_mass_ratio(self, q: float, m: float):
         self.q_m = q / m
     
-    @staticmethod
-    def get_velocity_from_energy(energy_eV: float, mass: float = ELECTRON_MASS) -> float:
+    def get_velocity_from_energy(self, energy_eV: float, mass: float = ELECTRON_MASS) -> float:
         energy_joules = energy_eV * 1.602e-19
-        return np.sqrt(2 * energy_joules / mass)
+        rest_energy = mass * self.SPEED_OF_LIGHT**2
+        total_energy = rest_energy + energy_joules
+        return self.SPEED_OF_LIGHT * np.sqrt(1 - (rest_energy/total_energy)**2)
     
     def particle_dynamics(self, t: float, state: List[float]) -> List[float]:
         x, y, vx, vy = state
         Ex, Ey = self.field.get_field_at_position(x, y)
-        return [vx, vy, self.q_m * Ex, self.q_m * Ey]
+        
+        v = np.sqrt(vx**2 + vy**2)
+        gamma = 1.0 / np.sqrt(1.0 - (v/self.SPEED_OF_LIGHT)**2)
+        
+        ax = self.q_m * Ex / gamma
+        ay = self.q_m * Ey / gamma
+        
+        return [vx, vy, ax, ay]
     
     def trace_trajectory(self, 
                        initial_position: Tuple[float, float],

@@ -1,6 +1,6 @@
 # Picht
 
-A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently only supports electrons, is non-relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using the Jacobi method. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses RK45 to solve for trajectories.
+A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using the Jacobi method. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses RK45 to solve for trajectories.
 
 ## Installation
 ```bash
