@@ -8,7 +8,7 @@ setup(
     version="0.1.5",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
-    description="Electron optics simulation library for electron microscopy applications",
+    description="Electron optics library using the Jacobi solver for Finite Difference Methods (FDM)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rolypolytoy/picht",
