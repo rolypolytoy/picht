@@ -32,7 +32,7 @@ system.add_einzel_lens(
     focus_voltage=-500 #voltage of the middle lens in volts.
 )
 
-system.field.solve_fields()
+system.solve_fields()
 
 #parameters of the Electron Beam
 trajectories = system.simulate_beam(
@@ -52,11 +52,7 @@ system.visualize_system(
 plt.show()
 ```
 
-This will then display the electron trajectories in a matplotlib-style image:
-![Figure_1](https://github.com/user-attachments/assets/4cf887fa-c9cb-4e6a-9aec-a8a68c11b858)
-You can see the spherical aberrations in this image- how the focal length of inner and outer electrons differ. This is a major reason as to why crossovers are used in real electron optics- to reduce the size of spherical aberrations.
-
-This is an example of a system of lenses with three unipotential lenses in an array, with 100 electrons being tracked:
+For a more complex example, we have a system of three unipotential lenses in an array, with 100 electrons being tracked. We have a 15-micron thin beam initially- note the r-axis has 1e-5 meters as its multiplier in this case- and the z-axis is in meters:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -106,12 +102,13 @@ system.visualize_system(
 plt.show()
 ```
 
-The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses:
-![Electron_Trajectory](https://github.com/user-attachments/assets/c7624809-dc87-4094-83ca-65bb778f4e36)
+The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest:
+![electron_dynamics](https://github.com/user-attachments/assets/c767f92c-fd64-4da2-a13d-962f2af2c863)
+
 Over 80 out of the 100 electrons focus at the focal point around 140 units, with a spot size of a few hundred nanometers, coming from a 15 micrometer diameter spread initially. This is comparable to the demagnification actual scanning electron microscopes do internally, and so this system is a good reference for actual SEM geometries. 
 
-I very highly recommend first simulating a system with 5-10 electrons, and when you're satisfied with how the beam optics looks like, increase the number of electrons to get a more accurate image.
+I very highly recommend first simulating a system with 5-10 electrons, and when you're satisfied with how the beam optics looks like, increase the number of electrons to get a more accurate image. The former might take less than 30 seconds, and the latter might take a few minutes.
 
 ## Why Did You Make This?
 
-The paraxial ray equation is a second-order ODE which means it's relatively difficult to solve it analytically, and relatively easy to solve numerically (numerical integration solvers like BDF make it quite easy). There are very few open-source options for simulating electron optics, that are easy to set up, are on Python, are Pythonic in their syntax, and are easily customizable. You can vary the discretization of the grid by varying nx and ny, vary the dimensions by varying physical_size, modify the parameters of the einzel lenses, and vary the timescales you observe the particle trajectories in. This is an open-source alternative to commercial multiphysics systems, if identifying charged particle trajectories in electrostatic lenses is your problem. 
+There are very few open-source options for simulating electron optics, that are easy to set up, are on Python, are Pythonic in their syntax, and are easily customizable. You can vary the discretization of the grid by varying nr and nz, vary the dimensions by varying physical_size, modify the parameters of the einzel lenses, and vary the timescales you observe the particle trajectories in. This is an open-source alternative to commercial multiphysics systems, if identifying charged particle trajectories in electrostatic lenses is your problem. 
