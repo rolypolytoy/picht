@@ -1,29 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import core
 from core import IonOpticsSystem
-system = IonOpticsSystem(nx=500, ny=100, physical_size=0.4)
 
-#Wehnelt Cap
-electrode1 = core.ElectrodeConfig(
-    start=20,
-    width=10,
-    ap_start=40,
-    ap_width=20,
-    voltage=1000
-)
-electrode2 = core.ElectrodeConfig(
-    start=40,
-    width=10,
-    ap_start=40,
-    ap_width=20,
-    voltage=1000
-)
+system = IonOpticsSystem(nr=100, nz = 500, physical_size=0.4)
 
-system.add_electrode(electrode1)
-system.add_electrode(electrode2)
-
-#Electron Lenses
 system.add_einzel_lens(
     position=20, 
     width=6, 
@@ -51,17 +31,16 @@ system.add_einzel_lens(
 
 system.solve_fields()
 
-#Thermionic Filament Beam Spread
 trajectories = system.simulate_beam(
     energy_eV=10000,
-    start_x=0,
-    y_range=(0.1999925, 0.2000075),
-    angle_range=(-2, 2),
-    num_particles=3,
-    simulation_time=6e-9
+    start_z=0,
+    r_range=(0.1999925, 0.2000075),
+    angle_range=(0, 0),
+    num_particles=100,
+    simulation_time=3e-9
 )
+
 system.visualize_system(
-    trajectories=trajectories,
-)
+    trajectories=trajectories)
 
 plt.show()

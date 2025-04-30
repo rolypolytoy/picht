@@ -1,6 +1,6 @@
 # Picht
 
-A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using the Jacobi method. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories.
+A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using Successive Over Relaxation. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories.
 
 ## Installation
 ```bash
@@ -12,27 +12,27 @@ That's it.
 
 Unipotential (or einzel) lenses are amongst the simplest kind of lenses to compute the electrodynamics of. To make unipotential lenses using Picht, use (or repurpose) the following example code. Adjust the parameters of system.add_einzel_lens() to adjust the dimensions of your unipotential lens, and adjust system.simulate_beam() to adjust the parameters of the electron beam. Note that, for unipotential lenses, only the middle electrode is adjustable- the first and third electrodes are at ground. 
 
-The system below shows a unipotential lens with 500V of focusing power, and how it impacts electrons moving with an energy of 10 keV. nx represents the amount of grid-cells in the x-dimension, ny represents the amount of grid-cells in the y-dimension and physical_size represents the dimensions of the system in meters (0.1 represents a 10cm x 10cm system). 
+The system below shows a unipotential lens with 500V of focusing power, and how it impacts electrons moving with an energy of 10 keV. nz represents the amount of grid-cells in the z-dimension, nr represents the amount of grid-cells in the radial dimension and physical_size represents the dimensions of the system in meters (0.1 represents a 10cm x 10cm system). 
 
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
 from picht import IonOpticsSystem
 
-system = IonOpticsSystem(nx=200, ny=100, physical_size=0.1)
-#each x-unit is 0.1m/200 = 0.5 mm. each y-unit is 0.1m/100 = 1 mm
+system = IonOpticsSystem(nz=200, nr=100, physical_size=0.1)
+#each z-unit is 0.1m/200 = 0.5 mm. each r-unit is 0.1m/100 = 1 mm
 
 #Parameters of Unipotential Lens.
 
 system.add_einzel_lens(
-    position=100, #number of grid-units from x = 0
-    width=10, #x-axis thickness of the full einzel lens
-    aperture_center=50, #y-midpoint of the aperture of the einzel lens
-    aperture_width=10, #y-thickness of the aperture of the einzel lens
+    position=100, #number of grid-units from z = 0
+    width=10, #z-axis thickness of the full einzel lens
+    aperture_center=50, #r-midpoint of the aperture of the einzel lens
+    aperture_width=10, #r-thickness of the aperture of the einzel lens
     focus_voltage=-500 #voltage of the middle lens in volts.
 )
 
-system.solve_fields()
+system.field.solve_fields()
 
 #parameters of the Electron Beam
 trajectories = system.simulate_beam(
@@ -61,9 +61,8 @@ This is an example of a system of lenses with three unipotential lenses in an ar
 import numpy as np
 import matplotlib.pyplot as plt
 from picht import IonOpticsSystem
-#100 to 500 nm spot size.
 
-system = IonOpticsSystem(nx=500, ny=100, physical_size=0.4)
+system = IonOpticsSystem(nr=100, nz = 500, physical_size=0.4)
 
 system.add_einzel_lens(
     position=20, 
@@ -94,17 +93,15 @@ system.solve_fields()
 
 trajectories = system.simulate_beam(
     energy_eV=10000,
-    start_x=0,
-    y_range=(0.1999925, 0.2000075),
+    start_z=0,
+    r_range=(0.1999925, 0.2000075),
     angle_range=(0, 0),
     num_particles=100,
-    simulation_time=6e-9
+    simulation_time=3e-9
 )
 
 system.visualize_system(
-    trajectories=trajectories,
-    y_limits=(49.998125, 50.001875)
-)
+    trajectories=trajectories)
 
 plt.show()
 ```
