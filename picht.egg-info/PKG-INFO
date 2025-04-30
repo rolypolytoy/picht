@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: picht
-Version: 0.1.2
+Version: 0.1.3
 Summary: Electron optics simulation library for electron microscopy applications
 Home-page: https://github.com/rolypolytoy/picht
 Author: Rishiit Sharma
@@ -143,4 +143,4 @@ Over 80 out of the 100 electrons focus at the focal point around 140 units, with
 
 ## Why Did You Make This?
 
-The paraxial ray equation is a second-order ODE which means it's relatively difficult to solve it analytically, and relatively easy to solve numerically. There are very few open-source options for simulating electron optics, that are easy to set up, are on Python, are Pythonic in their syntax, and are easily customizable. You can vary the discretization of the grid by varying nx and ny, vary the dimensions by varying physical_size, modify the parameters of the einzel lenses, and vary the timescales you observe the particle trajectories in. This is an open-source alternative to commercial multiphysics systems, if identifying charged particle trajectories in electrostatic lenses is your problem.
+The paraxial ray equation is a second-order ODE which means it's relatively difficult to solve it analytically, and relatively easy to solve numerically (numerical integration solvers like RK45 make it quite easy). There are very few open-source options for simulating electron optics, that are easy to set up, are on Python, are Pythonic in their syntax, and are easily customizable. You can vary the discretization of the grid by varying nx and ny, vary the dimensions by varying physical_size, modify the parameters of the einzel lenses, and vary the timescales you observe the particle trajectories in. This is an open-source alternative to commercial multiphysics systems, if identifying charged particle trajectories in electrostatic lenses is your problem. 
