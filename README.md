@@ -2,6 +2,8 @@
 
 A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using the Jacobi method. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories.
 
+It uses axisymmetric coordinates- radial coordinates are represented as r, and the z-axis is the direction of travel. There's no theta like in cylindrical coordinates because we assume spherical symmetry all around the z-axis. Solving equations in the axisymmetric view is a lot more feasible numerically, and for radially symmetric electron optics, which constitutes a large proportion of computational applications in the field, this is entirely sufficient.
+
 ## Installation
 ```bash
 pip install picht
@@ -19,15 +21,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from picht import IonOpticsSystem
 
-system = IonOpticsSystem(nx=200, ny=100, physical_size=0.1)
-#each x-unit is 0.1m/200 = 0.5 mm. each y-unit is 0.1m/100 = 1 mm
+system = IonOpticsSystem(nr=200, nz=100, physical_size=0.1)
+#each r-unit is 0.1m/200 = 0.5 mm. each z-unit is 0.1m/100 = 1 mm
 
 #Parameters of Unipotential Lens
 system.add_einzel_lens(
-    position=100, #number of grid-units from x = 0
-    width=10, #x-axis thickness of the full einzel lens
-    aperture_center=50, #y-midpoint of the aperture of the einzel lens
-    aperture_width=10, #y-thickness of the aperture of the einzel lens
+    position=100, #number of grid-units from r = 0
+    width=10, #r-axis thickness of the full einzel lens
+    aperture_center=50, #z-midpoint of the aperture of the einzel lens
+    aperture_width=10, #z-thickness of the aperture of the einzel lens
     focus_voltage=-500 #voltage of the middle lens in volts.
 )
 
@@ -36,8 +38,8 @@ system.solve_fields()
 #Parameters of Electron Beam
 trajectories = system.simulate_beam(
     energy_eV=10000,
-    start_x=0,
-    y_range=(0.0499925, 0.0500075),
+    start_r=0,
+    z_range=(0.0499925, 0.0500075),
     angle_range=(0, 0),
     num_particles=20, 
     simulation_time=2e-9
@@ -45,7 +47,7 @@ trajectories = system.simulate_beam(
 
 system.visualize_system(
     trajectories=trajectories,
-    y_limits=(49.9925, 50.0075)
+    z_limits=(49.9925, 50.0075)
 )
 
 plt.show()
@@ -53,16 +55,53 @@ plt.show()
 
 This will then display the electron trajectories in a matplotlib-style image:
 ![Figure_1](https://github.com/user-attachments/assets/4cf887fa-c9cb-4e6a-9aec-a8a68c11b858)
+
 You can see the spherical aberrations in this image- how the focal length of inner and outer electrons differ. This is a major reason as to why crossovers are used in real electron optics- to reduce the size of spherical aberrations.
 
-This is an example of a system of lenses with three unipotential lenses in an array, with 100 electrons being tracked:
+You can add individual electrostatic lenses with the following syntax:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import picht
+
+system = IonOpticsSystem(nr=200, nz=100, physical_size=0.1)
+
+electrode1 = picht.ElectrodeConfig(
+    start=20,
+    width=10,
+    ap_start=40,
+    ap_width=20,
+    voltage=1000
+)
+system.add_electrode(electrode1)
+system.solve_fields()
+
+trajectories = system.simulate_beam(
+    energy_eV=10000,
+    start_r=0,
+    z_range=(0.0499925, 0.0500075),
+    angle_range=(0, 0),
+    num_particles=20, 
+    simulation_time=2e-9
+)
+
+system.visualize_system(
+    trajectories=trajectories,
+    z_limits=(49.9925, 50.0075)
+)
+
+plt.show()
+```
+
+For some more complex examples, we can simulate a system of lenses with three unipotential lenses in an array, with 100 electrons being tracked:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
 from picht import IonOpticsSystem
 #100 to 500 nm spot size.
 
-system = IonOpticsSystem(nx=500, ny=100, physical_size=0.4)
+system = IonOpticsSystem(nr=500, nz=100, physical_size=0.4)
 
 system.add_einzel_lens(
     position=20, 
@@ -93,8 +132,8 @@ system.solve_fields()
 
 trajectories = system.simulate_beam(
     energy_eV=10000,
-    start_x=0,
-    y_range=(0.1999925, 0.2000075),
+    start_r=0,
+    z_range=(0.1999925, 0.2000075),
     angle_range=(0, 0),
     num_particles=100,
     simulation_time=6e-9
@@ -102,7 +141,7 @@ trajectories = system.simulate_beam(
 
 system.visualize_system(
     trajectories=trajectories,
-    y_limits=(49.998125, 50.001875)
+    z_limits=(49.998125, 50.001875)
 )
 
 plt.show()

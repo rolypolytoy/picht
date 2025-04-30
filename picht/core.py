@@ -15,16 +15,16 @@ class ElectrodeConfig:
 
 
 class PotentialField:    
-    def __init__(self, nx: int, ny: int, physical_size: float):
-        self.nx = nx
-        self.ny = ny
+    def __init__(self, nr: int, nz: int, physical_size: float):
+        self.nr = nr
+        self.nz = nz
         self.size = physical_size
-        self.dx = physical_size / nx
-        self.dy = physical_size / ny
-        self.potential = np.zeros((nx, ny))
-        self.electrode_mask = np.zeros((nx, ny), dtype=bool)
-        self.Ex = None
-        self.Ey = None
+        self.dr = physical_size / nr
+        self.dz = physical_size / nz
+        self.potential = np.zeros((nr, nz))
+        self.electrode_mask = np.zeros((nr, nz), dtype=bool)
+        self.Er = None
+        self.Ez = None
     
     def add_electrode(self, config: ElectrodeConfig):
         start, width = config.start, config.width
@@ -47,15 +47,15 @@ class PotentialField:
             if np.max(np.abs(self.potential - V_old)) < convergence_threshold:
                 break
                 
-        self.Ex, self.Ey = np.gradient(-self.potential, self.dx, self.dy)
+        self.Er, self.Ez = np.gradient(-self.potential, self.dr, self.dz)
         
         return self.potential
     
-    def get_field_at_position(self, x: float, y: float) -> Tuple[float, float]:
-        if 0 <= x < self.size and 0 <= y < self.size:
-            i = int(min(max(1, x / self.dx), self.nx - 2))
-            j = int(min(max(1, y / self.dy), self.ny - 2))
-            return self.Ex[i, j], self.Ey[i, j]
+    def get_field_at_position(self, r: float, z: float) -> Tuple[float, float]:
+        if 0 <= r < self.size and 0 <= z < self.size:
+            i = int(min(max(1, r / self.dr), self.nr - 2))
+            j = int(min(max(1, z / self.dz), self.nz - 2))
+            return self.Er[i, j], self.Ez[i, j]
         else:
             return 0, 0
 
@@ -79,17 +79,17 @@ class ParticleTracer:
         return self.SPEED_OF_LIGHT * np.sqrt(1 - (rest_energy/total_energy)**2)
     
     def particle_dynamics(self, t: float, state: List[float]) -> List[float]:
-        x, y, vx, vy = state
-        Ex, Ey = self.field.get_field_at_position(x, y)
+        r, z, vr, vz = state
+        Er, Ez = self.field.get_field_at_position(r, z)
         
-        v = np.sqrt(vx**2 + vy**2)
+        v = np.sqrt(vr**2 + vz**2)
         
         gamma = 1.0 / np.sqrt(1.0 - (v/self.SPEED_OF_LIGHT)**2)
         
-        ax = self.q_m * Ex / gamma
-        ay = self.q_m * Ey / gamma
+        ar = self.q_m * Er / gamma
+        az = self.q_m * Ez / gamma
         
-        return [vx, vy, ax, ay]
+        return [vr, vz, ar, az]
     
     def trace_trajectory(self, 
                    initial_position: Tuple[float, float],
@@ -158,8 +158,8 @@ class EinzelLens:
 
 class IonOpticsSystem:
     
-    def __init__(self, nx: int, ny: int, physical_size: float = 0.1):
-        self.field = PotentialField(nx, ny, physical_size)
+    def __init__(self, nr: int, nz: int, physical_size: float = 0.1):
+        self.field = PotentialField(nr, nz, physical_size)
         self.tracer = ParticleTracer(self.field)
         self.elements = []
         
@@ -182,8 +182,8 @@ class IonOpticsSystem:
         
     def solve_fields(self):
         return self.field.solve_potential()
-    def simulate_beam(self, energy_eV: float, start_x: float,
-                                y_range: Tuple[float, float],
+    def simulate_beam(self, energy_eV: float, start_r: float,
+                                z_range: Tuple[float, float],
                                   angle_range: tuple,
                                   num_particles: int,
                                   simulation_time: float):
@@ -191,15 +191,15 @@ class IonOpticsSystem:
         min_angle_rad = np.radians(angle_range[0])
         max_angle_rad = np.radians(angle_range[1])
         angles = np.linspace(min_angle_rad, max_angle_rad, num_particles)
-        y_position = (y_range[0] + y_range[1]) / 2
+        z_position = (z_range[0] + z_range[1]) / 2
         trajectories = []
         for angle in angles:
-            vx = velocity_magnitude * np.cos(angle)
-            vy = velocity_magnitude * np.sin(angle)
+            vr = velocity_magnitude * np.cos(angle)
+            vz = velocity_magnitude * np.sin(angle)
        
             sol = self.tracer.trace_trajectory(
-                initial_position=(start_x, y_position),
-                initial_velocity=(vx, vy),
+                initial_position=(start_r, z_position),
+                initial_velocity=(vr, vz),
                 simulation_time=simulation_time
             )
             trajectories.append(sol)
@@ -208,7 +208,7 @@ class IonOpticsSystem:
         
     def visualize_system(self, 
                        trajectories=None, 
-                       y_limits=None,
+                       z_limits=None,
                        figsize=(15, 6),
                        title="Electron Trajectories"):
         plt.figure(figsize=figsize)
@@ -217,16 +217,18 @@ class IonOpticsSystem:
         if trajectories:
             colors = plt.cm.viridis(np.linspace(0, 1, len(trajectories)))
             for i, sol in enumerate(trajectories):
-                x_traj = sol.y[0] / self.field.dx
-                y_traj = sol.y[1] / self.field.dy
-                plt.plot(x_traj, y_traj, lw=1.5, color=colors[i])
+                r_traj = sol.z[0] / self.field.dr
+                z_traj = sol.z[1] / self.field.dz
+                r_plot = r_traj/dr
+                z_plot = z_traj/dz
+                plt.plot(r_traj, z_traj, lw=1.5, color=colors[i])
         
-        plt.xlabel('x position (grid units)')
-        plt.ylabel('y position (grid units)')
+        plt.xlabel('radial position (meters)')
+        plt.zlabel('z position (meters)')
         plt.grid(True, alpha=0.3)
         
-        if y_limits:
-            plt.ylim(y_limits)
+        if z_limits:
+            plt.zlim(z_limits)
             
         plt.tight_layout()
         return plt.gcf()
