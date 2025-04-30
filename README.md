@@ -52,6 +52,7 @@ plt.show()
 
 This will then display the electron trajectories in a matplotlib-style image:
 ![Figure_1](https://github.com/user-attachments/assets/4cf887fa-c9cb-4e6a-9aec-a8a68c11b858)
+You can see the spherical aberrations in this image- how the focal length of inner and outer electrons differ. This is a major reason as to why crossovers are used in real electron optics- to reduce the size of spherical aberrations.
 
 This is an example of a system of lenses with three unipotential lenses in an array, with 100 electrons being tracked:
 ```python
@@ -105,7 +106,7 @@ system.visualize_system(
 plt.show()
 ```
 
-The visualization is beautiful, and shows cross-over based demagnification like in real-world electrostatic lenses:
+The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses:
 ![Electron_Trajectory](https://github.com/user-attachments/assets/c7624809-dc87-4094-83ca-65bb778f4e36)
 Over 80 out of the 100 electrons focus at the focal point around 140 units, with a spot size of a few hundred nanometers, coming from a 15 micrometer diameter spread initially. This is comparable to the demagnification actual scanning electron microscopes do internally, and so this system is a good reference for actual SEM geometries. 
 
