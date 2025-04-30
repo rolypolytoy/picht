@@ -22,7 +22,7 @@ from picht import IonOpticsSystem
 system = IonOpticsSystem(nx=200, ny=100, physical_size=0.1)
 #each x-unit is 0.1m/200 = 0.5 mm. each y-unit is 0.1m/100 = 1 mm
 
-#Parameters of Unipotential Lens.
+#Parameters of Unipotential Lens
 
 system.add_einzel_lens(
     position=100, #number of grid-units from x = 0
@@ -34,7 +34,7 @@ system.add_einzel_lens(
 
 system.solve_fields()
 
-#parameters of the Electron Beam
+#Parameters of Electron Beam
 trajectories = system.simulate_beam(
     energy_eV=10000, #energy of the electron beam
     start_x=0, #where it begins in x-coordinates
