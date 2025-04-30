@@ -1,8 +1,8 @@
 # Picht
 
-A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using the Jacobi method. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories.
+A Python library capable of calculating thousands of electron beam trajectories within seconds. Currently in its alpha. 
 
-It uses axisymmetric coordinates- radial coordinates are represented as r, and the z-axis is the direction of travel. There's no theta like in cylindrical coordinates because we assume spherical symmetry all around the z-axis. Solving equations in the axisymmetric view is a lot more feasible numerically, and for radially symmetric electron optics, which constitutes a large proportion of computational applications in the field, this is entirely sufficient.
+Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using the Jacobi method. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories. It uses axisymmetric coordinates- radial coordinates are represented as r, and the z-axis is the direction of travel. There's no theta like in cylindrical coordinates because we assume spherical symmetry all around the z-axis. Solving equations in the axisymmetric view is a lot more feasible numerically, and for radially symmetric electron optics, which constitutes a large proportion of computational applications in the field, this is entirely sufficient.
 
 ## Installation
 ```bash
