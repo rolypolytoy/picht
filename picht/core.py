@@ -83,6 +83,7 @@ class ParticleTracer:
         Ex, Ey = self.field.get_field_at_position(x, y)
         
         v = np.sqrt(vx**2 + vy**2)
+        
         gamma = 1.0 / np.sqrt(1.0 - (v/self.SPEED_OF_LIGHT)**2)
         
         ax = self.q_m * Ex / gamma
@@ -91,26 +92,27 @@ class ParticleTracer:
         return [vx, vy, ax, ay]
     
     def trace_trajectory(self, 
-                       initial_position: Tuple[float, float],
-                       initial_velocity: Tuple[float, float],
-                       simulation_time: float,
-                       method: str = 'RK45',
-                       rtol: float = 1e-8) -> dict:
+                   initial_position: Tuple[float, float],
+                   initial_velocity: Tuple[float, float],
+                   simulation_time: float,
+                   method: str = 'BDF',
+                   rtol: float = 1e-8,
+                   atol: float = 1e-10) -> dict:
         initial_state = [
             initial_position[0], 
             initial_position[1],
             initial_velocity[0], 
             initial_velocity[1]
         ]
-        
+    
         solution = solve_ivp(
             self.particle_dynamics,
             (0, simulation_time),
             initial_state,
             method=method,
-            rtol=rtol
-        )
-        
+            rtol=rtol,
+            atol=atol)
+    
         return solution
 
 
