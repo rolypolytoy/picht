@@ -1,56 +1,18 @@
 # Picht
 
-A Python library for simulating electron beam trajectories through electrostatic lenses in the axisymmetric view, currently in its alpha. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Currently supports electrons, is relativistic, and has a solver for Laplace's equation for electrostatics ∇²V = 0 using Successive Over Relaxation. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories.
+A Python library for simulating electron and ion beam trajectories through electrostatic lenses. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Includes a a solver for Laplace's equation for electrostatics ∇²V = 0 using Successive Over Relaxation. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories. Supports electrons and every ion of every element.
 
 ## Installation
 ```bash
 pip install picht
 ```
-That's it.
 
 ## How Do I Make Unipotential Lenses?
 
 Unipotential (or einzel) lenses are amongst the simplest kind of lenses to compute the electrodynamics of. To make unipotential lenses using Picht, use (or repurpose) the following example code. Adjust the parameters of system.add_einzel_lens() to adjust the dimensions of your unipotential lens, and adjust system.simulate_beam() to adjust the parameters of the electron beam. Note that, for unipotential lenses, only the middle electrode is adjustable- the first and third electrodes are at ground. 
 
-The system below shows a unipotential lens with 500V of focusing power, and how it impacts electrons moving with an energy of 10 keV. nz represents the amount of grid-cells in the z-dimension, nr represents the amount of grid-cells in the radial dimension and physical_size represents the dimensions of the system in meters (0.1 represents a 10cm x 10cm system). 
+For a complex example, we have a system of three unipotential lenses in an array, with 100 electrons being tracked. We have a 15-micron thin beam initially- note the r-axis has 1e-5 meters as its multiplier in this case- and the z-axis is in meters:
 
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-from picht import IonOpticsSystem
-
-system = IonOpticsSystem(nz=200, nr=100, physical_size=0.1)
-#each z-unit is 0.1m/200 = 0.5 mm. each r-unit is 0.1m/100 = 1 mm
-
-#Parameters of Unipotential Lens.
-
-system.add_einzel_lens(
-    position=100, #number of grid-units from z = 0
-    width=10, #z-axis thickness of the full einzel lens
-    aperture_center=50, #r-midpoint of the aperture of the einzel lens
-    aperture_width=10, #r-thickness of the aperture of the einzel lens
-    focus_voltage=-500 #voltage of the middle lens in volts.
-)
-
-system.solve_fields()
-
-#parameters of the Electron Beam
-trajectories = system.simulate_beam(
-    energy_eV=10000,
-    start_z=0,
-    r_range=(0.0499925, 0.0500075),
-    angle_range=(0, 0),
-    num_particles=20,
-    simulation_time=2e-9
-)
-
-system.visualize_system(
-    trajectories=trajectories)
-
-plt.show()
-```
-
-For a more complex example, we have a system of three unipotential lenses in an array, with 100 electrons being tracked. We have a 15-micron thin beam initially- note the r-axis has 1e-5 meters as its multiplier in this case- and the z-axis is in meters:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -107,6 +69,27 @@ Over 80 out of the 100 electrons focus at the focal point around 140 units, with
 
 I very highly recommend first simulating a system with 5-10 electrons, and when you're satisfied with how the beam optics looks like, increase the number of electrons to get a more accurate image. The former might take less than 30 seconds, and the latter might take a few minutes.
 
+You can also specify ions by, prior to computing the trajectories, where the below syntax is for an Na+ ion:
+
+```python
+system.tracer.set_ion('Na', charge_state=1)
+```
+
+You can use the chemical symbol of any element, and use negative charge_state values to represent ions with a negative charge. If you don't include this, by default, it assumes it's an electron.
+
+You can also define individual electrodes by, instead of system.add_einzel_lens(), you use:
+
+```python
+electrode1 = ElectrodeConfig(
+    start=10,           
+    width=5,       
+    ap_start=50,        
+    ap_width=20,        
+    voltage=1000        
+)
+system.add_electrode(electrode1)
+```
+
 ## Why Did You Make This?
 
-There are very few open-source options for simulating electron optics, that are easy to set up, are on Python, are Pythonic in their syntax, and are easily customizable. You can vary the discretization of the grid by varying nr and nz, vary the dimensions by varying physical_size, modify the parameters of the einzel lenses, and vary the timescales you observe the particle trajectories in. This is an open-source alternative to commercial multiphysics systems, if identifying charged particle trajectories in electrostatic lenses is your problem. 
+There are very few ways to simulate electron optics that are open-source, easy to use out of the box, and powerful.

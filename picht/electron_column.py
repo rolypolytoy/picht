@@ -30,13 +30,12 @@ system.add_einzel_lens(
 
 
 system.solve_fields()
-
 trajectories = system.simulate_beam(
     energy_eV=10000,
     start_z=0,
     r_range=(0.1999925, 0.2000075),
     angle_range=(0, 0),
-    num_particles=100,
+    num_particles=10,
     simulation_time=3e-9
 )
 

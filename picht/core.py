@@ -4,6 +4,7 @@ from scipy.integrate import solve_ivp
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional, Union, Callable
 import numba as nb
+from mendeleev import element
 
 @dataclass
 class ElectrodeConfig:
@@ -12,7 +13,6 @@ class ElectrodeConfig:
     ap_start: int        
     ap_width: int        
     voltage: float
-
 
 @nb.njit
 def solve_field(potential, mask, maxiter, thresh, omega=1.9):
@@ -49,7 +49,6 @@ def get_field(z, r, Ez, Er, size, dz, dr, nz, nr):
     else:
         return 0.0, 0.0
 
-
 @nb.njit
 def calc_dynamics(z, r, vz, vr, Ez, Er, qm, mass, c):
     vsq = vz**2 + vr**2
@@ -67,7 +66,6 @@ def calc_dynamics(z, r, vz, vr, Ez, Er, qm, mass, c):
     ar = Fr/(gamma * mass) - factor * vr * vdotF/mass
     
     return np.array([vz, vr, az, ar])
-
 
 class PotentialField:    
     def __init__(self, nz: int, nr: int, physical_size: float):
@@ -97,30 +95,68 @@ class PotentialField:
     def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
         return get_field(z, r, self.Ez, self.Er, self.size, self.dz, self.dr, self.nz, self.nr)
 
-
 class ParticleTracer:
     ELECTRON_CHARGE = -1.602e-19 
     ELECTRON_MASS = 9.11e-31
     SPEED_OF_LIGHT = 299792458.0
-    
+
     def __init__(self, potential_field: PotentialField):
         self.field = potential_field
-        self.q_m = self.ELECTRON_CHARGE / self.ELECTRON_MASS
-    
-    def set_charge_mass_ratio(self, q: float, m: float):
-        self.q_m = q / m
-    
-    def get_velocity_from_energy(self, energy_eV: float, mass: float = ELECTRON_MASS) -> float:
+        self.current_ion = {
+            'symbol': 'e-',
+            'atomic_number': 0,
+            'mass': self.ELECTRON_MASS,
+            'charge': self.ELECTRON_CHARGE,
+            'charge_mass_ratio': self.ELECTRON_CHARGE / self.ELECTRON_MASS
+        }
+        self.q_m = self.current_ion['charge_mass_ratio']
+
+    def set_ion(self, symbol: str = 'e-', charge_state: int = 1):
+        if symbol == 'e-':
+            self.current_ion = {
+                'symbol': 'e-',
+                'atomic_number': 0,
+                'mass': self.ELECTRON_MASS,
+                'charge': self.ELECTRON_CHARGE,
+                'charge_mass_ratio': self.ELECTRON_CHARGE / self.ELECTRON_MASS
+            }
+        else:
+            elem = element(symbol)
+            
+            isotope_mass = elem.mass
+            electron_charge = 1.602e-19
+            
+            ion_charge = charge_state * electron_charge
+            
+            self.current_ion = {
+                'symbol': f"{symbol}{'+' if charge_state > 0 else '-'}{abs(charge_state)}",
+                'atomic_number': elem.atomic_number,
+                'mass': isotope_mass * 1.66053906660e-27,
+                'charge': ion_charge,
+                'charge_mass_ratio': ion_charge / (isotope_mass * 1.66053906660e-27)
+            }
+        
+        self.q_m = self.current_ion['charge_mass_ratio']
+        return self
+
+    def get_velocity_from_energy(self, energy_eV: float) -> float:
         energy_joules = energy_eV * 1.602e-19
+        mass = self.current_ion['mass']
         rest_energy = mass * self.SPEED_OF_LIGHT**2
         total_energy = rest_energy + energy_joules
         return self.SPEED_OF_LIGHT * np.sqrt(1 - (rest_energy/total_energy)**2)
-    
+
     def particle_dynamics(self, t: float, state: List[float]) -> List[float]:
         z, r, vz, vr = state
         Ez, Er = self.field.get_field_at_position(z, r)
-        return calc_dynamics(z, r, vz, vr, Ez, Er, self.q_m, self.ELECTRON_MASS, self.SPEED_OF_LIGHT)
-    
+        return calc_dynamics(
+            z, r, vz, vr, 
+            Ez, Er, 
+            self.q_m, 
+            self.current_ion['mass'], 
+            self.SPEED_OF_LIGHT
+        )
+
     def trace_trajectory(self, 
                    initial_position: Tuple[float, float],
                    initial_velocity: Tuple[float, float],
@@ -144,7 +180,6 @@ class ParticleTracer:
             atol=atol)
     
         return solution
-
 
 class EinzelLens:
     def __init__(self, 
@@ -185,7 +220,6 @@ class EinzelLens:
         field.add_electrode(self.electrode2)
         field.add_electrode(self.electrode3)
 
-
 class IonOpticsSystem:
     
     def __init__(self, nr: int, nz: int, physical_size: float = 0.1):
@@ -212,7 +246,6 @@ class IonOpticsSystem:
         
     def solve_fields(self):
         return self.field.solve_potential()
-
 
     def simulate_beam(self, energy_eV: float, start_z: float,
                          r_range: Tuple[float, float],
