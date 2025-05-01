@@ -8,10 +8,11 @@ from mendeleev import element
 
 @dataclass
 class ElectrodeConfig:
-    start: int       
-    width: int          
-    ap_start: int        
-    ap_width: int        
+    start: float
+    width: float
+    ap_start: float
+    ap_width: float
+    outer_diameter: float
     voltage: float
 
 @nb.njit
@@ -68,32 +69,42 @@ def calc_dynamics(z, r, vz, vr, Ez, Er, qm, mass, c):
     return np.array([vz, vr, az, ar])
 
 class PotentialField:    
-    def __init__(self, nz: int, nr: int, physical_size: float):
+    def __init__(self, nz: float, nr: float, physical_size: float):
         self.nz = nz
         self.nr = nr
         self.size = physical_size
         self.dz = physical_size / nz
         self.dr = physical_size / nr
-        self.potential = np.zeros((nz, nr))
-        self.electrode_mask = np.zeros((nz, nr), dtype=bool)
+        self.potential = np.zeros((int(nz), int(nr)))
+        self.electrode_mask = np.zeros((int(nz), int(nr)), dtype=bool)
         self.Ez = None
         self.Er = None
     
     def add_electrode(self, config: ElectrodeConfig):
         start, width = config.start, config.width
         ap_start, ap_width = config.ap_start, config.ap_width
+        outer_diameter = config.outer_diameter
         voltage = config.voltage
         
-        self.potential[start:start+width, ap_start:ap_start+ap_width] = voltage
-        self.electrode_mask[start:start+width, ap_start:ap_start+ap_width] = True
+        ap_center = ap_start + ap_width / 2
+        
+        r_min = max(0, ap_center - outer_diameter / 2)
+        r_max = min(ap_center + outer_diameter / 2, self.nr)
+        
+        self.potential[int(start):int(start+width), int(r_min):int(r_max)] = voltage
+        self.electrode_mask[int(start):int(start+width), int(r_min):int(r_max)] = True
+        
+        if ap_width > 0:
+            self.potential[int(start):int(start+width), int(ap_start):int(ap_start+ap_width)] = 0
+            self.electrode_mask[int(start):int(start+width), int(ap_start):int(ap_start+ap_width)] = False
     
-    def solve_potential(self, max_iterations: int = 2000, convergence_threshold: float = 1e-6):
-        self.potential = solve_field(self.potential, self.electrode_mask, max_iterations, convergence_threshold)
+    def solve_potential(self, max_iterations: float = 2000, convergence_threshold: float = 1e-6):
+        self.potential = solve_field(self.potential, self.electrode_mask, int(max_iterations), convergence_threshold)
         self.Ez, self.Er = np.gradient(-self.potential, self.dz, self.dr)
         return self.potential
     
     def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
-        return get_field(z, r, self.Ez, self.Er, self.size, self.dz, self.dr, self.nz, self.nr)
+        return get_field(z, r, self.Ez, self.Er, self.size, self.dz, self.dr, int(self.nz), int(self.nr))
 
 class ParticleTracer:
     ELECTRON_CHARGE = -1.602e-19 
@@ -111,7 +122,7 @@ class ParticleTracer:
         }
         self.q_m = self.current_ion['charge_mass_ratio']
 
-    def set_ion(self, symbol: str = 'e-', charge_state: int = 1):
+    def set_ion(self, symbol: str = 'e-', charge_state: float = 1):
         if symbol == 'e-':
             self.current_ion = {
                 'symbol': 'e-',
@@ -187,31 +198,35 @@ class EinzelLens:
                 width: float, 
                 aperture_center: float,
                 aperture_width: float,
+                outer_diameter: float,
                 focus_voltage: float,
                 electrode_thickness: float = 2):
         center_thickness = width - 2 * electrode_thickness
         
         self.electrode1 = ElectrodeConfig(
-            start=int(position - width/2),
+            start=position - width/2,
             width=electrode_thickness,
-            ap_start=int(aperture_center - aperture_width/2),
-            ap_width=int(aperture_width),
+            ap_start=aperture_center - aperture_width/2,
+            ap_width=aperture_width,
+            outer_diameter=outer_diameter,
             voltage=0
         )
         
         self.electrode2 = ElectrodeConfig(
-            start=int(position - width/2 + electrode_thickness),
-            width=int(center_thickness),
-            ap_start=int(aperture_center - aperture_width/2),
-            ap_width=int(aperture_width),
+            start=position - width/2 + electrode_thickness,
+            width=center_thickness,
+            ap_start=aperture_center - aperture_width/2,
+            ap_width=aperture_width,
+            outer_diameter=outer_diameter,
             voltage=focus_voltage
         )
         
         self.electrode3 = ElectrodeConfig(
-            start=int(position + width/2 - electrode_thickness),
+            start=position + width/2 - electrode_thickness,
             width=electrode_thickness,
-            ap_start=int(aperture_center - aperture_width/2),
-            ap_width=int(aperture_width),
+            ap_start=aperture_center - aperture_width/2,
+            ap_width=aperture_width,
+            outer_diameter=outer_diameter,
             voltage=0 
         )
     
@@ -222,7 +237,7 @@ class EinzelLens:
 
 class IonOpticsSystem:
     
-    def __init__(self, nr: int, nz: int, physical_size: float = 0.1):
+    def __init__(self, nr: float, nz: float, physical_size: float = 0.1):
         self.field = PotentialField(nz, nr, physical_size)
         self.tracer = ParticleTracer(self.field)
         self.elements = []
@@ -235,11 +250,12 @@ class IonOpticsSystem:
                        width: float, 
                        aperture_center: float,
                        aperture_width: float,
+                       outer_diameter: float,
                        focus_voltage: float,
                        electrode_thickness: float = 2):
         lens = EinzelLens(
             position, width, aperture_center, aperture_width, 
-            focus_voltage, electrode_thickness
+            outer_diameter, focus_voltage, electrode_thickness
         )
         lens.add_to_field(self.field)
         self.elements.append(lens)
@@ -250,13 +266,13 @@ class IonOpticsSystem:
     def simulate_beam(self, energy_eV: float, start_z: float,
                          r_range: Tuple[float, float],
                          angle_range: tuple,
-                         num_particles: int,
+                         num_particles: float,
                          simulation_time: float):
         velocity_magnitude = self.tracer.get_velocity_from_energy(energy_eV)
         min_angle_rad = np.radians(angle_range[0])
         max_angle_rad = np.radians(angle_range[1])
-        angles = np.linspace(min_angle_rad, max_angle_rad, num_particles)
-        r_positions = np.linspace(r_range[0], r_range[1], num_particles)
+        angles = np.linspace(min_angle_rad, max_angle_rad, int(num_particles))
+        r_positions = np.linspace(r_range[0], r_range[1], int(num_particles))
     
         trajectories = []
         for r_pos, angle in zip(r_positions, angles):

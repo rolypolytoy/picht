@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-    version="0.1.7",
+    version="0.1.9",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron optics simulation library using the Finite Difference Method (FDM)",
@@ -32,6 +32,8 @@ setup(
         "numpy",
         "matplotlib",
         "scipy",
+        "numba",
+        "mendeleev",
     ],
     license="MIT",
 )
