@@ -17,13 +17,14 @@ dependencies = [
     "matplotlib",
     "scipy",
     "numba",
-    "mendeleev",]
-[
-project.optional-dependencies
+    "mendeleev",
 ]
+
+[project.optional-dependencies]
 gpu = [
-    "cupy-cuda11x",
+    "cupy-cuda11x"
 ]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.6",
