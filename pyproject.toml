@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "picht"
-version = "0.1.9"
+version = "0.1.10"
 description = "Electron optics simulation library using the Finite Difference Method (FDM)"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -18,7 +18,12 @@ dependencies = [
     "scipy",
     "numba",
     "mendeleev",]
-
+[
+project.optional-dependencies
+]
+gpu = [
+    "cupy-cuda11x",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.6",
@@ -31,7 +36,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Physics",
     "Intended Audience :: Science/Research",
-    "Development Status :: 3 - Alpha"
+    "Development Status :: 4 - Beta"
 ]
 
 [project.urls]

@@ -6,7 +6,7 @@ system = IonOpticsSystem(nr=200, nz=200, physical_size=1)
 
 #Anode
 anode = ElectrodeConfig(
-    start=40,
+    start=10,
     width=5,
     ap_start=95,
     ap_width=10,
@@ -73,7 +73,7 @@ trajectories = system.simulate_beam(
     start_z=0,
     r_range=(0.4999925, 0.5000075),
     angle_range=(0, 0),
-    num_particles=4,
+    num_particles=1000,
     simulation_time=1e-9
 )
 

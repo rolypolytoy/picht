@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-    version="0.1.9",
+    version="0.1.10",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron optics simulation library using the Finite Difference Method (FDM)",
@@ -25,7 +25,7 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Physics",
         "Intended Audience :: Science/Research",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
     ],
     python_requires=">=3.6",
     install_requires=[
@@ -34,6 +34,10 @@ setup(
         "scipy",
         "numba",
         "mendeleev",
+
     ],
+    extras_require={
+        "gpu": ["cupy-cuda11x"],
+    },
     license="MIT",
 )
