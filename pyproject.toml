@@ -19,12 +19,6 @@ dependencies = [
     "numba",
     "mendeleev",
 ]
-
-[project.optional-dependencies]
-gpu = [
-    "cupy-cuda11x"
-]
-
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.6",
@@ -38,6 +32,11 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Intended Audience :: Science/Research",
     "Development Status :: 4 - Beta"
+]
+
+[project.optional-dependencies]
+gpu = [
+    "cupy-cuda11x"
 ]
 
 [project.urls]
