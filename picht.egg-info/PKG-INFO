@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: picht
-Version: 0.1.9
+Version: 0.1.10
 Summary: Electron optics simulation library using the Finite Difference Method (FDM)
 Home-page: https://github.com/rolypolytoy/picht
 Author: Rishiit Sharma
@@ -18,7 +18,7 @@ Classifier: Programming Language :: Python :: 3.12
 Classifier: Operating System :: OS Independent
 Classifier: Topic :: Scientific/Engineering :: Physics
 Classifier: Intended Audience :: Science/Research
-Classifier: Development Status :: 3 - Alpha
+Classifier: Development Status :: 4 - Beta
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE
@@ -27,6 +27,8 @@ Requires-Dist: matplotlib
 Requires-Dist: scipy
 Requires-Dist: numba
 Requires-Dist: mendeleev
+Provides-Extra: gpu
+Requires-Dist: cupy-cuda11x; extra == "gpu"
 Dynamic: author
 Dynamic: home-page
 Dynamic: license-file
