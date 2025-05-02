@@ -56,8 +56,16 @@ cathode = ElectrodeConfig(
 
 system.add_electrode(anode)
 system.add_einzel_lens(
-    position=100.0,
-    width=40.0,
+    position=80.0,
+    width=60.0,
+    aperture_center=200.0,
+    aperture_width=48.0,
+    outer_diameter=50.0,
+    focus_voltage=-7500
+)
+system.add_einzel_lens(
+    position=150.0,
+    width=60.0,
     aperture_center=200.0,
     aperture_width=48.0,
     outer_diameter=50.0,
@@ -65,19 +73,11 @@ system.add_einzel_lens(
 )
 system.add_einzel_lens(
     position=220.0,
-    width=40.0,
-    aperture_center=200.0,
-    aperture_width=48.0,
-    outer_diameter=50.0,
-    focus_voltage=-8000
-)
-system.add_einzel_lens(
-    position=300.0,
     width=50.0,
     aperture_center=200.0,
     aperture_width=48.0,
     outer_diameter=50.0,
-    focus_voltage=-7100
+    focus_voltage=-6900
 )
 potential = system.solve_fields()
 
