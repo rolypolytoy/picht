@@ -7,7 +7,7 @@ A Python library for simulating electron and ion beam trajectories through elect
 pip install picht
 ```
 
-    ## Documentation
+## Documentation
 
 I've made a reference example that includes several electrodes and einzel lenses in the configuration of an actual scanning electron microscope's internals. 
 
