@@ -108,21 +108,7 @@ You can also specify ions by, prior to computing the trajectories, where the bel
 system.tracer.set_ion('Na', charge_state=1)
 ```
 
-You can use the chemical symbol of any element, and use negative charge_state values to represent ions with a negative charge. If you don't include this, by default, it assumes it's an electron.
-
-You can also define individual electrodes by, instead of system.add_einzel_lens(), you use:
-
-```python
-electrode1 = ElectrodeConfig(
-    start=10,           
-    width=5,       
-    ap_start=50,        
-    ap_width=20,
-    outer_diameter = 30,        
-    voltage=1000        
-)
-system.add_electrode(electrode1)
-```
+You can use the chemical symbol of any element, and use negative charge_state values to represent ions with a negative charge. If you don't include this, by default, it assumes it's an electron. This allows you to simulate the dynamics of ions as well, and significantly increases the utility of this package.
 
 ## Why Did You Make This?
 

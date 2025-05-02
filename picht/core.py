@@ -5,15 +5,6 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional, Union, Callable
 import numba as nb
 from mendeleev import element
-from functools import lru_cache
-import multiprocessing as mp
-
-try:
-    import cupy as cp
-    from numba import cuda
-    GPU_AVAILABLE = True
-except ImportError:
-    GPU_AVAILABLE = False
 
 @dataclass
 class ElectrodeConfig:
@@ -24,12 +15,12 @@ class ElectrodeConfig:
     outer_diameter: float
     voltage: float
 
-@nb.njit(parallel=True)
-def solve_field_cpu(potential, mask, maxiter, thresh, omega=1.9):
+@nb.njit
+def solve_field(potential, mask, maxiter, thresh, omega=1.9):
     for _ in range(maxiter):
         vold = potential.copy()
         
-        for i in nb.prange(1, potential.shape[0]-1):
+        for i in range(1, potential.shape[0]-1):
             for j in range(1, potential.shape[1]-1):
                 if not mask[i, j]:
                     v_new = 0.25 * (
@@ -38,64 +29,17 @@ def solve_field_cpu(potential, mask, maxiter, thresh, omega=1.9):
                     )
                     potential[i, j] = vold[i, j] + omega * (v_new - vold[i, j])
         
-        maxdiff = np.max(np.abs(potential - vold))
+        maxdiff = 0.0
+        for i in range(potential.shape[0]):
+            for j in range(potential.shape[1]):
+                diff = abs(potential[i, j] - vold[i, j])
+                if diff > maxdiff:
+                    maxdiff = diff
         
         if maxdiff < thresh:
             break
             
     return potential
-
-if GPU_AVAILABLE:
-    @cuda.jit
-    def _solve_field_kernel(potential, new_potential, mask, omega):
-        i, j = cuda.grid(2)
-        
-        if i > 0 and i < potential.shape[0]-1 and j > 0 and j < potential.shape[1]-1:
-            if not mask[i, j]:
-                v_new = 0.25 * (
-                    potential[i+1, j] + potential[i-1, j] +
-                    potential[i, j+1] + potential[i, j-1]
-                )
-                new_potential[i, j] = potential[i, j] + omega * (v_new - potential[i, j])
-            else:
-                new_potential[i, j] = potential[i, j]
-                
-    def solve_field_gpu(potential, mask, maxiter, thresh, omega=1.9):
-        d_potential = cp.asarray(potential)
-        d_mask = cp.asarray(mask)
-        d_new_potential = cp.zeros_like(d_potential)
-        
-        threads_per_block = (16, 16)
-        blocks_per_grid_x = (potential.shape[0] + threads_per_block[0] - 1) // threads_per_block[0]
-        blocks_per_grid_y = (potential.shape[1] + threads_per_block[1] - 1) // threads_per_block[1]
-        blocks_per_grid = (blocks_per_grid_x, blocks_per_grid_y)
-        
-        for _ in range(maxiter):
-            d_new_potential[0, :] = d_potential[0, :]
-            d_new_potential[-1, :] = d_potential[-1, :]
-            d_new_potential[:, 0] = d_potential[:, 0]
-            d_new_potential[:, -1] = d_potential[:, -1]
-            
-            _solve_field_kernel[blocks_per_grid, threads_per_block](
-                d_potential, d_new_potential, d_mask, omega)
-            
-            maxdiff = cp.max(cp.abs(d_new_potential - d_potential))
-            
-            d_potential, d_new_potential = d_new_potential, d_potential
-            
-            if maxdiff < thresh:
-                break
-                
-        return cp.asnumpy(d_potential)
-
-def solve_field(potential, mask, maxiter, thresh, omega=1.9):
-    if GPU_AVAILABLE:
-        try:
-            return solve_field_gpu(potential, mask, maxiter, thresh, omega)
-        except Exception:
-            return solve_field_cpu(potential, mask, maxiter, thresh, omega)
-    else:
-        return solve_field_cpu(potential, mask, maxiter, thresh, omega)
 
 @nb.njit
 def get_field(z, r, Ez, Er, size, dz, dr, nz, nr):
@@ -126,89 +70,41 @@ def calc_dynamics(z, r, vz, vr, Ez, Er, qm, mass, c):
 
 class PotentialField:    
     def __init__(self, nz: float, nr: float, physical_size: float):
-        self.nz = int(nz)
-        self.nr = int(nr)
+        self.nz = nz
+        self.nr = nr
         self.size = physical_size
-        self.dz = physical_size / self.nz
-        self.dr = physical_size / self.nr
-        self.potential = np.zeros((self.nz, self.nr))
-        self.electrode_mask = np.zeros((self.nz, self.nr), dtype=bool)
+        self.dz = physical_size / nz
+        self.dr = physical_size / nr
+        self.potential = np.zeros((int(nz), int(nr)))
+        self.electrode_mask = np.zeros((int(nz), int(nr)), dtype=bool)
         self.Ez = None
         self.Er = None
-        self._field_cache = {}
     
     def add_electrode(self, config: ElectrodeConfig):
-        start, width = int(config.start), int(config.width)
-        ap_start, ap_width = int(config.ap_start), int(config.ap_width)
+        start, width = config.start, config.width
+        ap_start, ap_width = config.ap_start, config.ap_width
         outer_diameter = config.outer_diameter
         voltage = config.voltage
         
         ap_center = ap_start + ap_width / 2
         
-        r_min = max(0, int(ap_center - outer_diameter / 2))
-        r_max = min(int(ap_center + outer_diameter / 2), self.nr)
+        r_min = max(0, ap_center - outer_diameter / 2)
+        r_max = min(ap_center + outer_diameter / 2, self.nr)
         
-        self.potential[start:start+width, r_min:r_max] = voltage
-        self.electrode_mask[start:start+width, r_min:r_max] = True
+        self.potential[int(start):int(start+width), int(r_min):int(r_max)] = voltage
+        self.electrode_mask[int(start):int(start+width), int(r_min):int(r_max)] = True
         
         if ap_width > 0:
-            self.potential[start:start+width, ap_start:ap_start+ap_width] = 0
-            self.electrode_mask[start:start+width, ap_start:ap_start+ap_width] = False
-        
-        self._field_cache.clear()
+            self.potential[int(start):int(start+width), int(ap_start):int(ap_start+ap_width)] = 0
+            self.electrode_mask[int(start):int(start+width), int(ap_start):int(ap_start+ap_width)] = False
     
     def solve_potential(self, max_iterations: float = 2000, convergence_threshold: float = 1e-6):
-        self.potential = solve_field(self.potential, self.electrode_mask, 
-                                    int(max_iterations), convergence_threshold)
-        
-        if GPU_AVAILABLE:
-            try:
-                d_potential = cp.asarray(self.potential)
-                d_Ez = cp.zeros_like(d_potential)
-                d_Er = cp.zeros_like(d_potential)
-                
-                d_Ez[1:-1, :] = -(d_potential[2:, :] - d_potential[:-2, :]) / (2 * self.dz)
-                d_Er[:, 1:-1] = -(d_potential[:, 2:] - d_potential[:, :-2]) / (2 * self.dr)
-                
-                d_Ez[0, :] = -(d_potential[1, :] - d_potential[0, :]) / self.dz
-                d_Ez[-1, :] = -(d_potential[-1, :] - d_potential[-2, :]) / self.dz
-                d_Er[:, 0] = -(d_potential[:, 1] - d_potential[:, 0]) / self.dr
-                d_Er[:, -1] = -(d_potential[:, -1] - d_potential[:, -2]) / self.dr
-                
-                self.Ez = cp.asnumpy(d_Ez)
-                self.Er = cp.asnumpy(d_Er)
-            except Exception:
-                self.Ez, self.Er = np.gradient(-self.potential, self.dz, self.dr)
-        else:
-            dz, dr = self.dz, self.dr
-            Ez = np.zeros_like(self.potential)
-            Er = np.zeros_like(self.potential)
-            
-            Ez[1:-1, :] = -(self.potential[2:, :] - self.potential[:-2, :]) / (2 * dz)
-            Er[:, 1:-1] = -(self.potential[:, 2:] - self.potential[:, :-2]) / (2 * dr)
-            
-            Ez[0, :] = -(self.potential[1, :] - self.potential[0, :]) / dz
-            Ez[-1, :] = -(self.potential[-1, :] - self.potential[-2, :]) / dz
-            Er[:, 0] = -(self.potential[:, 1] - self.potential[:, 0]) / dr
-            Er[:, -1] = -(self.potential[:, -1] - self.potential[:, -2]) / dr
-            
-            self.Ez, self.Er = Ez, Er
-            
-        self._field_cache.clear()
+        self.potential = solve_field(self.potential, self.electrode_mask, int(max_iterations), convergence_threshold)
+        self.Ez, self.Er = np.gradient(-self.potential, self.dz, self.dr)
         return self.potential
     
     def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
-        cache_key = (z, r)
-        if cache_key in self._field_cache:
-            return self._field_cache[cache_key]
-        
-        result = get_field(z, r, self.Ez, self.Er, self.size, 
-                          self.dz, self.dr, self.nz, self.nr)
-        
-        if len(self._field_cache) < 100000:
-            self._field_cache[cache_key] = result
-            
-        return result
+        return get_field(z, r, self.Ez, self.Er, self.size, self.dz, self.dr, int(self.nz), int(self.nr))
 
 class ParticleTracer:
     ELECTRON_CHARGE = -1.602e-19 
@@ -278,8 +174,7 @@ class ParticleTracer:
                    simulation_time: float,
                    method: str = 'BDF',
                    rtol: float = 1e-8,
-                   atol: float = 1e-10,
-                   max_step: float = None) -> dict:
+                   atol: float = 1e-10) -> dict:
         initial_state = [
             initial_position[0], 
             initial_position[1],
@@ -293,8 +188,7 @@ class ParticleTracer:
             initial_state,
             method=method,
             rtol=rtol,
-            atol=atol,
-            max_step=max_step)
+            atol=atol)
     
         return solution
 
@@ -368,19 +262,6 @@ class IonOpticsSystem:
         
     def solve_fields(self):
         return self.field.solve_potential()
-    
-    def _simulate_particle(self, params):
-        start_z, r_pos, angle, velocity_magnitude, simulation_time = params
-        
-        vz = velocity_magnitude * np.cos(angle)
-        vr = velocity_magnitude * np.sin(angle)
-        
-        sol = self.tracer.trace_trajectory(
-            initial_position=(start_z, r_pos),
-            initial_velocity=(vz, vr),
-            simulation_time=simulation_time
-        )
-        return sol
 
     def simulate_beam(self, energy_eV: float, start_z: float,
                          r_range: Tuple[float, float],
@@ -392,28 +273,19 @@ class IonOpticsSystem:
         max_angle_rad = np.radians(angle_range[1])
         angles = np.linspace(min_angle_rad, max_angle_rad, int(num_particles))
         r_positions = np.linspace(r_range[0], r_range[1], int(num_particles))
-        
-        if mp.cpu_count() > 1:
-            params = [
-                (start_z, r_pos, angle, velocity_magnitude, simulation_time) 
-                for r_pos, angle in zip(r_positions, angles)
-            ]
-            
-            with mp.Pool() as pool:
-                trajectories = pool.map(self._simulate_particle, params)
-        else:
-            trajectories = []
-            for r_pos, angle in zip(r_positions, angles):
-                vz = velocity_magnitude * np.cos(angle)
-                vr = velocity_magnitude * np.sin(angle)
-                
-                sol = self.tracer.trace_trajectory(
-                    initial_position=(start_z, r_pos),
-                    initial_velocity=(vz, vr),
-                    simulation_time=simulation_time
-                )
-                trajectories.append(sol)
     
+        trajectories = []
+        for r_pos, angle in zip(r_positions, angles):
+            vz = velocity_magnitude * np.cos(angle)
+            vr = velocity_magnitude * np.sin(angle)
+   
+            sol = self.tracer.trace_trajectory(
+                initial_position=(start_z, r_pos),
+                initial_velocity=(vz, vr),
+                simulation_time=simulation_time
+            )
+            trajectories.append(sol)
+   
         return trajectories
         
     def visualize_system(self, 
