@@ -1,6 +1,8 @@
 # Picht
 
-A Python library for simulating electron and ion beam trajectories through electrostatic lenses. Supports unipotential (einzel) lenses, custom electrode geometries, and initial emission sizes beam divergence/convergence, for electrodynamic simulations. Includes a a solver for Laplace's equation for electrostatics ∇²V = 0 using Successive Over Relaxation. It then calculates electric fields (E = -∇V) numerically, solves for the non-magnetic Lorentz force equation, and uses BDF to solve for trajectories. Supports electrons and every ion of every element.
+A Python library for simulating the electrodynamics of electrons and ions through electrostatic lenses. Supports cylinder lenses, unipotential lenses, and variable beam diameters, as well as custom amounts of initial divergence/convergence. Parameterize the electrodes with the voltages you want, control the mesh size, and obtain accurate trajectories in the axisymmetric view.
+
+You can use it to simulate electron optics, to help design electron microscopes, focused ion beam systems, or simply better understand how electrostatic lenses work. Most implementations use the paraxial ray equation for simplification, but this approximation deviates significantly from reality with angles disparate from the z-axis. We, instead, compute the electric fields in full, and then compute particle trajectories using an ODE solver. This, combined with relativistic corrections at every step, allows for a significant degree of accuracy for very high particle energies (keV, MeV scale and above). It's capable of simulating multi-lens systems with 100+ charged particles in seconds to minutes, with easy Pythonic syntax, and installation is extremely easy, with PyPi handling the extremely small amount of dependencies in its entirety.
 
 ## Installation
 ```bash
@@ -108,8 +110,4 @@ You can also specify ions by, prior to computing the trajectories, where the bel
 system.tracer.set_ion('Na', charge_state=1)
 ```
 
-You can use the chemical symbol of any element, and use negative charge_state values to represent ions with a negative charge. If you don't include this, by default, it assumes it's an electron. This allows you to simulate the dynamics of ions as well, and significantly increases the utility of this package.
-
-## Why Did You Make This?
-
-There are very few ways to simulate electron optics that are open-source, easy to use out of the box, and powerful.
+You can use the chemical symbol of any element, and use negative charge_state values to represent ions with a negative charge. If you don't include this, by default, it assumes it's an electron.

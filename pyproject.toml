@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "picht"
-version = "0.1.12"
+version = "1.0.0"
 description = "Electron optics simulation library using the Finite Difference Method (FDM)"
 readme = "README.md"
 requires-python = ">=3.6"
