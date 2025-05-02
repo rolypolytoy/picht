@@ -98,7 +98,7 @@ plt.show()
 
 The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest. However, rogue electrons do increase in every crossover, which is also indicative of real-life systems. Apertures are used to mitigate this. 
 
-![FullElectronOptics](https://github.com/user-attachments/assets/14148cd5-3fac-41ae-9801-5afd87e06fbd)
+![FullElectronOptics](https://github.com/user-attachments/assets/bf076aae-4c5e-4f85-a116-58545dc44f12)
 
 I very highly recommend first simulating a system with 5-10 electrons, and when you're satisfied with how the beam optics looks like, increase the number of electrons to get a more accurate image. The former might take less than 30 seconds, and the latter might take a few minutes.
 
