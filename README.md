@@ -77,7 +77,7 @@ system.add_einzel_lens(
     aperture_center=200.0,
     aperture_width=48.0,
     outer_diameter=50.0,
-    focus_voltage=-6900
+    focus_voltage=-7000
 )
 potential = system.solve_fields()
 
@@ -100,7 +100,7 @@ The visualization is beautiful, and shows cross-over based demagnification of sp
 
 ![FullElectronOptics](https://github.com/user-attachments/assets/bf076aae-4c5e-4f85-a116-58545dc44f12)
 
-I very highly recommend first simulating a system with 5-10 electrons, and when you're satisfied with how the beam optics looks like, increase the number of electrons to get a more accurate image. The former might take less than 30 seconds, and the latter might take a few minutes.
+The main reason spherical aberrations increase after the objective lens is because you need the final crossover to happen after the last electrode of the einzel lens, and the more you extend this, the less clean the crossover is, and so the more spherical aberrations arise. This is why you often position the sample right below the opening to the electron column- the focal length is often already minimized to reduce spherical aberration.
 
 You can also specify ions by, prior to computing the trajectories, where the below syntax is for an Na+ ion:
 
