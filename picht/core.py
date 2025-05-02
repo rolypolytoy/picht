@@ -276,9 +276,9 @@ class ParticleTracer:
                    initial_position: Tuple[float, float],
                    initial_velocity: Tuple[float, float],
                    simulation_time: float,
-                   method: str = 'RK45',
-                   rtol: float = 1e-6,
-                   atol: float = 1e-8,
+                   method: str = 'BDF',
+                   rtol: float = 1e-8,
+                   atol: float = 1e-10,
                    max_step: float = None) -> dict:
         initial_state = [
             initial_position[0], 
