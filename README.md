@@ -93,7 +93,8 @@ trajectories = system.simulate_beam(
 figure = system.visualize_system(
     trajectories=trajectories)
 
-plt.show()```
+plt.show()
+```
 
 The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest. However, rogue electrons do increase in every crossover, which is also indicative of real-life systems. Apertures are used to mitigate this. 
 
