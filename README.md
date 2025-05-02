@@ -7,64 +7,97 @@ A Python library for simulating electron and ion beam trajectories through elect
 pip install picht
 ```
 
-## How Do I Make Unipotential Lenses?
+    ## Documentation
 
-Unipotential (or einzel) lenses are amongst the simplest kind of lenses to compute the electrodynamics of. To make unipotential lenses using Picht, use (or repurpose) the following example code. Adjust the parameters of system.add_einzel_lens() to adjust the dimensions of your unipotential lens, and adjust system.simulate_beam() to adjust the parameters of the electron beam. Note that, for unipotential lenses, only the middle electrode is adjustable- the first and third electrodes are at ground. 
-
-For a complex example, we have a system of three unipotential lenses in an array, with 100 electrons being tracked. We have a 15-micron thin beam initially- note the r-axis has 1e-5 meters as its multiplier in this case- and the z-axis is in meters:
+I've made a reference example that includes several electrodes and einzel lenses in the configuration of an actual scanning electron microscope's internals. 
 
 ```python
 import numpy as np
+from picht import IonOpticsSystem, ElectrodeConfig
 import matplotlib.pyplot as plt
-from core import IonOpticsSystem
 
-system = IonOpticsSystem(nr=100.0, nz=500.0, physical_size=0.4)
+system = IonOpticsSystem(nr=400, nz=400, physical_size=0.4) #all grid units are in mm.
 
-system.add_einzel_lens(
-    position=20.0,
-    width=6.0,
-    aperture_center=50.0,
-    aperture_width=10.0,
-    outer_diameter=30.0,
-    focus_voltage=2000.0
+
+wehnelt1 = ElectrodeConfig(
+    start=0,
+    width=30,
+    ap_start=180,
+    ap_width=40,
+    outer_diameter = 50,
+    voltage=-10200
+)
+wehnelt2 = ElectrodeConfig(
+    start=30,
+    width=5,
+    ap_start=190,
+    ap_width=20,
+    outer_diameter = 50,
+    voltage=-10200
+)
+system.add_electrode(wehnelt1)
+system.add_electrode(wehnelt2)
+anode = ElectrodeConfig(
+    start=40,
+    width = 2,
+    ap_start=198,
+    ap_width=4,
+    outer_diameter = 50,
+    voltage=0
+)
+cathode = ElectrodeConfig(
+    start=22,
+    width = 2,
+    ap_start=200,
+    ap_width=0,
+    outer_diameter = 2,
+    voltage=-10000
 )
 
+system.add_electrode(anode)
 system.add_einzel_lens(
-    position=70.0,
-    width=6.0,
-    aperture_center=50.0,
-    aperture_width=10.0,
-    outer_diameter=30.0,
-    focus_voltage=4000.0
+    position=100.0,
+    width=40.0,
+    aperture_center=200.0,
+    aperture_width=48.0,
+    outer_diameter=50.0,
+    focus_voltage=-7500
 )
-
 system.add_einzel_lens(
-    position=110.0,
-    width=6.0,
-    aperture_center=50.0,
-    aperture_width=10.0,
-    outer_diameter=30.0,
-    focus_voltage=4750.0
+    position=220.0,
+    width=40.0,
+    aperture_center=200.0,
+    aperture_width=48.0,
+    outer_diameter=50.0,
+    focus_voltage=-8000
 )
+system.add_einzel_lens(
+    position=300.0,
+    width=50.0,
+    aperture_center=200.0,
+    aperture_width=48.0,
+    outer_diameter=50.0,
+    focus_voltage=-7100
+)
+potential = system.solve_fields()
 
-system.solve_fields()
 trajectories = system.simulate_beam(
-    energy_eV=10000.0,
-    start_z=0.0,
+    energy_eV= 10,  
+    start_z=0.025,
     r_range=(0.1999925, 0.2000075),
-    angle_range=(0.0, 0.0),
-    num_particles=10.0,
-    simulation_time=3e-9
+    angle_range=(0, 0),
+    num_particles=100,
+    simulation_time=2e-8
 )
 
-system.visualize_system(trajectories=trajectories)
-plt.show()
-```
+figure = system.visualize_system(
+    trajectories=trajectories)
 
-The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest:
-![electron_dynamics](https://github.com/user-attachments/assets/c767f92c-fd64-4da2-a13d-962f2af2c863)
+plt.show()```
 
-Over 80 out of the 100 electrons focus at the focal point around 140 units, with a spot size of a few hundred nanometers, coming from a 15 micrometer diameter spread initially. This is comparable to the demagnification actual scanning electron microscopes do internally, and so this system is a good reference for actual SEM geometries. 
+The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest. However, rogue electrons do increase in every crossover, which is also indicative of real-life systems. Apertures are used to mitigate this. 
+
+![FullElectronOptics](https://github.com/user-attachments/assets/14148cd5-3fac-41ae-9801-5afd87e06fbd)
 
 I very highly recommend first simulating a system with 5-10 electrons, and when you're satisfied with how the beam optics looks like, increase the number of electrons to get a more accurate image. The former might take less than 30 seconds, and the latter might take a few minutes.
 
