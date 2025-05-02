@@ -98,7 +98,7 @@ plt.show()
 
 The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest. However, rogue electrons do increase in every crossover, which is also indicative of real-life systems. Apertures are used to mitigate this. 
 
-![FullElectronOptics](https://github.com/user-attachments/assets/bf076aae-4c5e-4f85-a116-58545dc44f12)
+![FullElectronOptics](https://github.com/user-attachments/assets/22f984b8-569f-4406-89ab-941ae67f7ed5)
 
 The main reason spherical aberrations increase after the objective lens is because you need the final crossover to happen after the last electrode of the einzel lens, and the more you extend this, the less clean the crossover is, and so the more spherical aberrations arise. This is why you often position the sample right below the opening to the electron column- the focal length is often already minimized to reduce spherical aberration.
 
