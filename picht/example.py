@@ -1,6 +1,8 @@
 import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig
+from core import IonOpticsSystem, ElectrodeConfig
 import matplotlib.pyplot as plt
+#Wehnelt Must Equal -10kV and cathode -9.8kV so it works on one power supply. redo all calculations & get convergence with this.
+
 
 system = IonOpticsSystem(nr=400, nz=400, physical_size=0.4) #all grid units are in mm.
 
@@ -11,7 +13,7 @@ wehnelt1 = ElectrodeConfig(
     ap_start=180,
     ap_width=40,
     outer_diameter = 50,
-    voltage=-10200
+    voltage=-10000
 )
 wehnelt2 = ElectrodeConfig(
     start=30,
@@ -19,7 +21,7 @@ wehnelt2 = ElectrodeConfig(
     ap_start=190,
     ap_width=20,
     outer_diameter = 50,
-    voltage=-10200
+    voltage=-10000
 )
 system.add_electrode(wehnelt1)
 system.add_electrode(wehnelt2)
@@ -37,34 +39,18 @@ cathode = ElectrodeConfig(
     ap_start=200,
     ap_width=0,
     outer_diameter = 2,
-    voltage=-10000
+    voltage=-98000
 )
 
 system.add_electrode(anode)
 system.add_einzel_lens(
     position=80.0,
-    width=60.0,
+    width=150.0,
     aperture_center=200.0,
     aperture_width=48.0,
     outer_diameter=50.0,
-    focus_voltage=-7500
-)
-system.add_einzel_lens(
-    position=150.0,
-    width=60.0,
-    aperture_center=200.0,
-    aperture_width=48.0,
-    outer_diameter=50.0,
-    focus_voltage=-7500
-)
-system.add_einzel_lens(
-    position=220.0,
-    width=50.0,
-    aperture_center=200.0,
-    aperture_width=48.0,
-    outer_diameter=50.0,
-    focus_voltage=-7000
-)
+    focus_voltage=-6000)
+
 potential = system.solve_fields()
 
 trajectories = system.simulate_beam(
@@ -72,11 +58,11 @@ trajectories = system.simulate_beam(
     start_z=0.025,
     r_range=(0.1999925, 0.2000075),
     angle_range=(0, 0),
-    num_particles=100,
+    num_particles=6,
     simulation_time=2e-8
 )
 
 figure = system.visualize_system(
     trajectories=trajectories)
-
+plt.grid('True')
 plt.show()

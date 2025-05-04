@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: picht
-Version: 1.0.3
+Version: 1.0.4
 Summary: Electron optics simulation library using the Finite Difference Method (FDM)
 Home-page: https://github.com/rolypolytoy/picht
 Author: Rishiit Sharma
