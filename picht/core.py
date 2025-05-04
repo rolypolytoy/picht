@@ -201,7 +201,7 @@ class EinzelLens:
                 outer_diameter: float,
                 focus_voltage: float,
                 gap_size: int = 1):
-        electrode_thickness = (width - gap_size)/3.0 
+        electrode_thickness = (width - 3 * gap_size)/3.0 
         
         self.electrode1 = ElectrodeConfig(
             start=position,
