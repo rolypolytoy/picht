@@ -199,9 +199,8 @@ class EinzelLens:
                 aperture_center: float,
                 aperture_width: float,
                 outer_diameter: float,
-                focus_voltage: float,
-                electrode_thickness: float = 2):
-        center_thickness = width - 2 * electrode_thickness
+                focus_voltage: float):
+        electrode_thickness = width/3.0 
         
         self.electrode1 = ElectrodeConfig(
             start=position - width/2,
@@ -214,7 +213,7 @@ class EinzelLens:
         
         self.electrode2 = ElectrodeConfig(
             start=position - width/2 + electrode_thickness,
-            width=center_thickness,
+            width=electrode_thickness,
             ap_start=aperture_center - aperture_width/2,
             ap_width=aperture_width,
             outer_diameter=outer_diameter,
