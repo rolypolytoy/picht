@@ -200,7 +200,7 @@ class EinzelLens:
                 aperture_width: float,
                 outer_diameter: float,
                 focus_voltage: float,
-                gap_size: int = 1):
+                gap_size: int):
         electrode_thickness = (width - 3 * gap_size)/3.0 
         
         self.electrode1 = ElectrodeConfig(
@@ -252,10 +252,10 @@ class IonOpticsSystem:
                        aperture_width: float,
                        outer_diameter: float,
                        focus_voltage: float,
-                       electrode_thickness: float = 2):
+                       gap_size: int = 1):
         lens = EinzelLens(
             position, width, aperture_center, aperture_width, 
-            outer_diameter, focus_voltage, electrode_thickness
+            outer_diameter, focus_voltage, gap_size
         )
         lens.add_to_field(self.field)
         self.elements.append(lens)
