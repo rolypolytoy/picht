@@ -1,0 +1,7 @@
+numpy
+matplotlib
+scipy
+numba
+mendeleev
+pytest
+picht

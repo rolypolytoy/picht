@@ -168,4 +168,5 @@ The code has several architectural decisions that make it powerful, Pythonic, an
 
 In addition- we use the finite difference method (FDM) instead of the boundary element method (BEM) to allow support for non-infinite problems (ie problems with grounded boundaries), and we've got it to be computationally quick too, using vectorization instead of recursive methods, and Numba's JIT for all the computations with the greatest overhead. It's also fully unit-tested, with 15 unit tests spanning from checking for proper boundary condition handling, physically realistic behaviors at MeV energy scales, proper and plausible electric field behaviors, and cursory tests of every class in the core.py file, to better enable independent researchers to build off the existing codebase and verify if it's functioning correctly.
 
+![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg)
 
