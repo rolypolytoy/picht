@@ -28,7 +28,7 @@ For example, Picht enables a 68-LOC implementation of a full [Scanning Electron 
 
 # Methodology
 
-Picht uses the Finite Difference Method to solve for the electric field- a method used at least as far back as 1989 to solve problems of this exact nature [@rouse1989three]. We use successive over-relaxation to solve systems of linear equations [@HADJIDIMOS2000177], which allows us to solve the Laplacian $\Nabla^2 V = 0$, followed by the electric field $E = - \Nabla V$. The package also uses Numba for speeding up the most compute-heavy operations, providing near-C speeds while remaining in the Python ecosystem and all the usability advantages that brings [@Oden2020]. 
+Picht uses the Finite Difference Method to solve for the electric field- a method used at least as far back as 1989 to solve problems of this exact nature [@rouse1989three]. We use successive over-relaxation to solve systems of linear equations [@HADJIDIMOS2000177], which allows us to solve the Laplacian $$\Nabla^2 V = 0$$, followed by the electric field $$E = - \Nabla V$$. The package also uses Numba for speeding up the most compute-heavy operations, providing near-C speeds while remaining in the Python ecosystem and all the usability advantages that brings [@Oden2020]. 
 
 We also, when calculating velocity, or acceleration, use relativistically-accurate formulae by computing the Lorentz factor
 $$\gamma = \frac{1}{\sqrt{1 - \frac{v^2}{c^2}}}$$
