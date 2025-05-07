@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-    version="1.0.5",
+    version="1.1.0",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
-    description="Electron optics simulation library using the Finite Difference Method (FDM)",
+    description="Electron and ion optics simulation using the Finite Difference Method (FDM)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rolypolytoy/picht",
