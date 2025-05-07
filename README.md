@@ -159,9 +159,9 @@ system.tracer.set_ion('H', charge_state=1)
 For protons, or:
 
 ```python
-system.tracer.set_ion('Ga', charge_state=3)
+system.tracer.set_ion('Ga', charge_state=1)
 ```
-For gallium ions. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
+For gallium (Ga+) ions like those used in gallium FIB. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
 
 ## Internals
 
