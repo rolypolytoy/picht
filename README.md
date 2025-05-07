@@ -45,9 +45,12 @@ figure = system.visualize_system(
 
 plt.show()
 ```
+It produces, in less than 30 seconds, a physically realistic map of the particle trajectories:
+![Einzel_Lens](https://github.com/user-attachments/assets/d5f92b58-d0d4-4d68-8d23-6b07bb790105)
+
+In this we can observe several realistic behaviors, including how the fringing fields in einzel lenses first mildly defocus and then focus the beam, the beam crossover, and spherical aberration in the lens. By default, we assume Dirichlet boundary conditions, to better simulate real electrostatic lens systems with metal boundaries. Neumann boundary conditions might provide more idealized behavior, and are the defaults in most commercial electron optics solvers (including those used in COMSOL and ANSYS Maxwell), however since Dirichlet boundary conditions effectively simulate grounded boundaries rather than infinitely extending ones, for real-life systems, this is significantly more accurate, and reduces the insidious simulation-experimental gap.
 
 Here, we demonstrate a complete simulation of an electrostatic lens-only scanning electron microscope with full accounting of divergence post-acceleration, Wehnelt cylinders, and one condenser lens and objective lens, with the final focal length ~8.7 mm after the final lens- an entirely physically plausible number, with tight convergence. I've increased the amount of particles from 6 to 100, and increased the initial beam divergence from 0 radians to +-2 radians to more accurately model the physical 'boiloff' process of thermionic sources. Regardless, the initial beam is quite straight due to acceleration between the cathode and anode, and we get this in just a few minutes:
-
 
 We can see why we need two lenses- between the first and second lens we can place a beam-limiting aperture to thin the electron beam's width, and the second lens reduces the beam spot size considerably, and also has a focal point after its own final lens, which is necessary, since you need the focus to be outside the electron column to be able to get clear samples.
 
