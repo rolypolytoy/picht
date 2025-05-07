@@ -11,7 +11,7 @@ wehnelt1 = ElectrodeConfig(
     ap_start=30,
     ap_width=40,
     outer_diameter = 50,
-    voltage=-5200
+    voltage=-5100
 )
 wehnelt2 = ElectrodeConfig(
     start=30,
@@ -19,7 +19,7 @@ wehnelt2 = ElectrodeConfig(
     ap_start=40,
     ap_width=20,
     outer_diameter = 50,
-    voltage=-5200
+    voltage=-5100
 )
 system.add_electrode(wehnelt1)
 system.add_electrode(wehnelt2)
@@ -42,13 +42,21 @@ cathode = ElectrodeConfig(
 
 system.add_electrode(anode)
 system.add_einzel_lens(
-    position=70.0,
+    position=80.0,
     width=60.0,
     aperture_center=50.0,
     aperture_width=48.0,
     outer_diameter=50.0,
-    focus_voltage=-7000,
-    gap_size = 4
+    focus_voltage=-7000
+)
+
+system.add_einzel_lens(
+    position=160.0,
+    width=60.0,
+    aperture_center=50.0,
+    aperture_width=48.0,
+    outer_diameter=50.0,
+    focus_voltage=-6500
 )
 potential = system.solve_fields()
 
@@ -56,12 +64,13 @@ trajectories = system.simulate_beam(
     energy_eV= 10,  
     start_z=0.025,
     r_range=(0.0499925, 0.0500075),
-    angle_range=(0, 0),
+    angle_range=(-2, 2),
     num_particles=6,
-    simulation_time=2e-8
+    simulation_time=1e-8
 )
 
 figure = system.visualize_system(
-    trajectories=trajectories)
+    trajectories=trajectories,
+    r_limits = (0.049, 0.051))
 
 plt.show()
