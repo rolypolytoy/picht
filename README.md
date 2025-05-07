@@ -7,7 +7,7 @@ It exists to provide a tool that's free and open-source, easily modifiable, and 
 ```bash
 pip install picht
 ```
-![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://img.shields.io/pypi/v/picht.svg)](https://pypi.org/project/picht/)
 
 ## Documentation
 
