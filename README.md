@@ -45,8 +45,10 @@ figure = system.visualize_system(
 
 plt.show()
 ```
+It produces, in less than 30 seconds, a physically realistic map of the particle trajectories:
+![Einzel_Lens](https://github.com/user-attachments/assets/d5f92b58-d0d4-4d68-8d23-6b07bb790105)
 
-
+In this we can observe several realistic behaviors, including how the fringing fields in einzel lenses first mildly defocus and then focus the beam, the beam crossover, and spherical aberration in the lens. By default, we assume Dirichlet boundary conditions, to better simulate real electrostatic lens systems with metal boundaries.
 
 You can also specify ions by, prior to computing the trajectories, where the below syntax is for an Na+ ion:
 
