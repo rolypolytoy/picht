@@ -7,6 +7,7 @@ It exists to provide a tool that's free and open-source, easily modifiable, and 
 ```bash
 pip install picht
 ```
+![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg)
 
 ## Documentation
 
@@ -167,6 +168,3 @@ For gallium ions. It also supports helium ions, neon ions, and any combination o
 The code has several architectural decisions that make it powerful, Pythonic, and performant. The library uses Numba for compiled language-level speeds, calculates particle dynamics using the BDF solver because RK45 isn't good for stiff problems, and does not use the paraxial ray equation, but instead the Lorentz force for electrostatics, and indeed to do this, solves the full Laplacian for voltage (∇²V = 0), followed by the electric field by solving for the negative of the gradient field of voltage (E = -∇V). I also calculate relativistic corrections not using a full four-vector treatment, but by using the Lorentz factor for velocity and acceleration corrections, to get both rapid computation and accurate results in the high-keV or MeV energy regime.
 
 In addition- we use the finite difference method (FDM) instead of the boundary element method (BEM) to allow support for non-infinite problems (ie problems with grounded boundaries), and we've got it to be computationally quick too, using vectorization instead of recursive methods, and Numba's JIT for all the computations with the greatest overhead. It's also fully unit-tested, with 15 unit tests spanning from checking for proper boundary condition handling, physically realistic behaviors at MeV energy scales, proper and plausible electric field behaviors, and cursory tests of every class in the core.py file, to better enable independent researchers to build off the existing codebase and verify if it's functioning correctly.
-
-![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg)
-
