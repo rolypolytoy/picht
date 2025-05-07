@@ -42,8 +42,8 @@ def solve_field(potential, mask, maxiter, thresh, omega=1.9):
     return potential
 
 @nb.njit
-def get_field(z, r, Ez, Er, size, dz, dr, nz, nr):
-    if 0 <= z < size and 0 <= r < size:
+def get_field(z, r, Ez, Er, axial_size, radial_size, dz, dr, nz, nr):
+    if 0 <= z < axial_size and 0 <= r < radial_size:
         i = int(min(max(1, z / dz), nz - 2))
         j = int(min(max(1, r / dr), nr - 2))
         return Ez[i, j], Er[i, j]
@@ -69,12 +69,13 @@ def calc_dynamics(z, r, vz, vr, Ez, Er, qm, mass, c):
     return np.array([vz, vr, az, ar])
 
 class PotentialField:    
-    def __init__(self, nz: float, nr: float, physical_size: float):
+    def __init__(self, nz: float, nr: float, axial_size: float, radial_size: float):
         self.nz = nz
         self.nr = nr
-        self.size = physical_size
-        self.dz = physical_size / nz
-        self.dr = physical_size / nr
+        self.axial_size = axial_size
+        self.radial_size = radial_size
+        self.dz = axial_size / nz
+        self.dr = radial_size / nr
         self.potential = np.zeros((int(nz), int(nr)))
         self.electrode_mask = np.zeros((int(nz), int(nr)), dtype=bool)
         self.Ez = None
@@ -104,7 +105,8 @@ class PotentialField:
         return self.potential
     
     def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
-        return get_field(z, r, self.Ez, self.Er, self.size, self.dz, self.dr, int(self.nz), int(self.nr))
+        return get_field(z, r, self.Ez, self.Er, self.axial_size, self.radial_size, 
+                         self.dz, self.dr, int(self.nz), int(self.nr))
 
 class ParticleTracer:
     ELECTRON_CHARGE = -1.602e-19 
@@ -151,10 +153,10 @@ class ParticleTracer:
         return self
 
     def get_velocity_from_energy(self, energy_eV: float) -> float:
-        energy_joules = energy_eV * 1.602e-19
+        kinetic_energy = energy_eV * 1.602e-19
         mass = self.current_ion['mass']
         rest_energy = mass * self.SPEED_OF_LIGHT**2
-        total_energy = rest_energy + energy_joules
+        total_energy = rest_energy + kinetic_energy
         return self.SPEED_OF_LIGHT * np.sqrt(1 - (rest_energy/total_energy)**2)
 
     def particle_dynamics(self, t: float, state: List[float]) -> List[float]:
@@ -237,8 +239,8 @@ class EinzelLens:
 
 class IonOpticsSystem:
     
-    def __init__(self, nr: float, nz: float, physical_size: float = 0.1):
-        self.field = PotentialField(nz, nr, physical_size)
+    def __init__(self, nr: float, nz: float, axial_size: float = 0.1, radial_size: float = 0.1):
+        self.field = PotentialField(nz, nr, axial_size, radial_size)
         self.tracer = ParticleTracer(self.field)
         self.elements = []
         
