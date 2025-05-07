@@ -11,85 +11,33 @@ pip install picht
 
 ## Documentation
 
-I've made a reference example that includes several electrodes and einzel lenses in the configuration of an actual scanning electron microscope's internals. 
+You can initialize an einzel lens in the following manner:
 
 ```python
 import numpy as np
 from picht import IonOpticsSystem, ElectrodeConfig
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=400, nz=400, physical_size=0.4) #all grid units are in mm.
+system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1) #all grid units are in mm.
 
-
-wehnelt1 = ElectrodeConfig(
-    start=0,
-    width=30,
-    ap_start=180,
-    ap_width=40,
-    outer_diameter = 50,
-    voltage=-10200
-)
-wehnelt2 = ElectrodeConfig(
-    start=30,
-    width=5,
-    ap_start=190,
-    ap_width=20,
-    outer_diameter = 50,
-    voltage=-10200
-)
-system.add_electrode(wehnelt1)
-system.add_electrode(wehnelt2)
-anode = ElectrodeConfig(
-    start=40,
-    width = 2,
-    ap_start=198,
-    ap_width=4,
-    outer_diameter = 50,
-    voltage=0
-)
-cathode = ElectrodeConfig(
-    start=22,
-    width = 2,
-    ap_start=200,
-    ap_width=0,
-    outer_diameter = 2,
-    voltage=-10000
-)
-
-system.add_electrode(anode)
 system.add_einzel_lens(
-    position=80.0,
+    position=20.0,
     width=60.0,
-    aperture_center=200.0,
+    aperture_center=50.0,
     aperture_width=48.0,
     outer_diameter=50.0,
-    focus_voltage=-7500
-)
-system.add_einzel_lens(
-    position=150.0,
-    width=60.0,
-    aperture_center=200.0,
-    aperture_width=48.0,
-    outer_diameter=50.0,
-    focus_voltage=-7500
-)
-system.add_einzel_lens(
-    position=220.0,
-    width=50.0,
-    aperture_center=200.0,
-    aperture_width=48.0,
-    outer_diameter=50.0,
-    focus_voltage=-7000
+    focus_voltage=-7000,
+    gap_size = 4
 )
 potential = system.solve_fields()
 
 trajectories = system.simulate_beam(
-    energy_eV= 10,  
-    start_z=0.025,
-    r_range=(0.1999925, 0.2000075),
+    energy_eV= 10000,  
+    start_z=0,
+    r_range=(0.0499925, 0.0500075),
     angle_range=(0, 0),
-    num_particles=100,
-    simulation_time=2e-8
+    num_particles=6,
+    simulation_time=2e-9
 )
 
 figure = system.visualize_system(
@@ -98,11 +46,7 @@ figure = system.visualize_system(
 plt.show()
 ```
 
-The visualization is beautiful, and shows cross-over based demagnification of spherical aberrations, like in real-world electrostatic lenses. In other words, the 'thickness' of the focal point reduces, until the last focal point, which is the thinnest. However, rogue electrons do increase in every crossover, which is also indicative of real-life systems. Apertures are used to mitigate this. 
 
-![FullElectronOptics](https://github.com/user-attachments/assets/22f984b8-569f-4406-89ab-941ae67f7ed5)
-
-The main reason spherical aberrations increase after the objective lens is because you need the final crossover to happen after the last electrode of the einzel lens, and the more you extend this, the less clean the crossover is, and so the more spherical aberrations arise. This is why you often position the sample right below the opening to the electron column- the focal length is often already minimized to reduce spherical aberration.
 
 You can also specify ions by, prior to computing the trajectories, where the below syntax is for an Na+ ion:
 
