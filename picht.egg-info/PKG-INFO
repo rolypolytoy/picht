@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: picht
-Version: 1.1.2
+Version: 1.1.3
 Summary: Electron and ion optics simulation using the Finite Difference Method (FDM)
 Home-page: https://github.com/rolypolytoy/picht
 Author: Rishiit Sharma
@@ -22,11 +22,11 @@ Classifier: Development Status :: 5 - Production/Stable
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: numpy==2.2.5
-Requires-Dist: matplotlib==3.10.1
-Requires-Dist: scipy==1.15.2
-Requires-Dist: numba==0.61.2
-Requires-Dist: mendeleev==1.0.0
+Requires-Dist: numpy==1.26.4
+Requires-Dist: matplotlib
+Requires-Dist: scipy
+Requires-Dist: numba
+Requires-Dist: mendeleev
 Dynamic: author
 Dynamic: home-page
 Dynamic: license-file
