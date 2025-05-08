@@ -30,10 +30,10 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "numpy==1.26.4",
-        "matplotlib==3.10.1",
-        "scipy==1.15.2",
-        "numba==0.61.2",
-        "mendeleev==1.0.0",
+        "matplotlib",
+        "scipy",
+        "numba",
+        "mendeleev",
     ],
     license="MIT",
 )
