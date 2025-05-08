@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: picht
-Version: 1.1.3
+Version: 1.1.4
 Summary: Electron and ion optics simulation using the Finite Difference Method (FDM)
 Home-page: https://github.com/rolypolytoy/picht
 Author: Rishiit Sharma
