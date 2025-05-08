@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "picht"
-version = "1.1.1"
+version = "1.1.2"
 description = "Electron and ion optics simulation using the Finite Difference Method (FDM)"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -13,12 +13,12 @@ authors = [
     {name = "Rishiit Sharma", email = "rishiitsharma@gmail.com"}
 ]
 dependencies = [
-    "numpy",
-    "matplotlib",
-    "scipy",
-    "numba",
-    "mendeleev",
-]
+    "numpy==2.2.5",
+    "matplotlib==3.10.1",
+    "scipy==1.15.2",
+    "numba==0.61.2",
+    "mendeleev==1.0.0",
+],
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.6",
