@@ -290,6 +290,7 @@ You can also zoom in radially by system.visualize_system() to be:
    )
 
 And you get the following as a result (num_particles to 6 electrons rather than the previous 100 for speed reasons)
+
 .. image:: https://github.com/user-attachments/assets/5d8518e4-04b8-4677-aba3-23a68ba41b8d 
 
 Ion Support
