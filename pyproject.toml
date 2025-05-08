@@ -9,9 +9,11 @@ description = "Electron and ion optics simulation using the Finite Difference Me
 readme = "README.md"
 requires-python = ">=3.6"
 license = "MIT"
+
 authors = [
     {name = "Rishiit Sharma", email = "rishiitsharma@gmail.com"}
 ]
+
 dependencies = [
     "numpy==1.26.4",
     "matplotlib==3.10.1",
@@ -19,6 +21,7 @@ dependencies = [
     "numba==0.61.2",
     "mendeleev==1.0.0",
 ]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.6",
