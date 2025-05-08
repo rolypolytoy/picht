@@ -188,11 +188,11 @@ Some problems that may occur when you set your focus voltage drastically above y
 
    plt.show()
 
+.. image:: https://github.com/user-attachments/assets/7d54258c-4a83-4e33-b315-efc9c0d04d37 
+
 Here the beam energy is only 100 eV but we revert to a -5kV focus voltage. Here, we see beam reflection, due to the extremely strong fields coming from the unipotential lens.
 Whenever chaining several einzel lenses, this problem becomes especially pertinent, so carefully tuning electron energies and einzel lens focus voltages are important. Minimize the difference
 between aperture_width and outer_diameter as well, for cleaner field configurations.
-
-.. image:: https://github.com/user-attachments/assets/7d54258c-4a83-4e33-b315-efc9c0d04d37 
 
 Advanced Use Case: SEM Simulation
 --------------------------------
