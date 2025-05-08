@@ -240,15 +240,14 @@
 <h2>Internals<a class="headerlink" href="#internals" title="Link to this heading"></a></h2>
 <p>The code has several architectural decisions that make it powerful, Pythonic, and performant:</p>
 <ul class="simple">
-<li><p>Uses <strong>Numba</strong> for compiled language-level speeds.</p></li>
+<li><p>Uses Numba for compiled language-level speeds.</p></li>
 <li><p>Solves the full Laplacian for voltage (∇²V = 0).</p></li>
 <li><p>Calculates electric field via gradient: E = -∇V.</p></li>
-<li><p>Uses <strong>BDF solver</strong> for stiff differential equations instead of RK45.</p></li>
+<li><p>Uses BDF solver for stiff differential equations instead of RK45.</p></li>
 <li><p>Avoids paraxial ray approximation; uses Lorentz force directly.</p></li>
 <li><p>Includes relativistic corrections using Lorentz factor.</p></li>
-<li><p>Uses <strong>Finite Difference Method (FDM)</strong> instead of Boundary Element Method (BEM) for grounded boundaries.</p></li>
+<li><p>Uses Dirichlet instead of Neumann boundary conditions for better support for finite boundaries over infinite boundaries.</p></li>
 <li><p>Vectorized operations and JIT compilation ensure speed.</p></li>
-<li><p>Fully unit-tested with 15+ tests covering edge cases and physical realism.</p></li>
 </ul>
 </section>
 </section>

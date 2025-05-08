@@ -185,12 +185,11 @@ Internals
 
 The code has several architectural decisions that make it powerful, Pythonic, and performant:
 
-- Uses **Numba** for compiled language-level speeds.
+- Uses Numba for compiled language-level speeds.
 - Solves the full Laplacian for voltage (∇²V = 0).
 - Calculates electric field via gradient: E = -∇V.
-- Uses **BDF solver** for stiff differential equations instead of RK45.
+- Uses BDF solver for stiff differential equations instead of RK45.
 - Avoids paraxial ray approximation; uses Lorentz force directly.
 - Includes relativistic corrections using Lorentz factor.
-- Uses **Finite Difference Method (FDM)** instead of Boundary Element Method (BEM) for grounded boundaries.
+- Uses Dirichlet instead of Neumann boundary conditions for better support for finite boundaries over infinite boundaries.
 - Vectorized operations and JIT compilation ensure speed.
-- Fully unit-tested with 15+ tests covering edge cases and physical realism.
