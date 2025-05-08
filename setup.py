@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-    version="1.1.2",
+    version="1.1.3",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron and ion optics simulation using the Finite Difference Method (FDM)",
@@ -29,7 +29,7 @@ setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "numpy==2.2.5",
+        "numpy==1.26.4",
         "matplotlib==3.10.1",
         "scipy==1.15.2",
         "numba==0.61.2",

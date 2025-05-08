@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: picht
-Version: 1.1.1
+Version: 1.1.2
 Summary: Electron and ion optics simulation using the Finite Difference Method (FDM)
 Home-page: https://github.com/rolypolytoy/picht
 Author: Rishiit Sharma
@@ -22,11 +22,11 @@ Classifier: Development Status :: 5 - Production/Stable
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: numpy
-Requires-Dist: matplotlib
-Requires-Dist: scipy
-Requires-Dist: numba
-Requires-Dist: mendeleev
+Requires-Dist: numpy==2.2.5
+Requires-Dist: matplotlib==3.10.1
+Requires-Dist: scipy==1.15.2
+Requires-Dist: numba==0.61.2
+Requires-Dist: mendeleev==1.0.0
 Dynamic: author
 Dynamic: home-page
 Dynamic: license-file
@@ -41,6 +41,7 @@ It exists to provide a tool that's free and open-source, easily modifiable, and 
 ```bash
 pip install picht
 ```
+[![PyPI version](https://img.shields.io/pypi/v/picht.svg)](https://pypi.org/project/picht/) ![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Documentation
 
@@ -192,14 +193,12 @@ system.tracer.set_ion('H', charge_state=1)
 For protons, or:
 
 ```python
-system.tracer.set_ion('Ga', charge_state=3)
+system.tracer.set_ion('Ga', charge_state=1)
 ```
-For gallium ions. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
+For gallium (Ga+) ions like those used in gallium FIB. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
 
 ## Internals
 
 The code has several architectural decisions that make it powerful, Pythonic, and performant. The library uses Numba for compiled language-level speeds, calculates particle dynamics using the BDF solver because RK45 isn't good for stiff problems, and does not use the paraxial ray equation, but instead the Lorentz force for electrostatics, and indeed to do this, solves the full Laplacian for voltage (∇²V = 0), followed by the electric field by solving for the negative of the gradient field of voltage (E = -∇V). I also calculate relativistic corrections not using a full four-vector treatment, but by using the Lorentz factor for velocity and acceleration corrections, to get both rapid computation and accurate results in the high-keV or MeV energy regime.
 
 In addition- we use the finite difference method (FDM) instead of the boundary element method (BEM) to allow support for non-infinite problems (ie problems with grounded boundaries), and we've got it to be computationally quick too, using vectorization instead of recursive methods, and Numba's JIT for all the computations with the greatest overhead. It's also fully unit-tested, with 15 unit tests spanning from checking for proper boundary condition handling, physically realistic behaviors at MeV energy scales, proper and plausible electric field behaviors, and cursory tests of every class in the core.py file, to better enable independent researchers to build off the existing codebase and verify if it's functioning correctly.
-
-
