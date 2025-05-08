@@ -21,10 +21,16 @@ To install Picht via pip:
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg 
    :target: https://opensource.org/licenses/MIT 
 
-Basic Usage
+Electrode Creation
 -----------
+Before creating any electrodes, we need to familiarize ourselves with a few concepts. First- whenever you initialize a system, you need to pick 
+nr, nz, axial_size and radial_size. nr is the grid resolution in the r-dimension, and nz is the same for the z-dimension. Axial_size is the total 
+length of the domain in meters in the z-dimension, and radial_size is the same for the r-dimension.
 
-You can initialize an einzel lens as follows:
+This means the grid resolution in the z-dimension is axial_size/nz, and in the r-dimension is radial_size/nr. You should, if using nonstandard values for these,
+ensure you're aware of these so you can properly convert from grid units to meters.
+
+You can initialize a cylindrical electrode as as follows:
 
 .. code-block:: python
 
@@ -32,7 +38,54 @@ You can initialize an einzel lens as follows:
    from picht import IonOpticsSystem, ElectrodeConfig
    import matplotlib.pyplot as plt
 
-   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1) # all grid units are in mm.
+   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
+
+   electrode = ElectrodeConfig(
+        start=30,
+        width=5,
+        ap_start=40,
+        ap_width=20,
+        outer_diameter = 50,
+        voltage=-5000
+        )
+   potential = system.solve_fields()
+
+   trajectories = system.simulate_beam(
+       energy_eV= 10000,  
+       start_z=0,
+       r_range=(0.0499925, 0.0500075),
+       angle_range=(0, 0),
+       num_particles=6,
+       simulation_time=2e-9
+   )
+
+   figure = system.visualize_system(
+       trajectories=trajectories
+   )
+
+   plt.show()
+
+.. image:: https://github.com/user-attachments/assets/493d152d-b57e-425d-bcfd-545ca7eefac4 
+
+
+Note the syntax for configuring an electrode, and how we parameterize the beam's energy in eV, its start_z, and its radial range. Keep angle_range = (0, 0) for parallel beams, or (-θ, θ), where θ is your intended half-angle of divergence.
+As we can see- this produces some degree of focusing behavior, but after the electrode ends, the beam divergences once more, showcasing why we don't often use cylindrical-only lens elements, despite their simplicity.
+
+Now, we'll build an Einzel Lens at -5000V with a beam energy of 10keV electrons. 
+
+Unipotential Lenses
+--------------------------------
+Einzel lenses are three cylindrical lenses arranged in a specific pattern: the first electrode is grounded (0V), the second is at its focus_voltage, and the third is also grounded at (0V). 
+They're called unipotential lenses because they can provide beam focusing and defocusing without affecting the beam's net energy, which reduces (sometimes!) the behavior we saw in cylindrical electrodes.
+Always make sure the aperture_center (in grid units) aligns with the center of the r_range() when you parameterize your beam.
+
+.. code-block:: python
+
+   import numpy as np
+   from picht import IonOpticsSystem, ElectrodeConfig
+   import matplotlib.pyplot as plt
+
+   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 
    system.add_einzel_lens(
        position=20.0,
@@ -40,8 +93,7 @@ You can initialize an einzel lens as follows:
        aperture_center=50.0,
        aperture_width=48.0,
        outer_diameter=50.0,
-       focus_voltage=-7000,
-       gap_size = 4
+       focus_voltage=-5000
    )
    potential = system.solve_fields()
 
@@ -60,11 +112,87 @@ You can initialize an einzel lens as follows:
 
    plt.show()
 
-This produces, in less than 30 seconds, a physically realistic map of the particle trajectories.
+.. image:: https://github.com/user-attachments/assets/c14983e2-4fa1-4191-93e1-01c6a47082c2 
 
-.. image:: https://github.com/user-attachments/assets/d5f92b58-d0d4-4d68-8d23-6b07bb790105 
+Here, we can see valid focusing behavior, which happens when the focus voltage is negative, and the particle is negatively charged, or vice versa. 
+We can thus make an einzel lens that causes divergent behavior by re-using the same code but flipping the sign on focus_voltage from -5000 to 5000:
 
-In this we can observe several realistic behaviors, including how the fringing fields in einzel lenses first mildly defocus and then focus the beam, the beam crossover, and spherical aberration in the lens.
+.. code-block:: python
+
+   import numpy as np
+   from picht import IonOpticsSystem, ElectrodeConfig
+   import matplotlib.pyplot as plt
+
+   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
+
+   system.add_einzel_lens(
+       position=20.0,
+       width=60.0,
+       aperture_center=50.0,
+       aperture_width=48.0,
+       outer_diameter=50.0,
+       focus_voltage=5000
+   )
+   potential = system.solve_fields()
+
+   trajectories = system.simulate_beam(
+       energy_eV= 10000,  
+       start_z=0,
+       r_range=(0.0499925, 0.0500075),
+       angle_range=(0, 0),
+       num_particles=6,
+       simulation_time=2e-9
+   )
+
+   figure = system.visualize_system(
+       trajectories=trajectories
+   )
+
+   plt.show()
+
+.. image:: https://github.com/user-attachments/assets/2f5890ed-85ba-47f0-988e-8695df49adb8 
+
+We can see clearly visible defocusing, demonstrating how einzel lenses are cleanly usable for both focusing and defocusing with single-character changes in the code.
+Some problems that may occur when you set your focus voltage drastically above your energy in eV can be demonstrated by this example:
+
+.. code-block:: python
+
+   import numpy as np
+   from picht import IonOpticsSystem, ElectrodeConfig
+   import matplotlib.pyplot as plt
+
+   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
+
+   system.add_einzel_lens(
+       position=20.0,
+       width=60.0,
+       aperture_center=50.0,
+       aperture_width=48.0,
+       outer_diameter=50.0,
+       focus_voltage=-5000
+   )
+   potential = system.solve_fields()
+
+   trajectories = system.simulate_beam(
+       energy_eV= 100,  
+       start_z=0,
+       r_range=(0.0499925, 0.0500075),
+       angle_range=(0, 0),
+       num_particles=6,
+       simulation_time=2e-9
+   )
+
+   figure = system.visualize_system(
+       trajectories=trajectories
+   )
+
+   plt.show()
+
+Here the beam energy is only 100 eV but we revert to a -5kV focus voltage. Here, we see beam reflection, due to the extremely strong fields coming from the unipotential lens.
+Whenever chaining several einzel lenses, this problem becomes especially pertinent, so carefully tuning electron energies and einzel lens focus voltages are important. Minimize the difference
+between aperture_width and outer_diameter as well, for cleaner field configurations.
+
+.. image:: https://github.com/user-attachments/assets/7d54258c-4a83-4e33-b315-efc9c0d04d37 
 
 Advanced Use Case: SEM Simulation
 --------------------------------
@@ -77,7 +205,7 @@ Here's a full simulation of an electrostatic lens-only scanning electron microsc
    from picht import IonOpticsSystem, ElectrodeConfig
    import matplotlib.pyplot as plt
 
-   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1) # all grid units are in mm.
+   system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 
    wehnelt1 = ElectrodeConfig(
        start=0,
@@ -139,7 +267,7 @@ Here's a full simulation of an electrostatic lens-only scanning electron microsc
        start_z=0.025,
        r_range=(0.0499925, 0.0500075),
        angle_range=(-2, 2),
-       num_particles=6,
+       num_particles=100,
        simulation_time=1e-8
    )
 
@@ -151,7 +279,8 @@ Here's a full simulation of an electrostatic lens-only scanning electron microsc
 
 .. image:: https://github.com/user-attachments/assets/8e4bc3db-832a-4892-869d-d16839526ebe 
 
-You can also zoom in on the focal point using:
+This synthesizes electrodes, einzel lens chaining, massively larger particle amoutns and advanced beam parameterization to provide a fully functional description of a production-level SEM system.
+You can also zoom in radially by system.visualize_system() to be:
 
 .. code-block:: python
 
@@ -160,6 +289,7 @@ You can also zoom in on the focal point using:
        r_limits = (0.049, 0.051)
    )
 
+And you get the following as a result (num_particles to 6 electrons rather than the previous 100 for speed reasons)
 .. image:: https://github.com/user-attachments/assets/5d8518e4-04b8-4677-aba3-23a68ba41b8d 
 
 Ion Support
@@ -179,17 +309,3 @@ For example:
    system.tracer.set_ion('Ga', charge_state=1)
 
 Supports helium, neon, hydrogen, sodium, gallium, and more via integration with the Mendeleev library. You can specify any combination of atoms and charges to produce all physically realistic, and even physically unrealistic ions.
-
-Internals
----------
-
-The code has several architectural decisions that make it powerful, Pythonic, and performant:
-
-- Uses Numba for compiled language-level speeds.
-- Solves the full Laplacian for voltage (∇²V = 0).
-- Calculates electric field via gradient: E = -∇V.
-- Uses BDF solver for stiff differential equations instead of RK45.
-- Avoids paraxial ray approximation; uses Lorentz force directly.
-- Includes relativistic corrections using Lorentz factor.
-- Uses Dirichlet instead of Neumann boundary conditions for better support for finite boundaries over infinite boundaries.
-- Vectorized operations and JIT compilation ensure speed.
