@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>picht.core &mdash; picht 1.1.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=00f267c6"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            picht
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Picht Tutorial</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">picht</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">picht.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for picht.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_ivp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mendeleev</span><span class="w"> </span><span class="kn">import</span> <span class="n">element</span>
+
+<div class="viewcode-block" id="ElectrodeConfig">
+<a class="viewcode-back" href="../../api.html#picht.core.ElectrodeConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ElectrodeConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configures the simplest kind of electrostatic lens: the cylindrical electrode.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        start (float): Position where the electrode begins on the z-axis in grid units.</span>
+<span class="sd">        width (float): Width of the electrode on the z-axis in grid units.</span>
+<span class="sd">        ap_start (float): Starting position of the aperture on the r-axis in grid units.</span>
+<span class="sd">        ap_width (float): Width of the aperture on the r-axis in grid units.</span>
+<span class="sd">        outer_diameter (float): Full diameter of the electrode on the r-axis in grid units.</span>
+<span class="sd">        voltage (float): Voltage of the electrode in volts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ap_start</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ap_width</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">voltage</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+<div class="viewcode-block" id="solve_field">
+<a class="viewcode-back" href="../../api.html#picht.core.solve_field">[docs]</a>
+<span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_field</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">maxiter</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">omega</span><span class="o">=</span><span class="mf">1.9</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements a numerical solution to Laplace&#39;s equation for electrostatic</span>
+<span class="sd">    potential in cylindrical coordinates using the SOR technique with Dirichlet boundary</span>
+<span class="sd">    conditions. It iteratively refines the potential field until convergence is achieved, as defined</span>
+<span class="sd">    by the thresh argument.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        potential (ndarray): 2D numpy array containing initial potential values.</span>
+<span class="sd">        mask (ndarray): Boolean mask indicating electrode positions, True where electrodes are.</span>
+<span class="sd">        maxiter (int): Maximum number of iterations to perform for the successive over relaxation solver.</span>
+<span class="sd">        thresh (float): Convergence threshold for the solution.</span>
+<span class="sd">        omega (float, optional): Relaxation parameter for SOR- omega defaults to 1.9 and must be kept between 1 and 2 otherwise SOR is invalid.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        ndarray: 2D numpy array containing the solved potential field.</span>
+<span class="sd">        </span>
+<span class="sd">    Note:</span>
+<span class="sd">        This is a performance-critical function optimized with Numba&#39;s JIT compilation.</span>
+<span class="sd">        Modifying the omega parameter or removing the @nb.njit tag may significantly</span>
+<span class="sd">        impact performance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxiter</span><span class="p">):</span>
+        <span class="n">vold</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]:</span>
+                    <span class="n">v_new</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="n">potential</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">potential</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span>
+                        <span class="n">potential</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">potential</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">potential</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">vold</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">omega</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_new</span> <span class="o">-</span> <span class="n">vold</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+        
+        <span class="n">maxdiff</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">potential</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">vold</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="n">maxdiff</span><span class="p">:</span>
+                    <span class="n">maxdiff</span> <span class="o">=</span> <span class="n">diff</span>
+        
+        <span class="k">if</span> <span class="n">maxdiff</span> <span class="o">&lt;</span> <span class="n">thresh</span><span class="p">:</span>
+            <span class="k">break</span>
+            
+    <span class="k">return</span> <span class="n">potential</span></div>
+
+
+<div class="viewcode-block" id="get_field">
+<a class="viewcode-back" href="../../api.html#picht.core.get_field">[docs]</a>
+<span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_field</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">Ez</span><span class="p">,</span> <span class="n">Er</span><span class="p">,</span> <span class="n">axial_size</span><span class="p">,</span> <span class="n">radial_size</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">nr</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides electric field values at fractional grid positions by</span>
+<span class="sd">    interpolating between grid points. It handles boundary conditions by returning</span>
+<span class="sd">    zero field values for positions outside the simulation domain, which means</span>
+<span class="sd">    outside the defined domain, no forces can be imposed on the charged particles.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        z (float): Z-axis position in meters.</span>
+<span class="sd">        r (float): R-axis position in meters.</span>
+<span class="sd">        Ez (ndarray): Z-component of the electric field array.</span>
+<span class="sd">        Er (ndarray): R-component of the electric field array.</span>
+<span class="sd">        axial_size (float): Total size of z-axis in meters.</span>
+<span class="sd">        radial_size (float): Total size of r-axis in meters.</span>
+<span class="sd">        dz (float): Grid spacing in z-axis, found by dividing nz/z.</span>
+<span class="sd">        dr (float): Grid spacing in r-axis, found by dividing nr/r.</span>
+<span class="sd">        nz (int): Number of grid points in z-axis.</span>
+<span class="sd">        nr (int): Number of grid points in r-axis.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (Ez, Er) Electric field components at the specified position in V/m.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="n">axial_size</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">radial_size</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span> <span class="o">/</span> <span class="n">dz</span><span class="p">),</span> <span class="n">nz</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span> <span class="o">/</span> <span class="n">dr</span><span class="p">),</span> <span class="n">nr</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Ez</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">Er</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span></div>
+
+
+<div class="viewcode-block" id="calc_dynamics">
+<a class="viewcode-back" href="../../api.html#picht.core.calc_dynamics">[docs]</a>
+<span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_dynamics</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="n">Ez</span><span class="p">,</span> <span class="n">Er</span><span class="p">,</span> <span class="n">qm</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;    </span>
+<span class="sd">    Calculates the acceleration of charged particles by applying</span>
+<span class="sd">    the Lorentz force with special-relativistic corrections. It calculates the Lorentz factor</span>
+<span class="sd">    through the variable gamma, and provides correct velocities and accelerations with</span>
+<span class="sd">    minimal overhead.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        z (float): Z-axis position in meters.</span>
+<span class="sd">        r (float): R-axis position in meters.</span>
+<span class="sd">        vz (float): Z-axis velocity in meters per second.</span>
+<span class="sd">        vr (float): R-axis velocity in meters per second.</span>
+<span class="sd">        Ez (float): Z-axis electric field in volts per meter.</span>
+<span class="sd">        Er (float): R-axis electric field in volts per meter.</span>
+<span class="sd">        qm (float): Charge-to-mass ratio of the particle.</span>
+<span class="sd">        mass (float): Particle mass in kg.</span>
+<span class="sd">        c (float): Speed of light in a vacuum in meters per second.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        ndarray: Array containing [vz, vr, az, ar], representing velocity and acceleration</span>
+<span class="sd">                components in the z and r directions for complete kinematic information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vsq</span> <span class="o">=</span> <span class="n">vz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">vr</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">csq</span> <span class="o">=</span> <span class="n">c</span><span class="o">**</span><span class="mi">2</span>
+    
+    <span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">vsq</span><span class="o">/</span><span class="n">csq</span><span class="p">))</span>
+    
+    <span class="n">Fz</span> <span class="o">=</span> <span class="n">qm</span> <span class="o">*</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">Ez</span>
+    <span class="n">Fr</span> <span class="o">=</span> <span class="n">qm</span> <span class="o">*</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">Er</span>
+    
+    <span class="n">factor</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">/</span><span class="p">(</span><span class="n">gamma</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">csq</span><span class="p">)</span>
+    <span class="n">vdotF</span> <span class="o">=</span> <span class="n">vz</span><span class="o">*</span><span class="n">Fz</span> <span class="o">+</span> <span class="n">vr</span><span class="o">*</span><span class="n">Fr</span>
+    
+    <span class="n">az</span> <span class="o">=</span> <span class="n">Fz</span><span class="o">/</span><span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">mass</span><span class="p">)</span> <span class="o">-</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">vz</span> <span class="o">*</span> <span class="n">vdotF</span><span class="o">/</span><span class="n">mass</span>
+    <span class="n">ar</span> <span class="o">=</span> <span class="n">Fr</span><span class="o">/</span><span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">mass</span><span class="p">)</span> <span class="o">-</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">vr</span> <span class="o">*</span> <span class="n">vdotF</span><span class="o">/</span><span class="n">mass</span>
+    
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vz</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="n">az</span><span class="p">,</span> <span class="n">ar</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="PotentialField">
+<a class="viewcode-back" href="../../api.html#picht.core.PotentialField">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PotentialField</span><span class="p">:</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles initializing the electric potential field, adding electrodes and einzel lenses, </span>
+<span class="sd">    and solving for the electric field. Calculating the electric field is necessary at the start</span>
+<span class="sd">    of the particle trajectory calculations, as this is the bulk of the information particles use</span>
+<span class="sd">    for trajectory calculations.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        nz (int): Number of grid points in the z-axis.</span>
+<span class="sd">        nr (int): Number of grid points in the r-axis.</span>
+<span class="sd">        axial_size (float): Size of the z-axis in meters.</span>
+<span class="sd">        radial_size (float): Size of the r-axis in meters.</span>
+<span class="sd">        dz (float): Grid spacing in z-axis per z-unit, in meters, found by axial_size/nz.</span>
+<span class="sd">        dr (float): Grid spacing in r-axis per r-unit, in meters, found by radial_size/nr.</span>
+<span class="sd">        potential (ndarray): 2D array with electric potential values in Volts.</span>
+<span class="sd">        electrode_mask (ndarray): Boolean mask for electrode positions.</span>
+<span class="sd">        Ez (ndarray): Z-component of electric field in Volts per meter.</span>
+<span class="sd">        Er (ndarray): R-component of electric field in Volts per meter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="PotentialField.__init__">
+<a class="viewcode-back" href="../../api.html#picht.core.PotentialField.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nz</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axial_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radial_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the potential field with specified dimensions. This parameterization is extremely</span>
+<span class="sd">        important, as finer meshes increase accuracy at the cost of performance, and scales O(n^2)</span>
+<span class="sd">        with increases in nz and nr.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            nz (float): Number of grid points in the z-axis.</span>
+<span class="sd">            nr (float): Number of grid points in the r-axis.</span>
+<span class="sd">            axial_size (float): Physical length of the z-axis in meters.</span>
+<span class="sd">            radial_size (float): Physical length of the r-axis in meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nz</span> <span class="o">=</span> <span class="n">nz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nr</span> <span class="o">=</span> <span class="n">nr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axial_size</span> <span class="o">=</span> <span class="n">axial_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radial_size</span> <span class="o">=</span> <span class="n">radial_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dz</span> <span class="o">=</span> <span class="n">axial_size</span> <span class="o">/</span> <span class="n">nz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dr</span> <span class="o">=</span> <span class="n">radial_size</span> <span class="o">/</span> <span class="n">nr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">nz</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">nr</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrode_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">nz</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">nr</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ez</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Er</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    
+<div class="viewcode-block" id="PotentialField.add_electrode">
+<a class="viewcode-back" href="../../api.html#picht.core.PotentialField.add_electrode">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_electrode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ElectrodeConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a single electrode to the potential field.</span>
+<span class="sd">        </span>
+<span class="sd">        This method places an electrode with the specified configuration into the simulation</span>
+<span class="sd">        domain, and handling the potential and field calculations cursorily.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            config (ElectrodeConfig): Configuration parameters for the electrode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">ap_start</span><span class="p">,</span> <span class="n">ap_width</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ap_start</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">ap_width</span>
+        <span class="n">outer_diameter</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">outer_diameter</span>
+        <span class="n">voltage</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">voltage</span>
+        
+        <span class="n">ap_center</span> <span class="o">=</span> <span class="n">ap_start</span> <span class="o">+</span> <span class="n">ap_width</span> <span class="o">/</span> <span class="mi">2</span>
+        
+        <span class="n">r_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ap_center</span> <span class="o">-</span> <span class="n">outer_diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">r_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ap_center</span> <span class="o">+</span> <span class="n">outer_diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">r_min</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">r_max</span><span class="p">)]</span> <span class="o">=</span> <span class="n">voltage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrode_mask</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">r_min</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">r_max</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="k">if</span> <span class="n">ap_width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ap_start</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">ap_start</span><span class="o">+</span><span class="n">ap_width</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">electrode_mask</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ap_start</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">ap_start</span><span class="o">+</span><span class="n">ap_width</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="PotentialField.solve_potential">
+<a class="viewcode-back" href="../../api.html#picht.core.PotentialField.solve_potential">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve_potential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span> <span class="n">convergence_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solves the electrostatic potential field using successive over-relaxation.</span>
+<span class="sd">        </span>
+<span class="sd">        This method computes the potential field throughout the full domain, then calculates the</span>
+<span class="sd">        electric field using E = -∇V, using numpy&#39;s gradient-finding tool. Tweaking here isn&#39;t necessary</span>
+<span class="sd">        for perf.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 2000.</span>
+<span class="sd">            convergence_threshold (float, optional): Convergence criterion for the solution. Defaults to 1e-6.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: The solved potential field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">solve_field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrode_mask</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_iterations</span><span class="p">),</span> <span class="n">convergence_threshold</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ez</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Er</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">potential</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential</span></div>
+
+    
+<div class="viewcode-block" id="PotentialField.get_field_at_position">
+<a class="viewcode-back" href="../../api.html#picht.core.PotentialField.get_field_at_position">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_field_at_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the electric field components at a specific position.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            z (float): Position along the z-axis in meters.</span>
+<span class="sd">            r (float): Position along the r-axis in meters.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[float, float]: The electric field components (Ez, Er) at the specified position.</span>
+<span class="sd">            </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If called prior to solve_potential() being executed. You can&#39;t ask for field values</span>
+<span class="sd">            before solving for the electric field. Reference the tutorial examples for proper syntax.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ez</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">Er</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Electric field components not calculated. Call solve_potential() first.&quot;</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">get_field</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ez</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Er</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">axial_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radial_size</span><span class="p">,</span> 
+                         <span class="bp">self</span><span class="o">.</span><span class="n">dz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dr</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nz</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nr</span><span class="p">))</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ParticleTracer">
+<a class="viewcode-back" href="../../api.html#picht.core.ParticleTracer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParticleTracer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handles the computation of particle dynamics, including relativistic effects,</span>
+<span class="sd">    for various ion species in the calculated electromagnetic fields. It supports tracking</span>
+<span class="sd">    particles through the simulation domain and calculating their trajectories.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        field (PotentialField): The potential field in which particles are traced.</span>
+<span class="sd">        current_ion (dict): Information about the currently selected ion species.</span>
+<span class="sd">        q_m (float): Charge-to-mass ratio of the current ion species.</span>
+<span class="sd">        </span>
+<span class="sd">    Constants:</span>
+<span class="sd">        ELECTRON_CHARGE (float): Elementary charge in Coulombs.</span>
+<span class="sd">        ELECTRON_MASS (float): Electron rest mass in kilograms.</span>
+<span class="sd">        SPEED_OF_LIGHT (float): Speed of light in vacuum in meters per second.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">ELECTRON_CHARGE</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.602e-19</span> 
+    <span class="n">ELECTRON_MASS</span> <span class="o">=</span> <span class="mf">9.11e-31</span>
+    <span class="n">SPEED_OF_LIGHT</span> <span class="o">=</span> <span class="mf">299792458.0</span>
+
+<div class="viewcode-block" id="ParticleTracer.__init__">
+<a class="viewcode-back" href="../../api.html#picht.core.ParticleTracer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">potential_field</span><span class="p">:</span> <span class="n">PotentialField</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the particle tracer with a potential field.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            potential_field (PotentialField): The electric potential field in which particles will be traced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">potential_field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="s1">&#39;e-&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;atomic_number&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_MASS</span><span class="p">,</span>
+            <span class="s1">&#39;charge&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_CHARGE</span><span class="p">,</span>
+            <span class="s1">&#39;charge_mass_ratio&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_CHARGE</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_MASS</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span><span class="p">[</span><span class="s1">&#39;charge_mass_ratio&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ParticleTracer.set_ion">
+<a class="viewcode-back" href="../../api.html#picht.core.ParticleTracer.set_ion">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;e-&#39;</span><span class="p">,</span> <span class="n">charge_state</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;        </span>
+<span class="sd">        Configures the particle tracer to simulate a specific element and charge.</span>
+<span class="sd">        It integrates with the mendeleev library to get atomic species data and automatically calculates</span>
+<span class="sd">        trajectories based on this.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            symbol (str, optional): Chemical symbol of the element, or &#39;e-&#39; for electrons. Defaults to &#39;e-&#39; for backwards compatibility on versions prior to ion optics support.</span>
+<span class="sd">            charge_state (float, optional): Charge state of the ion (positive for cations, negative for anions). Defaults to 1.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ParticleTracer: Uses self-reference to allow for for method chaining and greater conciseness.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">symbol</span> <span class="o">==</span> <span class="s1">&#39;e-&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="s1">&#39;e-&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;atomic_number&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_MASS</span><span class="p">,</span>
+                <span class="s1">&#39;charge&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_CHARGE</span><span class="p">,</span>
+                <span class="s1">&#39;charge_mass_ratio&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_CHARGE</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ELECTRON_MASS</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">element</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+            
+            <span class="n">isotope_mass</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">mass</span>
+            <span class="n">electron_charge</span> <span class="o">=</span> <span class="mf">1.602e-19</span>
+            
+            <span class="n">ion_charge</span> <span class="o">=</span> <span class="n">charge_state</span> <span class="o">*</span> <span class="n">electron_charge</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;symbol&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">symbol</span><span class="si">}{</span><span class="s1">&#39;+&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">charge_state</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="si">}{</span><span class="nb">abs</span><span class="p">(</span><span class="n">charge_state</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s1">&#39;atomic_number&#39;</span><span class="p">:</span> <span class="n">elem</span><span class="o">.</span><span class="n">atomic_number</span><span class="p">,</span>
+                <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="n">isotope_mass</span> <span class="o">*</span> <span class="mf">1.66053906660e-27</span><span class="p">,</span>
+                <span class="s1">&#39;charge&#39;</span><span class="p">:</span> <span class="n">ion_charge</span><span class="p">,</span>
+                <span class="s1">&#39;charge_mass_ratio&#39;</span><span class="p">:</span> <span class="n">ion_charge</span> <span class="o">/</span> <span class="p">(</span><span class="n">isotope_mass</span> <span class="o">*</span> <span class="mf">1.66053906660e-27</span><span class="p">)</span>
+            <span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span><span class="p">[</span><span class="s1">&#39;charge_mass_ratio&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ParticleTracer.get_velocity_from_energy">
+<a class="viewcode-back" href="../../api.html#picht.core.ParticleTracer.get_velocity_from_energy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_velocity_from_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy_eV</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts particle energy in electronvolts to velocity in meters per second,</span>
+<span class="sd">        accounting for relativistic effects. It&#39;s accurate for all energy scales from single-digit eV to GeV.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            energy_eV (float): Kinetic energy of the particle in electronvolts.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Particle velocity in meters per second.</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            This method accounts for relativistic effects, making it accurate for high-energy particles</span>
+<span class="sd">            where classical calculations would break down.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kinetic_energy</span> <span class="o">=</span> <span class="n">energy_eV</span> <span class="o">*</span> <span class="mf">1.602e-19</span>
+        <span class="n">mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span>
+        <span class="n">rest_energy</span> <span class="o">=</span> <span class="n">mass</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPEED_OF_LIGHT</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">total_energy</span> <span class="o">=</span> <span class="n">rest_energy</span> <span class="o">+</span> <span class="n">kinetic_energy</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPEED_OF_LIGHT</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">rest_energy</span><span class="o">/</span><span class="n">total_energy</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ParticleTracer.particle_dynamics">
+<a class="viewcode-back" href="../../api.html#picht.core.ParticleTracer.particle_dynamics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">particle_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;        </span>
+<span class="sd">        Differential equation function used by the ODE solver to calculate particle trajectories.</span>
+<span class="sd">        It calculates acceleration given position and velocity, and is relativistically compliant. A four-vector</span>
+<span class="sd">        approach isn&#39;t used, so proper time doesn&#39;t need to be tracked.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            t (float): Current time in the simulation.</span>
+<span class="sd">            state (List[float]): Current state [z, r, vz, vr] with position and velocity components.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: Derivatives of the state vector [vz, vr, az, ar] representing velocities and accelerations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">vr</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="n">Ez</span><span class="p">,</span> <span class="n">Er</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">get_field_at_position</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">calc_dynamics</span><span class="p">(</span>
+            <span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> 
+            <span class="n">Ez</span><span class="p">,</span> <span class="n">Er</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_m</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_ion</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">SPEED_OF_LIGHT</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ParticleTracer.trace_trajectory">
+<a class="viewcode-back" href="../../api.html#picht.core.ParticleTracer.trace_trajectory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trace_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                   <span class="n">initial_position</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+                   <span class="n">initial_velocity</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+                   <span class="n">simulation_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                   <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BDF&#39;</span><span class="p">,</span>
+                   <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+                   <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;        </span>
+<span class="sd">        Solves the equations of motion for a charged particle</span>
+<span class="sd">        in the electric field, by using an ODE solver from scipy.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            initial_position (Tuple[float, float]): Initial (z, r) position in meters.</span>
+<span class="sd">            initial_velocity (Tuple[float, float]): Initial (vz, vr) velocity in meters per second.</span>
+<span class="sd">            simulation_time (float): Total simulation time in seconds- should be between 1e-7 and 1e-10 as typical values.</span>
+<span class="sd">            method (str, optional): Integration method for solve_ivp. Defaults to &#39;BDF&#39;, due to stiffness-related errors with &#39;RK45&#39;.</span>
+<span class="sd">            rtol (float, optional): Relative tolerance for the ODE solver. Defaults to 1e-8.</span>
+<span class="sd">            atol (float, optional): Absolute tolerance for the ODE solver. Defaults to 1e-10.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Solution object from scipy.integrate.solve_ivp containing the trajectory information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">initial_state</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">initial_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="n">initial_position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">initial_velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="n">initial_velocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">]</span>
+    
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">solve_ivp</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">particle_dynamics</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">simulation_time</span><span class="p">),</span>
+            <span class="n">initial_state</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+            <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+    
+        <span class="k">return</span> <span class="n">solution</span></div>
+</div>
+
+
+<div class="viewcode-block" id="EinzelLens">
+<a class="viewcode-back" href="../../api.html#picht.core.EinzelLens">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EinzelLens</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an Einzel (unipotential) lens for charged particle focusing. Implements three electrodes using the pre-existing</span>
+<span class="sd">    ElectrodeConfig class in the archetypal arrangement of the unipotential lens.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        electrode1 (ElectrodeConfig): Configures the first electrode at 0V.</span>
+<span class="sd">        electrode2 (ElectrodeConfig): Configures for the second electrode held at (focus_voltage) V.</span>
+<span class="sd">        electrode3 (ElectrodeConfig): Configuration for the third electrode at 0V.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="EinzelLens.__init__">
+<a class="viewcode-back" href="../../api.html#picht.core.EinzelLens.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                <span class="n">position</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                <span class="n">aperture_center</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="n">aperture_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="n">focus_voltage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="n">gap_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a parameterizable unipotential/einzel lens with custom geometries, voltages, gap sizes, etc etc.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            position (float): Position where the lens begins on the z-axis in grid units (dz).</span>
+<span class="sd">            width (float): Width of the full lens assembly on the z-axis in grid units (dz).</span>
+<span class="sd">            aperture_center (float): Center of the aperture on the r-axis in grid units (dr).</span>
+<span class="sd">            aperture_width (float): Size of the aperture on the r-axis in grid units (dr).</span>
+<span class="sd">            outer_diameter (float): Full diameter of the electrodes in grid units on the r-axis (dr).</span>
+<span class="sd">            focus_voltage (float): Voltage applied to the center electrode in volts.</span>
+<span class="sd">            gap_size (int, optional): Size of gaps between electrodes in grid units- very important parameter for fringing behavior. Defaults to 1.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            If you want to add a focusing lens, make the polarity identical to the charge, and if you want a defocusing lens, make it the opposite. </span>
+<span class="sd">            E.g. for electrons a -10000V lens will be converging and a 10000V lens diverging, whereas for positive ions the inverse is true.</span>
+<span class="sd">            You want unipotential lenses&#39; voltage to be at, above, or near the eV value you give your particles in terms of speed. Note that, since </span>
+<span class="sd">            cylindrical electrodes aren&#39;t unipotential, you can have accelerating or decelerating behavior from them, but einzel lenses will</span>
+<span class="sd">            keep your electrons at the same energy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">electrode_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">gap_size</span><span class="p">)</span><span class="o">/</span><span class="mf">3.0</span> 
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrode1</span> <span class="o">=</span> <span class="n">ElectrodeConfig</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">electrode_thickness</span><span class="p">,</span>
+            <span class="n">ap_start</span><span class="o">=</span><span class="n">aperture_center</span> <span class="o">-</span> <span class="n">aperture_width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">ap_width</span><span class="o">=</span><span class="n">aperture_width</span><span class="p">,</span>
+            <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+            <span class="n">voltage</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrode2</span> <span class="o">=</span> <span class="n">ElectrodeConfig</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">position</span> <span class="o">+</span> <span class="n">electrode_thickness</span> <span class="o">+</span> <span class="n">gap_size</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">electrode_thickness</span><span class="p">,</span>
+            <span class="n">ap_start</span><span class="o">=</span><span class="n">aperture_center</span> <span class="o">-</span> <span class="n">aperture_width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">ap_width</span><span class="o">=</span><span class="n">aperture_width</span><span class="p">,</span>
+            <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+            <span class="n">voltage</span><span class="o">=</span><span class="n">focus_voltage</span>
+        <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrode3</span> <span class="o">=</span> <span class="n">ElectrodeConfig</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">position</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">electrode_thickness</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">gap_size</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">electrode_thickness</span><span class="p">,</span>
+            <span class="n">ap_start</span><span class="o">=</span><span class="n">aperture_center</span> <span class="o">-</span> <span class="n">aperture_width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">ap_width</span><span class="o">=</span><span class="n">aperture_width</span><span class="p">,</span>
+            <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+            <span class="n">voltage</span><span class="o">=</span><span class="mi">0</span> 
+        <span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="EinzelLens.add_to_field">
+<a class="viewcode-back" href="../../api.html#picht.core.EinzelLens.add_to_field">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_to_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">PotentialField</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            field (PotentialField): An empty potential field initialization before adding electrodes to the field calculations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">add_electrode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electrode1</span><span class="p">)</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">add_electrode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electrode2</span><span class="p">)</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">add_electrode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electrode3</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="IonOpticsSystem">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IonOpticsSystem</span><span class="p">:</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The top-level class which synthesizes all prior functionality.</span>
+<span class="sd">    Initializes the potential field, particle tracing, and visualization</span>
+<span class="sd">    components to provide a complete environment for designing and analyzing</span>
+<span class="sd">    ion/electron optics systems. </span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        field (PotentialField): The potential field initialized in the simulation.</span>
+<span class="sd">        tracer (ParticleTracer): The trajectory calcuation tracer.</span>
+<span class="sd">        elements (list): List of all electrodes and lenses inside the system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="IonOpticsSystem.__init__">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nz</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axial_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">radial_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes an ion optics system with dimensions with the domain (axial_size, radial_size) in meters, and with</span>
+<span class="sd">        a grid of (nz, nr) units.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            nr (float): Number of grid points in the r-axis direction.</span>
+<span class="sd">            nz (float): Number of grid points in the z-axis direction.</span>
+<span class="sd">            axial_size (float, optional): Length of the system in the z-direction in meters.</span>
+<span class="sd">            radial_size (float, optional): Length of the system in the r-direction in meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">PotentialField</span><span class="p">(</span><span class="n">nz</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">axial_size</span><span class="p">,</span> <span class="n">radial_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracer</span> <span class="o">=</span> <span class="n">ParticleTracer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="IonOpticsSystem.add_electrode">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem.add_electrode">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_electrode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ElectrodeConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a single electrode to the ion optics system.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            config (ElectrodeConfig): Configuration parameters for the electrode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">add_electrode</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="IonOpticsSystem.add_einzel_lens">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem.add_einzel_lens">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_einzel_lens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                       <span class="n">position</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                       <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+                       <span class="n">aperture_center</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                       <span class="n">aperture_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                       <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                       <span class="n">focus_voltage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                       <span class="n">gap_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;        </span>
+<span class="sd">        Inserts the einzel/unipotential lenses to the system, using the pre-existing EinzelLens class.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            position (float): Position where the lens begins on the z-axis in grid units (dz).</span>
+<span class="sd">            width (float): Width of the full lens assembly on the z-axis in grid units (dz).</span>
+<span class="sd">            aperture_center (float): Center of the aperture on the r-axis in grid units (dr).</span>
+<span class="sd">            aperture_width (float): Size of the aperture on the r-axis in grid units (dr).</span>
+<span class="sd">            outer_diameter (float): Full diameter of the electrodes in grid units on the r-axis (dr).</span>
+<span class="sd">            focus_voltage (float): Voltage applied to the center electrode in volts.</span>
+<span class="sd">            gap_size (int, optional): Size of gaps between electrodes in grid units- very important parameter for fringing behavior. Defaults to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="n">EinzelLens</span><span class="p">(</span>
+            <span class="n">position</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">aperture_center</span><span class="p">,</span> <span class="n">aperture_width</span><span class="p">,</span> 
+            <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">focus_voltage</span><span class="p">,</span> <span class="n">gap_size</span>
+        <span class="p">)</span>
+        <span class="n">lens</span><span class="o">.</span><span class="n">add_to_field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="IonOpticsSystem.solve_fields">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem.solve_fields">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solves the potential field, calculates all electric field components and properly</span>
+<span class="sd">        initializes things like electrode masks and boundary conditions.</span>
+<span class="sd">        Call this after all electrodes and lenses have been added</span>
+<span class="sd">        to the system, but before simulating particle trajectories.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: The solved potential field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">solve_potential</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="IonOpticsSystem.simulate_beam">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem.simulate_beam">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_beam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy_eV</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">start_z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                         <span class="n">r_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+                         <span class="n">angle_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+                         <span class="n">num_particles</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                         <span class="n">simulation_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;                </span>
+<span class="sd">        Initializes a parameterized beam, where you can define each particle&#39;s</span>
+<span class="sd">        kinetic energy in eV, its angular spread, and how many individual particles you</span>
+<span class="sd">        simulate. Note that we don&#39;t implement Coulomb repulsion between particles, so the</span>
+<span class="sd">        number of particles is only for better, more granular understanding.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            energy_eV (float): Kinetic energy of each particle in electronvolts.</span>
+<span class="sd">            start_z (float): Starting position for all particles on the z-axis in meters, not in grid units.</span>
+<span class="sd">            r_range (Tuple[float, float]): The range of initial radial positions in meters- effectively the beam width.</span>
+<span class="sd">            angle_range (tuple): Range of initial angles from the horizontal in radians.</span>
+<span class="sd">            num_particles (float): Number of particles to simulate in the beam- keep at 3-6 for prototyping and 10-100 for full simulation.</span>
+<span class="sd">            simulation_time (float): Total simulation time in seconds, typically between 1e-10 to 1e-7.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of trajectory solutions for all simulated particles.            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">velocity_magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracer</span><span class="o">.</span><span class="n">get_velocity_from_energy</span><span class="p">(</span><span class="n">energy_eV</span><span class="p">)</span>
+        <span class="n">min_angle_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">max_angle_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_angle_rad</span><span class="p">,</span> <span class="n">max_angle_rad</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_particles</span><span class="p">))</span>
+        <span class="n">r_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">r_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_particles</span><span class="p">))</span>
+    
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r_pos</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r_positions</span><span class="p">,</span> <span class="n">angles</span><span class="p">):</span>
+            <span class="n">vz</span> <span class="o">=</span> <span class="n">velocity_magnitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+            <span class="n">vr</span> <span class="o">=</span> <span class="n">velocity_magnitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+   
+            <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracer</span><span class="o">.</span><span class="n">trace_trajectory</span><span class="p">(</span>
+                <span class="n">initial_position</span><span class="o">=</span><span class="p">(</span><span class="n">start_z</span><span class="p">,</span> <span class="n">r_pos</span><span class="p">),</span>
+                <span class="n">initial_velocity</span><span class="o">=</span><span class="p">(</span><span class="n">vz</span><span class="p">,</span> <span class="n">vr</span><span class="p">),</span>
+                <span class="n">simulation_time</span><span class="o">=</span><span class="n">simulation_time</span>
+            <span class="p">)</span>
+            <span class="n">trajectories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
+   
+        <span class="k">return</span> <span class="n">trajectories</span></div>
+
+        
+<div class="viewcode-block" id="IonOpticsSystem.visualize_system">
+<a class="viewcode-back" href="../../api.html#picht.core.IonOpticsSystem.visualize_system">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visualize_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                       <span class="n">trajectories</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                       <span class="n">r_limits</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+                       <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Electron Trajectories&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visualizes the charged particle trajectories, by creating a plot in</span>
+<span class="sd">        cylindrical coordinates.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            trajectories (list, optional): List of trajectory solutions to visualize. None by default.</span>
+<span class="sd">            r_limits (tuple, optional): Y-axis limits (min, max) for the plot in meters. None by default.</span>
+<span class="sd">            figsize (tuple, optional): Figure size as (width, height) in inches. (15, 6) by default.</span>
+<span class="sd">            title (str, optional): Plot title, &quot;Electron Trajectories&quot; by default.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib.figure.Figure: The created figure object.</span>
+
+<span class="sd">        Example Usage:</span>
+<span class="sd">        figure = system.visualize_system(</span>
+<span class="sd">        trajectories=trajectories,</span>
+<span class="sd">        r_limits = (0.049, 0.051))</span>
+
+<span class="sd">        This forcefully limits the view of the trajectories to be within 0.049 meters and 0.051 meters</span>
+<span class="sd">        on the radial axis. If you don&#39;t specify r_limits, it&#39;s completely fine, because it auto-sizes</span>
+<span class="sd">        it based on how divergent the beams are. Specify r_limits to &#39;zoom in&#39; to better understand </span>
+<span class="sd">        focusing, or ultra-fine beam behavior.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">trajectories</span><span class="p">:</span>
+            <span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">trajectories</span><span class="p">):</span>
+                <span class="n">z_traj</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">r_traj</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">z_traj</span><span class="p">,</span> <span class="n">r_traj</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;z position (meters)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;r position (meters)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">r_limits</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">r_limits</span><span class="p">)</span>
+            
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Rishiit Sharma.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
