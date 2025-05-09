@@ -163,6 +163,8 @@ system.tracer.set_ion('Ga', charge_state=1)
 ```
 For gallium (Ga+) ions like those used in gallium FIB. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
 
+Additional information, API documentation, and tutorials can be found at the [official website](https://rolypolytoy.github.io/picht/).
+
 ## Internals
 
 The code has several architectural decisions that make it powerful, Pythonic, and performant. The library uses Numba for compiled language-level speeds, calculates particle dynamics using the BDF solver because RK45 isn't good for stiff problems, and does not use the paraxial ray equation, but instead the Lorentz force for electrostatics, and indeed to do this, solves the full Laplacian for voltage (∇²V = 0), followed by the electric field by solving for the negative of the gradient field of voltage (E = -∇V). I also calculate relativistic corrections not using a full four-vector treatment, but by using the Lorentz factor for velocity and acceleration corrections, to get both rapid computation and accurate results in the high-keV or MeV energy regime.
