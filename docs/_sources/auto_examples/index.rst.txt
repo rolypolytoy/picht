@@ -85,7 +85,7 @@ Begin at electrode creation, work your way through the unipotential lens series,
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Here&#x27;s a full simulation of an electrostatic lens-only scanning electron microscope (SEM), where we combine electrostatic lenses, einzel lenses, and complex acceleration, focusing and defocusing behaviors in one instance:">
+    <div class="sphx-glr-thumbcontainer" tooltip="Here&#x27;s a full simulation of an electrostatic lens-only scanning electron microscope (SEM), where we combine electrostatic lenses, einzel lenses, and complex acceleration, focusing and defocusing behaviors in one instance. We chain together several electrodes, a condenser (einzel) lens, and an objective (einzel) lens and observe two full crossovers- that&#x27;s where the beams make an X. Note how because of the clean-ness of the design, it looks like two clean lines- this isn&#x27;t because we&#x27;ve parameterized the beam this way, but because of the electron optics at play. Tinker with the parameters here, see how things change.">
 
 .. only:: html
 
@@ -96,7 +96,7 @@ Begin at electrode creation, work your way through the unipotential lens series,
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Advanced Use Case: SEM Simulation</div>
+      <div class="sphx-glr-thumbnail-title">Full-Scale SEM Simulation</div>
     </div>
 
 

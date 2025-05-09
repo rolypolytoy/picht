@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:41.979** total execution time for 5 files **from all galleries**:
+**00:17.213** total execution time for 5 files **from all galleries**:
 
 .. container::
 
@@ -33,17 +33,17 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_example_sem_simulation.py` (``..\examples\example_sem_simulation.py``)
-     - 00:25.762
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_example_cylindrical_lens.py` (``..\examples\example_cylindrical_lens.py``)
-     - 00:04.718
+     - 00:06.260
      - 0.0
    * - :ref:`sphx_glr_auto_examples_example_einzellens_defocusing.py` (``..\examples\example_einzellens_defocusing.py``)
-     - 00:04.700
+     - 00:03.024
      - 0.0
    * - :ref:`sphx_glr_auto_examples_example_einzellens_focusing.py` (``..\examples\example_einzellens_focusing.py``)
-     - 00:04.282
+     - 00:03.017
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_example_cylindrical_lens.py` (``..\examples\example_cylindrical_lens.py``)
+     - 00:02.985
      - 0.0
    * - :ref:`sphx_glr_auto_examples_example_einzellens_deflection.py` (``..\examples\example_einzellens_deflection.py``)
-     - 00:02.517
+     - 00:01.928
      - 0.0

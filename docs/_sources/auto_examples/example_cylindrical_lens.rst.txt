@@ -85,7 +85,7 @@ You can initialize a cylindrical electrode with -5000V focus voltage and 10keV e
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.718 seconds)
+   **Total running time of the script:** (0 minutes 2.985 seconds)
 
 
 .. _sphx_glr_download_auto_examples_example_cylindrical_lens.py:
