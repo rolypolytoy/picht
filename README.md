@@ -8,6 +8,7 @@ It exists to provide a tool that's free and open-source, easily modifiable, and 
 pip install picht
 ```
 [![PyPI version](https://img.shields.io/pypi/v/picht.svg)](https://pypi.org/project/picht/) ![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15376240.svg)](https://doi.org/10.5281/zenodo.15376240)
 
 ## Documentation
 
