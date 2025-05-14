@@ -1,0 +1,258 @@
+{
+ "ElectrodeConfig": [
+  {
+   "is_class": true,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  },
+  {
+   "is_class": true,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  }
+ ],
+ "IonOpticsSystem": [
+  {
+   "is_class": true,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem"
+  },
+  {
+   "is_class": true,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem"
+  }
+ ],
+ "anode": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  }
+ ],
+ "cathode": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  }
+ ],
+ "figure": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "matplotlib.figure",
+   "module_short": "matplotlib.figure",
+   "name": "Figure"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "matplotlib",
+   "module_short": "matplotlib",
+   "name": "Figure"
+  }
+ ],
+ "plt.show": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "builtins",
+   "module_short": "builtins",
+   "name": "function"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "matplotlib.pyplot",
+   "module_short": "matplotlib.pyplot",
+   "name": "show"
+  }
+ ],
+ "potential": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "numpy",
+   "module_short": "numpy",
+   "name": "ndarray"
+  }
+ ],
+ "system": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem"
+  }
+ ],
+ "system.add_einzel_lens": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.add_einzel_lens"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.add_einzel_lens"
+  }
+ ],
+ "system.add_electrode": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.add_electrode"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.add_electrode"
+  }
+ ],
+ "system.simulate_beam": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.simulate_beam"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.simulate_beam"
+  }
+ ],
+ "system.solve_fields": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.solve_fields"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.solve_fields"
+  }
+ ],
+ "system.visualize_system": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.visualize_system"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "IonOpticsSystem.visualize_system"
+  }
+ ],
+ "trajectories": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "builtins",
+   "module_short": "builtins",
+   "name": "list"
+  }
+ ],
+ "wehnelt1": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  }
+ ],
+ "wehnelt2": [
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht.core",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  },
+  {
+   "is_class": false,
+   "is_explicit": false,
+   "module": "picht",
+   "module_short": "picht",
+   "name": "ElectrodeConfig"
+  }
+ ]
+}
