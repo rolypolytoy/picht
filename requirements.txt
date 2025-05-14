@@ -6,4 +6,5 @@ pyamg
 joblib
 cadquery
 h5py
+pytest
 numpy==1.26.4

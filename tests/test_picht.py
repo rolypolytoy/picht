@@ -21,8 +21,9 @@ class TestPotentialField:
         assert field.dr == 0.001
         assert field.potential.shape == (100, 50)
         assert not np.any(field.electrode_mask)
-        assert field.Ez is None
-        assert field.Er is None
+        # Fixed: Ez and Er are initialized as zero arrays, not None
+        assert np.all(field.Ez == 0)
+        assert np.all(field.Er == 0)
 
     def test_add_electrode(self):
         field = PotentialField(100, 50, 0.1, 0.05)
