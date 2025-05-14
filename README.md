@@ -49,8 +49,8 @@ It produces, in less than 30 seconds, a physically realistic map of the particle
 
 In this we can observe several realistic behaviors, including how the fringing fields in einzel lenses first mildly defocus and then focus the beam, the beam crossover, and spherical aberration in the lens. By default, we assume Dirichlet boundary conditions, to better simulate real electrostatic lens systems with metal boundaries. Neumann boundary conditions might provide more idealized behavior, and are the defaults in most commercial electron optics solvers (including those used in COMSOL and ANSYS Maxwell), however since Dirichlet boundary conditions effectively simulate grounded boundaries rather than infinitely extending ones, for real-life systems, this is significantly more accurate, and reduces the insidious simulation-experimental gap.
 
-A more complex example looks like this:
-![SEM](https://github.com/user-attachments/assets/6fcb361e-1bca-42dc-8548-b18654829814)
+A more complex example made with later versions looks like:
+![NewUI](https://github.com/user-attachments/assets/234dadd2-2648-4500-8681-fbb061f8b90a)
 
 How to get images like this, and what this represents is all in the [documentation website](https://rolypolytoy.github.io/picht/), which I recommend you check out for a longer intro to Picht.
 
