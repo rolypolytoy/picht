@@ -6,7 +6,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="picht",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     version="1.1.4",
+=======
+    version="2.0.0",
+>>>>>>> Stashed changes
 =======
     version="2.0.0",
 >>>>>>> Stashed changes
@@ -42,6 +46,9 @@ setup(
         "cadquery",
         "h5py",
         "numpy==1.26.4",
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     ],
     license="MIT",

@@ -11,13 +11,20 @@ import pyamg
 from joblib import Parallel, delayed
 import multiprocessing
 import os
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 @dataclass
 class ElectrodeConfig:
     """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     Configures the simplest kind of electrostatic lens: the cylindrical electrode.
+=======
+    Configures a simple cylindrically symmetric electrostatic lens.
+>>>>>>> Stashed changes
 =======
     Configures a simple cylindrically symmetric electrostatic lens.
 >>>>>>> Stashed changes
@@ -89,9 +96,14 @@ def get_field(z, r, Ez, Er, axial_size, radial_size, dz, dr, nz, nr):
     """
     Provides electric field values at fractional grid positions by
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     interpolating between grid points. It handles boundary conditions by returning
     zero field values for positions outside the simulation domain, which means
     outside the defined domain, no forces can be imposed on the charged particles.
+=======
+    picking the value at the nearest neighbor. Necessary because 
+    FDM is discretizing by nature.
+>>>>>>> Stashed changes
 =======
     picking the value at the nearest neighbor. Necessary because 
     FDM is discretizing by nature.
@@ -134,11 +146,15 @@ def calc_dynamics(z, r, pz, pr, Ez, Er, q, m, c):
     Calculates the acceleration of charged particles by applying
     the Lorentz force with special-relativistic corrections. Uses energy
     momentum formalism for full eV to TeV support.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     
     Parameters:
         z (float): Z-axis position in meters.
         r (float): R-axis position in meters.
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         vz (float): Z-axis velocity in meters per second.
         vr (float): R-axis velocity in meters per second.
@@ -146,16 +162,22 @@ def calc_dynamics(z, r, pz, pr, Ez, Er, q, m, c):
         Er (float): R-axis electric field in volts per meter.
         qm (float): Charge-to-mass ratio of the particle.
 =======
+=======
+>>>>>>> Stashed changes
         pz (float): Z-axis momentum in kg * m/s.
         pr (float): R-axis momentum in kg * m/s.
         Ez (float): Z-axis electric field in volts per meter.
         Er (float): R-axis electric field in volts per meter.
         q (float): Charge of the particle.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         mass (float): Particle mass in kg.
         c (float): Speed of light in a vacuum in meters per second.
         
     Returns:
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         ndarray: Array containing [vz, vr, az, ar], representing velocity and acceleration
                 components in the z and r directions for complete kinematic information.
@@ -183,6 +205,8 @@ class PotentialField:
     of the particle trajectory calculations, as this is the bulk of the information particles use
     for trajectory calculations.
 =======
+=======
+>>>>>>> Stashed changes
         ndarray: Array containing [vz, vr, dpz_dt, dpr_dt], representing velocity and force
                 components in the z and r directions for complete kinematic information (force is dp/dt).
     """
@@ -198,6 +222,9 @@ class PotentialField:
     """
     This class handles everything related to the electric potential field, including
     adding electrodes and einzel lenses, and solving for the electric field.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     
     Attributes:
@@ -213,12 +240,19 @@ class PotentialField:
         Er (ndarray): R-component of electric field in Volts per meter.
     """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     def __init__(self, nz: float, nr: float, axial_size: float, radial_size: float):
         """
         Initializes the potential field with specified dimensions. This parameterization is extremely
         important, as finer meshes increase accuracy at the cost of performance, and scales O(n^2)
         with increases in nz and nr.
+=======
+    def __init__(self, nz: float, nr: float, axial_size: float, radial_size: float):
+        """
+        Initializes the potential field with the specific dimensions. This decision is 
+        extremely important, as finer meshes increase accuracy at the cost of performance.
+>>>>>>> Stashed changes
 =======
     def __init__(self, nz: float, nr: float, axial_size: float, radial_size: float):
         """
@@ -233,9 +267,12 @@ class PotentialField:
             radial_size (float): Physical length of the r-axis in meters.
         """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         self.nz = nz
         self.nr = nr
 =======
+=======
+>>>>>>> Stashed changes
         self.nz = int(nz)
         self.nr = int(nr)
 >>>>>>> Stashed changes
@@ -251,11 +288,17 @@ class PotentialField:
     def add_electrode(self, config: ElectrodeConfig):
         """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         Adds a single electrode to the potential field.
         
         This method places an electrode with the specified configuration into the simulation
         domain, and handling the potential and field calculations cursorily.
         
+=======
+        Adds a single electrode to the electric field and handles all
+        necessary calculations.
+                
+>>>>>>> Stashed changes
 =======
         Adds a single electrode to the electric field and handles all
         necessary calculations.
@@ -277,6 +320,7 @@ class PotentialField:
             self.potential[int(start):int(start+width), int(ap_start):int(ap_start+ap_width)] = 0
             self.electrode_mask[int(start):int(start+width), int(ap_start):int(ap_start+ap_width)] = False
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     def solve_potential(self, max_iterations: float = 2000, convergence_threshold: float = 1e-6):
         """
@@ -286,6 +330,8 @@ class PotentialField:
         electric field using E = -∇V, using numpy's gradient-finding tool. Tweaking here isn't necessary
         for perf.
 =======
+=======
+>>>>>>> Stashed changes
 
     def build_laplacian_matrix(self, mask, dirichlet_values=None):
         """
@@ -389,6 +435,7 @@ class PotentialField:
         Returns:
             Tuple[float, float]: The electric field components (Ez, Er) at the specified position.
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             
         Raises:
             ValueError: If called prior to solve_potential() being executed. You can't ask for field values
@@ -400,11 +447,15 @@ class PotentialField:
 =======
         """
 >>>>>>> Stashed changes
+=======
+        """
+>>>>>>> Stashed changes
         return get_field(z, r, self.Ez, self.Er, self.axial_size, self.radial_size, 
                          self.dz, self.dr, int(self.nz), int(self.nr))
 
 class ParticleTracer:
     """
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     Handles the computation of particle dynamics, including relativistic effects,
     for various ion species in the calculated electromagnetic fields. It supports tracking
@@ -424,6 +475,8 @@ class ParticleTracer:
     ELECTRON_CHARGE = -1.602e-19 
     ELECTRON_MASS = 9.11e-31
 =======
+=======
+>>>>>>> Stashed changes
     Handles trajectory dynamics calculations and visualizations.
     
     Attributes:
@@ -439,21 +492,30 @@ class ParticleTracer:
     """
     ELECTRON_CHARGE = -1.60217663e-19 
     ELECTRON_MASS = 9.1093837e-31
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     SPEED_OF_LIGHT = 299792458.0
 
     def __init__(self, potential_field: PotentialField):
         """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         Initializes the particle tracer with a potential field.
         
         Parameters:
             potential_field (PotentialField): The electric potential field in which particles will be traced.
 =======
+=======
+>>>>>>> Stashed changes
         Initializes a potential field with the class.
         
         Parameters:
             potential_field (PotentialField): The electric potential field required to calculate particle dynamics.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         """
         self.field = potential_field
@@ -469,6 +531,7 @@ class ParticleTracer:
     def set_ion(self, symbol: str = 'e-', charge_state: float = 1):
         """        
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         Configures the particle tracer to simulate a specific element and charge.
         It integrates with the mendeleev library to get atomic species data and automatically calculates
         trajectories based on this.
@@ -480,6 +543,8 @@ class ParticleTracer:
         Returns:
             ParticleTracer: Uses self-reference to allow for for method chaining and greater conciseness.
 =======
+=======
+>>>>>>> Stashed changes
         Configures the particle tracer to pick a specific charged particle. 
         Integrates with the Mendeleev library to automatically retrieve
         information about any and all atoms, and natively supports electrons.
@@ -490,6 +555,9 @@ class ParticleTracer:
             
         Returns:
             ParticleTracer: Uses self-reference for method chaining to support Picht's general style of power but conciseness.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         """
         if symbol == 'e-':
@@ -505,8 +573,12 @@ class ParticleTracer:
             
             isotope_mass = elem.mass
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             electron_charge = 1.602e-19
             
+=======
+            electron_charge = 1.60217663e-19
+>>>>>>> Stashed changes
 =======
             electron_charge = 1.60217663e-19
 >>>>>>> Stashed changes
@@ -530,6 +602,7 @@ class ParticleTracer:
         
         Parameters:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             energy_eV (float): Kinetic energy of the particle in electronvolts.
             
         Returns:
@@ -541,6 +614,8 @@ class ParticleTracer:
         """
         kinetic_energy = energy_eV * 1.602e-19
 =======
+=======
+>>>>>>> Stashed changes
             energy_eV (float): Kinetic energy of the particle in electronvolts, the standard unit of energy in
             particle physics. 1eV is approximately 1.6022e-19 Joules, and is the kinetic energy an electron
             has after being accelerated through an electric field with potential difference of 1 Volt.
@@ -549,6 +624,9 @@ class ParticleTracer:
             float: Particle velocity in meters per second.
         """
         kinetic_energy = energy_eV * 1.60217663e-19
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         mass = self.current_ion['mass']
         rest_energy = mass * self.SPEED_OF_LIGHT**2
@@ -564,6 +642,7 @@ class ParticleTracer:
         Parameters:
             t (float): Current time in the simulation.
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             state (List[float]): Current state [z, r, vz, vr] with position and velocity components.
             
         Returns:
@@ -571,6 +650,8 @@ class ParticleTracer:
         """
         z, r, vz, vr = state
 =======
+=======
+>>>>>>> Stashed changes
             state (List[float]): Current state [z, r, pz, pr] with position and momentum components.
             
         Returns:
@@ -657,8 +738,13 @@ class ParticleTracer:
 class EinzelLens:
     """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     Implements an Einzel (unipotential) lens for charged particle focusing. Implements three electrodes using the pre-existing
     ElectrodeConfig class in the archetypal arrangement of the unipotential lens.
+=======
+    Implements an Einzel (unipotential) lens for charged particle focusing. Implements three electrodes using 
+    the pre-existing ElectrodeConfig class in the geometry of the unipotential lens.
+>>>>>>> Stashed changes
 =======
     Implements an Einzel (unipotential) lens for charged particle focusing. Implements three electrodes using 
     the pre-existing ElectrodeConfig class in the geometry of the unipotential lens.
@@ -670,7 +756,10 @@ class EinzelLens:
         electrode3 (ElectrodeConfig): Configuration for the third electrode at 0V.
     """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     def __init__(self, 
@@ -682,8 +771,14 @@ class EinzelLens:
                 focus_voltage: float,
                 gap_size: int = 1):
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         """
         Creates a parameterizable unipotential/einzel lens with custom geometries, voltages, gap sizes, etc etc.
+=======
+
+        """
+        Creates a parameterizable einzel lens.
+>>>>>>> Stashed changes
         
         Parameters:
             position (float): Position where the lens begins on the z-axis in grid units (dz).
@@ -692,6 +787,7 @@ class EinzelLens:
             aperture_width (float): Size of the aperture on the r-axis in grid units (dr).
             outer_diameter (float): Full diameter of the electrodes in grid units on the r-axis (dr).
             focus_voltage (float): Voltage applied to the center electrode in volts.
+<<<<<<< Updated upstream
             gap_size (int, optional): Size of gaps between electrodes in grid units- very important parameter for fringing behavior. Defaults to 1.
 
         Note:
@@ -715,6 +811,8 @@ class EinzelLens:
             aperture_width (float): Size of the aperture on the r-axis in grid units (dr).
             outer_diameter (float): Full diameter of the electrodes in grid units on the r-axis (dr).
             focus_voltage (float): Voltage applied to the center electrode in volts.
+=======
+>>>>>>> Stashed changes
             gap_size (int, optional): Size of gaps between electrodes in grid units. 
         """
         electrode_thickness = (width - 3 * gap_size)/3.0 
@@ -747,7 +845,11 @@ class EinzelLens:
         """        
         Parameters:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             field (PotentialField): An empty potential field initialization before adding electrodes to the field calculations.
+=======
+            field (PotentialField): Initializes a PotentialField so it can add three electrodes to it as defined by __init__().
+>>>>>>> Stashed changes
 =======
             field (PotentialField): Initializes a PotentialField so it can add three electrodes to it as defined by __init__().
 >>>>>>> Stashed changes
@@ -770,6 +872,9 @@ class IonOpticsSystem:
     components to provide a complete environment for designing and analyzing
     ion/electron optics systems. Contains a lot of referential code for this
     reason.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     
     Attributes:
@@ -781,8 +886,13 @@ class IonOpticsSystem:
     def __init__(self, nr: float, nz: float, axial_size: float = 0.1, radial_size: float = 0.1):
         """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         Initializes an ion optics system with dimensions with the domain (axial_size, radial_size) in meters, and with
         a grid of (nz, nr) units.
+=======
+        Initializes an ion optics system with dimensions with the domain (axial_size, radial_size) in 
+        meters, and with a grid of (nz, nr) units.
+>>>>>>> Stashed changes
 =======
         Initializes an ion optics system with dimensions with the domain (axial_size, radial_size) in 
         meters, and with a grid of (nz, nr) units.
@@ -801,7 +911,12 @@ class IonOpticsSystem:
     def add_electrode(self, config: ElectrodeConfig):
         """
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         Adds a single electrode to the ion optics system.
+=======
+        Adds a single electrode to the ion optics system when ElectrodeConfig is used
+        by calling on the pre-existing add_electrode() function.
+>>>>>>> Stashed changes
 =======
         Adds a single electrode to the ion optics system when ElectrodeConfig is used
         by calling on the pre-existing add_electrode() function.
@@ -841,6 +956,7 @@ class IonOpticsSystem:
         
     def solve_fields(self):
         """
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         Solves the potential field, calculates all electric field components and properly
         initializes things like electrode masks and boundary conditions.
@@ -945,6 +1061,11 @@ class IonOpticsSystem:
         Solves the potential field using the pre-existing
         PyAMG-based multigrid solver.
         
+=======
+        Solves the potential field using the pre-existing
+        PyAMG-based multigrid solver.
+        
+>>>>>>> Stashed changes
         Returns:
             ndarray: The solved potential field.
         """
@@ -1335,5 +1456,9 @@ class Export:
                         .center(0, ap_center_mm)
                         .circle(outer_radius_mm)
                         .extrude(z_length_mm))
+<<<<<<< Updated upstream
+        return electrode
+>>>>>>> Stashed changes
+=======
         return electrode
 >>>>>>> Stashed changes
