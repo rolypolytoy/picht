@@ -25,6 +25,8 @@ Contents
 .. toctree::
    :maxdepth: 2
    
+   gettingstarted
+   physics
    api
    auto_examples/index
 

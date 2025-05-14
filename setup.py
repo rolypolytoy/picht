@@ -5,7 +5,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
+<<<<<<< Updated upstream
     version="1.1.4",
+=======
+    version="2.0.0",
+>>>>>>> Stashed changes
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron and ion optics simulation using the Finite Difference Method (FDM)",
@@ -15,8 +19,6 @@ setup(
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -29,11 +31,18 @@ setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "numpy==1.26.4",
         "matplotlib",
         "scipy",
         "numba",
         "mendeleev",
+<<<<<<< Updated upstream
+=======
+        "pyamg",
+        "joblib",
+        "cadquery",
+        "h5py",
+        "numpy==1.26.4",
+>>>>>>> Stashed changes
     ],
     license="MIT",
 )

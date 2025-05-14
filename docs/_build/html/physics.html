@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Computational Physics &mdash; picht 1.1.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=00f267c6"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Documentation" href="api.html" />
+    <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            picht
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Computational Physics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mathematical-formulation">Mathematical Formulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#electrostatic-field-equations">Electrostatic Field Equations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#particle-dynamics">Particle Dynamics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#relativistic-equations-of-motion">Relativistic Equations of Motion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#energy-momentum-relation">Energy-Momentum Relation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#numerical-methods">Numerical Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#finite-difference-method-fdm">Finite Difference Method (FDM)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spatial-discretization">Spatial Discretization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grid-structure">Grid Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matrix-formulation">Matrix Formulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#multigrid-solver-pyamg">Multigrid Solver (PyAMG)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-overview">Algorithm Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#convergence-properties">Convergence Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ode-integration">ODE Integration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bdf-methods">BDF Methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#force-calculations">Force Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#grid-resolution-guidelines">Grid Resolution Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Gallery</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">picht</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Computational Physics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/physics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="computational-physics">
+<h1>Computational Physics<a class="headerlink" href="#computational-physics" title="Link to this heading"></a></h1>
+<p>This document explains the computational physics methods and theoretical foundations used in Picht for simulating charged particle trajectories through electrostatic fields.</p>
+<section id="mathematical-formulation">
+<h2>Mathematical Formulation<a class="headerlink" href="#mathematical-formulation" title="Link to this heading"></a></h2>
+<section id="electrostatic-field-equations">
+<h3>Electrostatic Field Equations<a class="headerlink" href="#electrostatic-field-equations" title="Link to this heading"></a></h3>
+<p>Picht solves the electrostatic potential using Laplace’s equation in cylindrical coordinates:</p>
+<div class="math notranslate nohighlight">
+\[\nabla^2 \phi = \frac{\partial^2 V}{\partial z^2} + \frac{\partial^2 V}{\partial r^2} + \frac{1}{r}\frac{\partial V}{\partial r} = 0\]</div>
+<p>where V is the electrostatic potential, <span class="math notranslate nohighlight">\(z\)</span> is the axial coordinate, and <span class="math notranslate nohighlight">\(r\)</span> is the radial coordinate. It uses multigrid methods using PyAMG to solve the system of equations generated by the Laplacian, and then solves:</p>
+<div class="math notranslate nohighlight">
+\[E = -\nabla V\]</div>
+<p>To find the electric field from the potential field.</p>
+<section id="boundary-conditions">
+<h4>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading"></a></h4>
+<p>The system employs Dirichlet boundary conditions:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\phi(\mathbf{r}) = V_0 \quad \text{on electrode surfaces}\\\phi(\mathbf{r}) = 0 \quad \text{on outer boundaries}\end{aligned}\end{align} \]</div>
+<p>This effectively makes sure that not only do the electrodes have the proper potentials, but that the boundaries are treated like grounded metal, to simulate a real vacuum chamber’s interior.</p>
+</section>
+</section>
+<section id="particle-dynamics">
+<h3>Particle Dynamics<a class="headerlink" href="#particle-dynamics" title="Link to this heading"></a></h3>
+<section id="relativistic-equations-of-motion">
+<h4>Relativistic Equations of Motion<a class="headerlink" href="#relativistic-equations-of-motion" title="Link to this heading"></a></h4>
+<p>Picht uses the relativistic formulation for particle dynamics:</p>
+<div class="math notranslate nohighlight">
+\[\frac{d\mathbf{p}}{dt} = q\mathbf{E}\]</div>
+<p>where the momentum is:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{p} = \gamma m \mathbf{v}\]</div>
+<p>and the Lorentz factor is:</p>
+<div class="math notranslate nohighlight">
+\[\gamma = \frac{1}{\sqrt{1 - v^2/c^2}}\]</div>
+<p>This is straightforwardly how relativistic physics are calculated, and adds minimal overhead to the calculation.</p>
+</section>
+<section id="energy-momentum-relation">
+<h4>Energy-Momentum Relation<a class="headerlink" href="#energy-momentum-relation" title="Link to this heading"></a></h4>
+<p>The total energy of a particle is:</p>
+<div class="math notranslate nohighlight">
+\[E^2 = (pc)^2 + (mc^2)^2\]</div>
+<p>Velocity from momentum:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v} = \frac{\mathbf{p}c^2}{E}\]</div>
+</section>
+</section>
+</section>
+<section id="numerical-methods">
+<h2>Numerical Methods<a class="headerlink" href="#numerical-methods" title="Link to this heading"></a></h2>
+<section id="finite-difference-method-fdm">
+<h3>Finite Difference Method (FDM)<a class="headerlink" href="#finite-difference-method-fdm" title="Link to this heading"></a></h3>
+<section id="spatial-discretization">
+<h4>Spatial Discretization<a class="headerlink" href="#spatial-discretization" title="Link to this heading"></a></h4>
+<p>The Laplacian operator is discretized using central differences:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\frac{\partial^2 \phi}{\partial z^2} \approx \frac{\phi_{i+1,j} - 2\phi_{i,j} + \phi_{i-1,j}}{\Delta z^2}\\\frac{\partial^2 \phi}{\partial r^2} \approx \frac{\phi_{i,j+1} - 2\phi_{i,j} + \phi_{i,j-1}}{\Delta r^2}\\\frac{1}{r}\frac{\partial \phi}{\partial r} \approx \frac{1}{r_j}\frac{\phi_{i,j+1} - \phi_{i,j-1}}{2\Delta r}\end{aligned}\end{align} \]</div>
+<p>We use the finite difference method over the boundary element method because it’s faster for geometries of a relatively simplistic nature.</p>
+</section>
+<section id="grid-structure">
+<h4>Grid Structure<a class="headerlink" href="#grid-structure" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Uniform rectangular grid in <span class="math notranslate nohighlight">\((z,r)\)</span> coordinates</p></li>
+<li><p>Grid spacing: <span class="math notranslate nohighlight">\(\Delta z = L_z/N_z\)</span>, <span class="math notranslate nohighlight">\(\Delta r = L_r/N_r\)</span></p></li>
+<li><p>Cylindrical symmetry assumption: <span class="math notranslate nohighlight">\(\partial/\partial\theta = 0\)</span></p></li>
+</ul>
+<p>So, any cylindrically asymmetric lenses cannot be simulated.</p>
+</section>
+<section id="matrix-formulation">
+<h4>Matrix Formulation<a class="headerlink" href="#matrix-formulation" title="Link to this heading"></a></h4>
+<p>The discretized Laplace equation forms a sparse linear system:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}\boldsymbol{\phi} = \mathbf{b}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is the discretized Laplacian operator matrix. This is simply to be able to solve it extremely quickly with PyAMG.</p>
+</section>
+</section>
+<section id="multigrid-solver-pyamg">
+<h3>Multigrid Solver (PyAMG)<a class="headerlink" href="#multigrid-solver-pyamg" title="Link to this heading"></a></h3>
+<p>Picht uses Algebraic Multigrid (AMG) methods for efficient solution:</p>
+<section id="algorithm-overview">
+<h4>Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p><strong>Smoothing</strong>: Jacobi or Gauss-Seidel iterations reduce high-frequency errors</p></li>
+<li><p><strong>Restriction</strong>: Transfer residual to coarser grid</p></li>
+<li><p><strong>Coarse grid correction</strong>: Solve on coarse grid</p></li>
+<li><p><strong>Prolongation</strong>: Interpolate correction back to fine grid</p></li>
+<li><p><strong>Post-smoothing</strong>: Additional smoothing iterations</p></li>
+</ol>
+<p>For more information about what this relates, refer to PyAMG’s documentation: <a class="reference external" href="https://pyamg.saclay.inria.fr/pyamg.html">https://pyamg.saclay.inria.fr/pyamg.html</a></p>
+</section>
+<section id="convergence-properties">
+<h4>Convergence Properties<a class="headerlink" href="#convergence-properties" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(O(N)\)</span> computational complexity (previously quadratic complexity when SOR was used, but multigrid reduces it to this)</p></li>
+<li><p>Convergence rate independent of grid size</p></li>
+<li><p>Default tolerance: <span class="math notranslate nohighlight">\(||\mathbf{r}||_2 &lt; 10^{-6}\)</span></p></li>
+</ul>
+</section>
+</section>
+<section id="ode-integration">
+<h3>ODE Integration<a class="headerlink" href="#ode-integration" title="Link to this heading"></a></h3>
+<p>Trajectory integration uses SciPy’s BDF method with a default relative tolerance of 1e-9, and an absolute tolerance of 1e-12:</p>
+<section id="bdf-methods">
+<h4>BDF Methods<a class="headerlink" href="#bdf-methods" title="Link to this heading"></a></h4>
+<p>For stiff problems (strong electric fields):</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=0}^{k}\alpha_i\mathbf{y}_{n-i} = h\beta\mathbf{f}(\mathbf{y}_n, t_n)\]</div>
+</section>
+</section>
+</section>
+<section id="force-calculations">
+<h2>Force Calculations<a class="headerlink" href="#force-calculations" title="Link to this heading"></a></h2>
+<p>Picht does not use the paraxial ray equation, but uses the Lorentz force for electrostatic systems:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{F} = q\mathbf{E}(z,r)\]</div>
+<p>It uses, in fractional/decimal grid values, nearest-neighbor field lookup:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">z</span> <span class="o">/</span> <span class="n">dz</span><span class="p">)</span>
+<span class="n">j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">dr</span><span class="p">)</span>
+<span class="n">E_z</span> <span class="o">=</span> <span class="n">E_z_grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+<span class="n">E_r</span> <span class="o">=</span> <span class="n">E_r_grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="grid-resolution-guidelines">
+<h2>Grid Resolution Guidelines<a class="headerlink" href="#grid-resolution-guidelines" title="Link to this heading"></a></h2>
+<p>Recommended grid spacing:</p>
+<div class="math notranslate nohighlight">
+\[\Delta z, \Delta r &lt; \frac{\lambda_{min}}{10}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\lambda_{min}\)</span> is the smallest feature size. You can comfortably have nz, nr &gt; 1000 before significant slowdowns.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gettingstarted.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Rishiit Sharma.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

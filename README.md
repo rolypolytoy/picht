@@ -1,7 +1,5 @@
 # Picht
-An electron optics library that uses the finite difference method (FDM) to simulate electron and ion trajectories through electrostatic lenses. Currently supports Dirichlet boundary conditions, relativistic energies, non-paraxial beam configurations, and provides pre-packaged support for cylindrical and unipotential (einzel) lenses, as well as scripting for custom lens geometries.
-
-It exists to provide a tool that's free and open-source, easily modifiable, and just as powerful as commercial tools, but with architectural decisions that enable even greater power and accuracy, through intelligent architectural decisions and a focus constrained to electron optics- a branch of computational physics with a relatively small open-source community. Capable of simulating electrostatic lens arrays, electron microscopes (SEM, TEM, STEM), focused ion beams (Ga/He/Ne), and mass spectrometers, and any and all applications, from the classical to relativistic regime that benefit from axisymmetric electron optics simulations without magnetic field handling.
+An open-source electrodynamics and electron optics tool that's intuitive, highly performant, and physically accurate. Great for simulating the dynamics of electrons and ions through electrostatic lenses of variable geometries. Calculates and visualizes electric fields and particle trajectories, using the finite difference method for solutions.
 
 ## Installation
 ```bash
