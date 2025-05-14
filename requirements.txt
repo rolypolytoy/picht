@@ -5,3 +5,6 @@ mendeleev
 picht==1.1.4
 pytest
 numpy==1.26.4
+sphinx
+sphinx_rtd_theme
+sphinx-gallery
