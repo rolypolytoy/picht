@@ -6,5 +6,6 @@ pyamg
 joblib
 cadquery
 h5py
+picht
 pytest
 numpy==1.26.4
