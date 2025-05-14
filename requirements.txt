@@ -2,24 +2,8 @@ matplotlib
 scipy
 numba
 mendeleev
-pytest
-<<<<<<< Updated upstream
-picht
-=======
 pyamg
 joblib
-picht==1.1.4
+cadquery
+h5py
 numpy==1.26.4
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

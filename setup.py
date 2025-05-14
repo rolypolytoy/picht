@@ -5,27 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    version="1.1.4",
-=======
     version="2.0.0",
->>>>>>> Stashed changes
-=======
-    version="2.0.0",
->>>>>>> Stashed changes
-=======
-    version="2.0.0",
->>>>>>> Stashed changes
-=======
-    version="2.0.0",
->>>>>>> Stashed changes
-=======
-    version="2.0.0",
->>>>>>> Stashed changes
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron and ion optics simulation using the Finite Difference Method (FDM)",
@@ -51,26 +31,11 @@ setup(
         "scipy",
         "numba",
         "mendeleev",
-<<<<<<< Updated upstream
-=======
         "pyamg",
         "joblib",
         "cadquery",
         "h5py",
         "numpy==1.26.4",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     ],
     license="MIT",
 )
