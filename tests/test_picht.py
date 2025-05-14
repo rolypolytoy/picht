@@ -78,8 +78,8 @@ class TestPotentialField:
         field.add_electrode(config)
         field.solve_potential(max_iterations=200)
         Ez, Er = field.get_field_at_position(0.05, 0.03)
-        assert isinstance(Ez, float)
-        assert isinstance(Er, float)
+        assert isinstance(Ez, (float, np.float32, np.float64))
+        assert isinstance(Er, (float, np.float32, np.float64))
         Ez, Er = field.get_field_at_position(0.2, 0.1)
         assert Ez == 0.0
         assert Er == 0.0
