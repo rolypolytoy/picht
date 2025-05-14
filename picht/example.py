@@ -13,6 +13,9 @@ either negative to negative, or positive to positive. We'll thus set it to -5000
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -22,6 +25,7 @@ import numpy as np
 from core import IonOpticsSystem, ElectrodeConfig
 import matplotlib.pyplot as plt
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -87,10 +91,18 @@ system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 system.add_einzel_lens(
     position=20.0,
 >>>>>>> Stashed changes
+=======
+system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
+
+
+system.add_einzel_lens(
+    position=20.0,
+>>>>>>> Stashed changes
     width=60.0,
     aperture_center=50.0,
     aperture_width=48.0,
     outer_diameter=50.0,
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -113,10 +125,14 @@ system.add_einzel_lens(
 =======
     focus_voltage=-5000
 >>>>>>> Stashed changes
+=======
+    focus_voltage=-5000
+>>>>>>> Stashed changes
 )
 potential = system.solve_fields()
 
 trajectories = system.simulate_beam(
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -131,6 +147,8 @@ trajectories = system.simulate_beam(
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     energy_eV= 10000,  
     start_z=0,
     r_range=(0.0499925, 0.0500075),
@@ -139,6 +157,9 @@ trajectories = system.simulate_beam(
     simulation_time=2e-9
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

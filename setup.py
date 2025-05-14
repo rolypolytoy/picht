@@ -8,7 +8,11 @@ setup(
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     version="1.1.4",
+=======
+    version="2.0.0",
+>>>>>>> Stashed changes
 =======
     version="2.0.0",
 >>>>>>> Stashed changes
@@ -52,6 +56,9 @@ setup(
         "numpy==1.26.4",
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
