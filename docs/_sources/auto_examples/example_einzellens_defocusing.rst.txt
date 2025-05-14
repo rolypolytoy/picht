@@ -74,7 +74,7 @@ We can see clearly visible defocusing, demonstrating how einzel lenses are clean
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.222 seconds)
+   **Total running time of the script:** (0 minutes 3.184 seconds)
 
 
 .. _sphx_glr_download_auto_examples_example_einzellens_defocusing.py:
