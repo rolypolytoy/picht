@@ -2,38 +2,21 @@
 Getting Started
 ===============
 
-**Picht** is a Python library for simulating charged particle optics systems. It provides tools for designing, simulating, and visualizing ion and electron beam trajectories through electrostatic lenses.
-Systems like electron microscopes, focused ion beam systems, and mass spectrometers are difficult to design. A high precision is required to design lens arrays for these systems.
-However, there exist no closed-loop analytical solutions for these systems. To solve this, Picht uses finite difference methods and solves them with the extremely rapid PyAMG multigrid solver. 
-This allows for rapid simulation and prototyping of systems which require careful and precise design of electrostatic lens arrays. 
+Picht is a Python library for simulating charged particle optics. It currently supports electrons and ions from 0 eV to several TeV in energy, and enables the rapid creation of electrostatic and magnetostatic lenses, and the visualization of particle trajectories and fieldlines based on these parameterizations.
+Uses the Lorentz force equation and the paraxial ray equation for speed and accuracy, has a PyAMG multigrid solver to enable rapid solutions using the finite difference method, and has extensive CPU parallelization that works on any operating system. 
+
+It's particularly useful as an educational tool for electrodynamics, or to design electron optics systems, like electron microscopes (SEM/TEM/STEM), focused ion beam systems (Ga+/He+/Ne+), particle accelerators (LINACs, particle injectors) and mass spectrometers. Currently axisymmetric, with export options to .hdf5 and .step formats.
 
 Installation
 ============
 
-Prerequisites
--------------
-
-Picht requires Python 3.7+ and the following dependencies:
-
-.. code-block:: bash
-
-   numpy
-   matplotlib
-   scipy
-   numba
-   mendeleev
-   pyamg
-   joblib
-   h5py
-   cadquery
-
-You can install Picht and all its dependencies using pip:
+Install using PyPi:
 
 .. code-block:: bash
 
    pip install picht
 
-Quick Start Example
+Example
 ===================
 
 Here's a simple example that creates an Einzel lens system and simulates electron trajectories:
@@ -71,6 +54,9 @@ Here's a simple example that creates an Einzel lens system and simulates electro
 
     plt.show()
 
+
+The API generally follows this principle, because systems are intended to be created once, and parameters adjusted one way or another until it finally works. The tweaking, 'turning of a knob' experience is the archetypal experience of using a computational physics tool and Picht aims to make this as painless as possible.
+
 Basic Concepts
 ==============
 
@@ -83,7 +69,7 @@ Picht uses a cylindrically symmetric grid system:
 - **r-axis**: The radial distance from the optical axis
 - Grid dimensions are specified in grid units, with physical size determined by ``axial_size`` and ``radial_size`` parameters. They're the system's reference frame and the smallest discrete units where unique potential field values are calculated.
 
-The axisymmetric view, rather than a full 3D treatment, is done to increase computational speeds while maintaining physical accuracy for rotationally symmetric electron optics systems.
+The axisymmetric view, rather than a full 3D treatment, is done to increase how fast Picht runs while maintaining physical accuracy for rotationally symmetric electron optics systems. All relevant physics use the axisymmetric variants, which ensures full adherence to realistic behavior.
 
 Electrode Configuration
 -----------------------
@@ -105,8 +91,8 @@ Electrodes are defined using the ``ElectrodeConfig`` dataclass:
 
    system.add_electrode(electrode)
 
-This creates a radially symmetric electrode with an inner diameter equal to ap_width * (radial_size/nr) in meters, and an outer diameter equal to outer_diameter * (radial_size/nr). Using grid units rather than meters feels clunky now, but as you use the system more you'll find it more intuitive.
-This creates a rudimentary focusing/defocusing effect based on the geometry and magnitude of the voltage, but einzel lenses are a superior method.
+This creates a simple electrode with an inner diameter equal to ap_width * (radial_size/nr) in meters, and an outer diameter equal to outer_diameter * (radial_size/nr). Using grid units rather than meters feels clunky now, but as you use the system more you'll find it more intuitive.
+This creates a rudimentary focusing/defocusing effect based on the geometry and magnitude of the voltage.
 
 Particle Types
 --------------
@@ -120,7 +106,8 @@ Picht can simulate electrons, as well as any ion species. The syntax for electro
    system.tracer.set_ion('He', charge_state=2)
    system.tracer.set_ion('F', charge_state=-1)
 
-You can simulate any combination of any element and charge state- simply use its chemical symbol (with the correct capitalization) and the charge you want to use. It uses Mendeleev to automatically calculate any physical constants based on this, so this is all you need to do.
+You can simulate any combination of any element and charge state- simply use its chemical symbol (with the correct capitalization) and the charge you want to use. 
+It uses a Mendeleev backend to make sure even physically unrealistic combinations can be used, so feel free to use H2000+ or the like. 
 
 Advanced Features
 =================
@@ -153,7 +140,7 @@ Create complex electrode arrangements by stacking multiple electrodes:
     system.add_electrode(wehnelt2)
 
 
-This creates a complex electrode geometry of a hollow cylinder with a base and aperture. 
+This creates a sequential electrode geometry of a hollow cylinder with a base and aperture. If you're unsure how the system works, just copy-paste this code, run it, tweak some values, and see how the UI changes in response.
 
 Einzel Lenses
 ----------------------
@@ -189,10 +176,11 @@ Interactive Visualization
 The visualization uses Matplotlib and provides interactive checkboxes for greater control of your own user experience:
 
 - **Lenses**: Toggles electrode visibility
-- **Electric Field**: Show field magnitude as a color map
+- **Electric Field**: Shows electric field magnitude as a color map (turbo)
+- **Magnetic Field**: Shows magnetic field magnitude as a color map (RdBu)
 - **Animate**: Animates particle trajectories
 
-You can also zoom into or out of any points by clicking the four-arrow button, right clicking the trajectories, and dragging outwards. You can use this for fine-grained aberration and focal length analysis.
+You can also zoom into or out of any points by clicking the four-arrow button, right clicking the trajectories, and dragging outwards. You can use this for fine-grained aberration and focal length analysis. As you get more familiar with Matplotlib's visualization system you'll find analysis to be a lot easier.
 
 Exporting Results
 =================
@@ -279,4 +267,4 @@ Electron Extraction
 API Reference
 =============
 
-For detailed API documentation, see :doc:`api/index`.
+For detailed API documentation, see the API documentation. For a better understanding of the physics, refer to Computational Physics. Or, just check out the Gallery with several tutorial examples with pre-generated visualizations.

@@ -1,5 +1,5 @@
 # Picht
-An open-source electrodynamics and electron optics tool that's intuitive, highly performant, and physically accurate. Great for simulating the dynamics of electrons and ions through electrostatic lenses of variable geometries. Calculates and visualizes electric fields and particle trajectories, using the finite difference method for solutions.
+An open-source electrodynamics and electron optics tool that's intuitive, performant, and physically accurate. Great for simulating the dynamics of electrons and ions through electrostatic and magnetostatic lenses of variable geometries. Calculates and visualizes electric fields and particle trajectories, using multigrid methods for FDM.
 
 ## Installation
 ```bash
@@ -49,9 +49,6 @@ It produces, in less than 30 seconds, a physically realistic map of the particle
 
 In this we can observe several realistic behaviors, including how the fringing fields in einzel lenses first mildly defocus and then focus the beam, the beam crossover, and spherical aberration in the lens. By default, we assume Dirichlet boundary conditions, to better simulate real electrostatic lens systems with metal boundaries. Neumann boundary conditions might provide more idealized behavior, and are the defaults in most commercial electron optics solvers (including those used in COMSOL and ANSYS Maxwell), however since Dirichlet boundary conditions effectively simulate grounded boundaries rather than infinitely extending ones, for real-life systems, this is significantly more accurate, and reduces the insidious simulation-experimental gap.
 
-A more complex example made with later versions looks like:
-![NewUI](https://github.com/user-attachments/assets/234dadd2-2648-4500-8681-fbb061f8b90a)
-
 How to get images like this, and what this represents is all in the [documentation website](https://rolypolytoy.github.io/picht/), which I recommend you check out for a longer intro to Picht.
 
 You can also specify ions by, prior to computing the trajectories, where the below syntax is for an Na+ ion:
@@ -74,9 +71,3 @@ system.tracer.set_ion('Ga', charge_state=1)
 For gallium (Ga+) ions like those used in gallium FIB. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
 
 Additional information, API documentation, and tutorials can be found at the [official website](https://rolypolytoy.github.io/picht/).
-
-## Internals
-
-The code has several architectural decisions that make it powerful, Pythonic, and performant. The library uses Numba for compiled language-level speeds, calculates particle dynamics using the BDF solver because RK45 isn't good for stiff problems, and does not use the paraxial ray equation, but instead the Lorentz force for electrostatics, and indeed to do this, solves the full Laplacian for voltage (∇²V = 0), followed by the electric field by solving for the negative of the gradient field of voltage (E = -∇V). I also calculate relativistic corrections not using a full four-vector treatment, but by using the Lorentz factor for velocity and acceleration corrections, to get both rapid computation and accurate results in the high-keV or MeV energy regime.
-
-In addition- we use the finite difference method (FDM) instead of the boundary element method (BEM) to allow support for non-infinite problems (ie problems with grounded boundaries), and we've got it to be computationally quick too, using vectorization instead of recursive methods, and Numba's JIT for all the computations with the greatest overhead. It's also fully unit-tested, with 15 unit tests spanning from checking for proper boundary condition handling, physically realistic behaviors at MeV energy scales, proper and plausible electric field behaviors, and cursory tests of every class in the core.py file, to better enable independent researchers to build off the existing codebase and verify if it's functioning correctly.

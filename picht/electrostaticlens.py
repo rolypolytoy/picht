@@ -7,19 +7,19 @@ Whenever chaining several einzel lenses, this problem becomes especially pertine
 between aperture_width and outer_diameter as well, for cleaner field configurations.
 """
 import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig
+from core import IonOpticsSystem, ElectrodeConfig
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
+system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 
 
 system.add_einzel_lens(
-    position=100.0,
-    width=10.0,
+    position=20.0,
+    width=300.0,
     aperture_center=50.0,
-    aperture_width=40.0,
-    outer_diameter=80.0,
-    focus_voltage=-50000
+    aperture_width=48.0,
+    outer_diameter=50.0,
+    focus_voltage=-500
 )
 
 potential = system.solve_fields()
@@ -30,7 +30,7 @@ trajectories = system.simulate_beam(
     r_range=(0.045, 0.055),
     angle_range=(0, 0),
     num_particles=10,
-    simulation_time=1e-8
+    simulation_time=1e-7
 )
 
 figure = system.visualize_system(

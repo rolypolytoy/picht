@@ -1,9 +1,7 @@
 API Documentation
 =================
 
-This section provides complete API documentation for all of Picht's internal classes, functions and methods.
-
-Core Classes
+Classes
 ------------
 
 ElectrodeConfig
@@ -21,6 +19,23 @@ ElectrodeConfig
    :param float ap_width: R-axis aperture width in grid units
    :param float outer_diameter: Full electrode diameter in grid units
    :param float voltage: Applied voltage in volts
+
+MagneticLensConfig
+~~~~~~~~~~~~~~~~
+
+.. class:: MagneticLensConfig
+
+   Dataclass for configuring a cylindrically symmetric magnetic lens element.
+   
+   **Parameters**
+   
+   :param float start: Position where the magnetic lens begins on the z-axis in grid units
+   :param float length: Length of the magnetic lens on the z-axis in grid units
+   :param float ap_start: Starting position of the aperture on the r-axis in grid units
+   :param float ap_width: Width of the aperture in the lens on the r-axis in grid units
+   :param float outer_diameter: Diameter of the magnetic lens on the r-axis in grid units
+   :param float mu_r: Relative magnetic permeability of the lens material in dimensionless units
+   :param float mmf: Magnetomotive force of the lens in ampere-turns
 
 PotentialField
 ~~~~~~~~~~~~~~
@@ -125,6 +140,125 @@ PotentialField
       :returns: Electric field components (Ez, Er)
       :rtype: tuple(float, float)
 
+MagneticField
+~~~~~~~~~~~~~
+
+.. class:: MagneticField(ion_optics_system)
+
+   Manages magnetic vector potential fields, magnetic lens configurations, and field solving operations.
+   
+   **Parameters**
+   
+   :param IonOpticsSystem ion_optics_system: The parent ion optics system containing field dimensions and grid parameters
+   
+   **Attributes**
+   
+   .. attribute:: nz
+      :type: int
+      
+      Number of z-axis grid points
+   
+   .. attribute:: nr
+      :type: int
+      
+      Number of r-axis grid points
+   
+   .. attribute:: axial_size
+      :type: float
+      
+      Z-axis size in meters
+   
+   .. attribute:: radial_size
+      :type: float
+      
+      R-axis size in meters
+   
+   .. attribute:: dz
+      :type: float
+      
+      Z-axis grid spacing (meters)
+   
+   .. attribute:: dr
+      :type: float
+      
+      R-axis grid spacing (meters)
+   
+   .. attribute:: vector_potential
+      :type: numpy.ndarray
+      
+      2D array of magnetic vector potential values in Tesla-meters
+   
+   .. attribute:: magnetic_mask
+      :type: numpy.ndarray
+      
+      Boolean mask indicating magnetic material positions
+   
+   .. attribute:: mu_r
+      :type: numpy.ndarray
+      
+      2D array of relative permeability values
+   
+   .. attribute:: current_density
+      :type: numpy.ndarray
+      
+      2D array of current density values in amperes per square meter
+   
+   .. attribute:: Bz
+      :type: numpy.ndarray
+      
+      Z-component of magnetic field in Tesla
+   
+   .. attribute:: Br
+      :type: numpy.ndarray
+      
+      R-component of magnetic field in Tesla
+   
+   .. attribute:: lens_config
+      :type: MagneticLensConfig
+      
+      Configuration of the magnetic lens
+   
+   **Methods**
+   
+   .. method:: add_magnetic_lens(config)
+   
+      Adds a magnetic lens to the field and handles all necessary calculations.
+      
+      :param MagneticLensConfig config: Configuration parameters for the magnetic lens
+   
+   .. method:: build_laplacian_matrix(mask, dirichlet_values=None)
+   
+      Builds a sparse matrix for the Laplacian ∇²A = -μ₀μᵣJ, and implements Neumann 
+      boundary conditions at all boundaries.
+      
+      :param numpy.ndarray mask: Boolean array, true where magnetic materials exist
+      :param numpy.ndarray dirichlet_values: Vector potential values where mask is True
+      :returns: Sparse matrix A and right-hand side vector b
+      :rtype: tuple(scipy.sparse.csr_matrix, numpy.ndarray)
+   
+   .. method:: solve_vector_potential(max_iterations=500, convergence_threshold=1e-6)
+   
+      Solves the magnetic vector potential field using Multigrid methods with PyAMG.
+      
+      :param float max_iterations: Maximum number of iterations for the solver (default: 500)
+      :param float convergence_threshold: Convergence criterion for the solution (default: 1e-6)
+      :returns: The solved vector potential field
+      :rtype: numpy.ndarray
+   
+   .. method:: calculate_b_from_a()
+   
+      Calculates the magnetic field components from the vector potential using B = ∇ × A,
+      with special handling of differentiation at boundaries and at r = 0.
+   
+   .. method:: get_field_at_position(z, r)
+   
+      Returns the magnetic field components at a specific position.
+      
+      :param float z: Position along the z-axis in meters
+      :param float r: Position along the r-axis in meters
+      :returns: The magnetic field components (Bz, Br) at the specified position
+      :rtype: tuple(float, float)
+
 ParticleTracer
 ~~~~~~~~~~~~~~
 
@@ -163,7 +297,7 @@ ParticleTracer
    .. attribute:: current_ion
       :type: dict
       
-      Current particle properties including symbol, mass, charge, and charge-to-mass ratio
+      Current particle properties including symbol, atomic_number, mass, charge, and charge_mass_ratio
    
    .. attribute:: q
       :type: float
@@ -190,6 +324,7 @@ ParticleTracer
    .. method:: get_velocity_from_energy(energy_eV)
    
       Converts kinetic energy to velocity with relativistic corrections.
+      Accurate for all energy scales from single-digit eV to GeV.
       
       :param float energy_eV: Kinetic energy in electronvolts
       :returns: Particle velocity in m/s
@@ -292,7 +427,18 @@ IonOpticsSystem
       
       List of all system electrodes and lenses
    
+   .. attribute:: magnetic_lenses
+      :type: MagneticField
+      
+      Magnetic field instance if magnetic lenses are present
+   
    **Methods**
+   
+   .. method:: add_magnetic_lens(config)
+   
+      Adds a magnetic lens to the system.
+      
+      :param MagneticLensConfig config: Magnetic lens configuration
    
    .. method:: add_electrode(config)
    
@@ -314,10 +460,10 @@ IonOpticsSystem
    
    .. method:: solve_fields()
    
-      Solves the potential field using PyAMG multigrid solver.
+      Solves the potential and/or vector potential fields using PyAMG multigrid solver.
       
-      :returns: Solved potential field
-      :rtype: numpy.ndarray
+      :returns: Solved potential field, vector potential field, or a dictionary containing both
+      :rtype: numpy.ndarray or dict
    
    .. method:: simulate_beam(energy_eV, start_z, r_range, angle_range, num_particles, simulation_time, n_jobs=-1)
    
@@ -366,6 +512,10 @@ Export
       
       Shortcut to system's potential field
    
+   .. attribute:: magnetic_lenses
+      
+      Shortcut to system's magnetic field
+   
    **Methods**
    
    .. method:: export_traj(trajectories)
@@ -381,8 +531,22 @@ Export
       Exports electrode geometry to STEP format for CAD integration.
       
       :output: Creates 'save.step' file
+   
+   .. method:: _create_electrode_shape(electrode_config)
+   
+      Converts 2D electrode config data to 3D CAD geometric data.
+      
+      :param ElectrodeConfig electrode_config: ElectrodeConfig data in 2D axisymmetric data
+      :returns: 3D CAD solid representation of the electrode
+   
+   .. method:: _create_magnetic_lens_shape(magnetic_config)
+   
+      Converts 2D magnetic lens config data to 3D CAD geometric data.
+      
+      :param MagneticLensConfig magnetic_config: MagneticLensConfig data in 2D axisymmetric format
+      :returns: 3D CAD solid representation of the magnetic lens
 
-Utility Functions
+Misc. Functions
 -----------------
 
 .. function:: get_field(z, r, Ez, Er, axial_size, radial_size, dz, dr, nz, nr)
@@ -403,12 +567,11 @@ Utility Functions
    :returns: Electric field components (Ez, Er) in V/m
    :rtype: tuple(float, float)
    
-   .. note:: Uses @numba.njit for performance
+.. function:: calc_dynamics(z, r, pz, pr, Ez, Er, Bz, Br, q, m, c, r_axis=0.0)
 
-.. function:: calc_dynamics(z, r, pz, pr, Ez, Er, q, m, c)
-
-   Calculates charged particle acceleration using the Lorentz force
-   with relativistic corrections.
+   Calculates charged particle acceleration by applying the Lorentz force
+   with special-relativistic corrections. Uses energy momentum formalism for
+   full eV to TeV support.
    
    :param float z: Z-axis position in meters
    :param float r: R-axis position in meters
@@ -416,10 +579,11 @@ Utility Functions
    :param float pr: R-axis momentum in kg⋅m/s
    :param float Ez: Z-axis electric field in V/m
    :param float Er: R-axis electric field in V/m
+   :param float Bz: Z-axis magnetic field in Tesla
+   :param float Br: R-axis magnetic field in Tesla
    :param float q: Particle charge in Coulombs
    :param float m: Particle mass in kilograms
    :param float c: Speed of light in m/s
+   :param float r_axis: Reference r-axis position (default: 0.0)
    :returns: Array [vz, vr, dpz_dt, dpr_dt] with velocities and forces
    :rtype: numpy.ndarray
-   
-   .. note:: Uses @numba.njit for performance

@@ -1,11 +1,14 @@
-__version__ = "0.1.0"
+__version__ = "2.1.0"
 
 from .core import (
     PotentialField,
     ParticleTracer,
     ElectrodeConfig,
     EinzelLens,
-    IonOpticsSystem
+    IonOpticsSystem,
+    MagneticField,
+    MagneticLensConfig,
+    Export,
 )
 
 __author__ = "Rishiit Sharma"

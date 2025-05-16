@@ -6,7 +6,8 @@ Here's a full simulation of an electrostatic lens-only scanning electron microsc
 electrostatic lenses, einzel lenses, and complex acceleration, focusing and defocusing behaviors in one instance. We chain together several
 electrodes, a condenser (einzel) lens, and an objective (einzel) lens and observe two full crossovers- that's where the beams make an X.
 Note how because of the clean-ness of the design, it looks like two clean lines- this isn't because we've parameterized the beam this way, but because
-of the electron optics at play. Tinker with the parameters here, see how things change.
+of the electron optics at play. Tinker with the parameters here, see how things change. Note: You'll have to zoom in for this, because the default system is WAY too small to see.
+Learn to use matplotlib's visualization tools to better understand the system.
 
 Some design decisions we've made for full physical realism include: 0.1 eV beam initialization to mimic thermionic emission from tungsten
 5kV accelerating voltage from a hairpin cathode, with -100V biased Wehnelt Cylinders.
@@ -96,6 +97,7 @@ trajectories = system.simulate_beam(
 )
 
 figure = system.visualize_system(
-    trajectories=trajectories)
+    trajectories=trajectories,  
+    display_options=[True, False, False, False])
 
 plt.show()

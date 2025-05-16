@@ -3,7 +3,7 @@ import sys
 import matplotlib 
 matplotlib.use('agg') 
 
-release = '1.1.4'
+release = '2.1.0'
 version = '.'.join(release.split('.')[:2]) 
 
 project = 'picht'

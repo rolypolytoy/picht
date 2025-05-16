@@ -14,36 +14,32 @@ import numpy as np
 from picht import IonOpticsSystem, ElectrodeConfig
 import matplotlib.pyplot as plt
 
-#Specifies the grid size, resolution, and domain
 system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 
-#Configures electrode parameterization
 electrode = ElectrodeConfig(
     start=30,
-    width=5,
-    ap_start=40,
-    ap_width=20,
+    width=200,
+    ap_start=30,
+    ap_width=40,
     outer_diameter = 50,
-    voltage=-5000
+    voltage=-2000
 )
 
 system.add_electrode(electrode)
 
-#FDM field solving stage
 potential = system.solve_fields()
 
-#Beam parameterization
 trajectories = system.simulate_beam(
     energy_eV= 10000,  
     start_z=0,
-    r_range=(0.0499925, 0.0500075),
+    r_range=(0.04, 0.06),
     angle_range=(0, 0),
-    num_particles=6,
-    simulation_time=2e-9
+    num_particles=10,
+    simulation_time=1e-8
 )
 
-#Visualization control
 figure = system.visualize_system(
-    trajectories=trajectories)
+    trajectories=trajectories, 
+    display_options=[True, False, False, False]) #only switches on the lens visualization, keeps the e-field, b-field and animations off in the start, so the generated thumbnails look cleaner
 
 plt.show()

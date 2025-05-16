@@ -99,3 +99,5 @@ Finally, if you want to make modifications to the UI, in the IonOpticsSystems cl
 Since the visualization relies quite heavily on matplotlib.pyplot, modify the display however you wish, for example by changing the x and y-labels, on which axis r and x are plotted, the scaling of the image, and other details. 
 
 These are the first places to start, and the places where the greatest improvements could be made with minimal overhead. Begin at these places, modify something, run the unit tests, and see when things break, when they change, to get a better feel for the code. After that, feel free to modify larger pieces of code in your own forks and make pull requests.
+
+Note: some code snippets are from old versions, and may not reflect how the current codebase looks like.

@@ -2,7 +2,7 @@ matplotlib
 scipy
 numba
 mendeleev
-picht==1.1.4
+picht
 pytest
 numpy==1.26.4
 sphinx
