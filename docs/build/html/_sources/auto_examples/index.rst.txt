@@ -1,0 +1,137 @@
+:orphan:
+
+Gallery
+=====================
+
+This gallery contains examples demonstrating how to use Picht, moving up from basic cylindrical electrodes, to 
+understanding the properties of unipotential lenses, to finally being able to design and chain complex multi-lens systems.
+
+Begin at electric and magnetic lens creation, work your way through the unipotential lens series, and then try your hand at the SEM example.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This means the grid resolution in the z-dimension is axial_size/nz, and in the r-dimension is radial_size/nr. You should, if using nonstandard values for these, ensure you&#x27;re aware of these so you can properly convert from grid units to meters.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_01_example_cylindrical_lens_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_01_example_cylindrical_lens.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Electrode Creation</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="We&#x27;ll first examine an example of an einzel lens used for focusing, which happens when the polarity of the focus_voltage is the same as the polarity of the charge- either negative to negative, or positive to positive. We&#x27;ll thus set it to -500V, with initial electron energies at 1keV. Observe the bulge, and then the focal point.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_02_example_einzel_focusing_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_02_example_einzel_focusing.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Unipotential Lenses</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Unipotential Lenses: Deflection">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_03_example_einzel_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_03_example_einzel.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Unipotential Lenses: Deflection</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Here&#x27;s a full simulation of an electrostatic lens-only scanning electron microscope (SEM), where we combine electrostatic lenses, einzel lenses, and complex acceleration, focusing and defocusing behaviors in one instance. We chain together several electrodes, a condenser (einzel) lens, and an objective (einzel) lens and observe two full crossovers- that&#x27;s where the beams make an X. Note how because of the clean-ness of the design, it looks like two clean lines- this isn&#x27;t because we&#x27;ve parameterized the beam this way, but because of the electron optics at play. Tinker with the parameters here, see how things change. Note: You&#x27;ll have to zoom in for this, because the default system is WAY too small to see. Learn to use matplotlib&#x27;s visualization tools to better understand the system.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_04_example_sem_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_04_example_sem.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Full-Scale SEM Simulation</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Mu_r is the relative permeability- a dimensionless constant specific to what material the magnet is. Iron has ~1000, air has 1, higher values increase the flux density (magnetic field strength). MMF is the magnetomotive force- sometimes referred to as ampere-turns. This is the magnetic analogue to voltage. By specifying MMF and Mu_r you control the properties of the magnet, especially since these are applicable both to DC electromagnets and permanent magnets.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_05_example_magnetic_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_05_example_magnetic.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Magnetic Lens Creation</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/01_example_cylindrical_lens
+   /auto_examples/02_example_einzel_focusing
+   /auto_examples/03_example_einzel
+   /auto_examples/04_example_sem
+   /auto_examples/05_example_magnetic
+
+
+.. only:: html
+
+  .. container:: sphx-glr-footer sphx-glr-footer-gallery
+
+    .. container:: sphx-glr-download sphx-glr-download-python
+
+      :download:`Download all examples in Python source code: auto_examples_python.zip </auto_examples/auto_examples_python.zip>`
+
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+      :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip </auto_examples/auto_examples_jupyter.zip>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
