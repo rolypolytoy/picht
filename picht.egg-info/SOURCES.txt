@@ -5,7 +5,6 @@ setup.cfg
 setup.py
 picht/__init__.py
 picht/core.py
-picht/electrostaticlens.py
 picht/magnetostaticlens.py
 picht.egg-info/PKG-INFO
 picht.egg-info/SOURCES.txt
