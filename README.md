@@ -1,5 +1,5 @@
 # Picht
-An open-source electrodynamics and electron optics tool that's intuitive, performant, and physically accurate. Great for simulating the dynamics of electrons and ions through electrostatic and magnetostatic lenses of variable geometries. Calculates and visualizes electric and magnetic fields, and electrodynamics through those fields, using multigrid methods for FDM.
+Electron optics in electric and magnetic lenses. Uses the axisymmetric view, computes static E- and B-fields, enables the parameterization of ion and electron beams, and allows you to view their trajectories in the vicinity of various kinds of electromagnetic lenses, with physically accurate and relativistically corrected dynamics. Allows for custom mesh sizes using the finite difference method, and is incredibly performant due to integrations with PyAMG, Numba, and Joblib. Works on all operating systems, is unit-tested, works locally and on Jupyter Notebooks, and all of the examples in the gallery are with under 100 lines of code and generated in under a minute of time.  
 
 ## Installation
 ```bash
@@ -8,66 +8,22 @@ pip install picht
 [![PyPI version](https://img.shields.io/pypi/v/picht.svg)](https://pypi.org/project/picht/) ![tests](https://github.com/rolypolytoy/picht/actions/workflows/tests.yml/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15376240.svg)](https://doi.org/10.5281/zenodo.15376240)
 
-## Documentation
+## Gallery
 
-You can initialize an einzel lens in the following manner:
+All API documentation, computational physics methods, and tutorials can be found at the official website: https://rolypolytoy.github.io/picht/. Look at CONTRIBUTING.MD if you want to begin adding code to the codebase, which is in picht/core.py. 
 
-```python
-import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig
-import matplotlib.pyplot as plt
+### Electric Lens
+Focusing electrons with a cylindrical electrostatic lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/01_example_cylindrical_lens.html)
+![cylindricallens](https://github.com/user-attachments/assets/3e3e00a7-009d-4cf6-a026-860ee545307e)
 
-system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1) #all grid units are in mm.
+### Magnetic Lens
+Focusing electrons with a magnetic lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/05_example_magnetic.html)
+![ezgif-61b10d1bda4d4b](https://github.com/user-attachments/assets/333a8a55-f8b3-47ad-8dd7-268c9f8edb46)
 
-system.add_einzel_lens(
-    position=20.0,
-    width=60.0,
-    aperture_center=50.0,
-    aperture_width=48.0,
-    outer_diameter=50.0,
-    focus_voltage=-7000,
-    gap_size = 4
-)
-potential = system.solve_fields()
+### Einzel Lens
+Focusing electrons with three electrodes in a unipotential lens arrangement. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/02_example_einzel_focusing.html).
+![einzel](https://github.com/user-attachments/assets/44ba059c-c857-42fe-8d60-5b0ea997467f)
 
-trajectories = system.simulate_beam(
-    energy_eV= 10000,  
-    start_z=0,
-    r_range=(0.0499925, 0.0500075),
-    angle_range=(0, 0),
-    num_particles=6,
-    simulation_time=2e-9
-)
-
-figure = system.visualize_system(
-    trajectories=trajectories)
-
-plt.show()
-```
-It produces, in less than 30 seconds, a physically realistic map of the particle trajectories:
-![Einzel_Lens](https://github.com/user-attachments/assets/d5f92b58-d0d4-4d68-8d23-6b07bb790105)
-
-In this we can observe several realistic behaviors, including how the fringing fields in einzel lenses first mildly defocus and then focus the beam, the beam crossover, and spherical aberration in the lens. By default, we assume Dirichlet boundary conditions, to better simulate real electrostatic lens systems with metal boundaries. Neumann boundary conditions might provide more idealized behavior, and are the defaults in most commercial electron optics solvers (including those used in COMSOL and ANSYS Maxwell), however since Dirichlet boundary conditions effectively simulate grounded boundaries rather than infinitely extending ones, for real-life systems, this is significantly more accurate, and reduces the insidious simulation-experimental gap.
-
-How to get images like this, and what this represents is all in the [documentation website](https://rolypolytoy.github.io/picht/), which I recommend you check out for a longer intro to Picht.
-
-You can also specify ions by, prior to computing the trajectories, where the below syntax is for an Na+ ion:
-
-```python
-system.tracer.set_ion('Na', charge_state=1)
-```
-
-This extends the utility of Picht from electrostatic electron optics and scanning electron microscope prototyping and simulation, to focused ion beam simulations, as well as certain varieties of LINACs, and proton injectors. For example, you can use:
-
-```python
-system.tracer.set_ion('H', charge_state=1)
-```
-
-For protons, or:
-
-```python
-system.tracer.set_ion('Ga', charge_state=1)
-```
-For gallium (Ga+) ions like those used in gallium FIB. It also supports helium ions, neon ions, and any combination of elements and ionic charge that exists, due to integration with the Mendeleev library, and automatic parsing of charges and atomic weights. 
-
-Additional information, API documentation, and tutorials can be found at the [official website](https://rolypolytoy.github.io/picht/).
+### Scanning Electron Microscope
+Controlling electrons with a Wehnelt cylinder, cathode/anode, a condenser (einzel) lens and an objective (einzel) lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/04_example_sem.html).
+![sem5](https://github.com/user-attachments/assets/4d6d943f-faa6-4b7e-8e78-7df707f885b3)
