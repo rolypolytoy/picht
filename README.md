@@ -1,5 +1,5 @@
 # Picht
-Electron optics in electric and magnetic lenses. Uses the axisymmetric view, computes static E- and B-fields, enables the parameterization of ion and electron beams, and allows you to view their trajectories in the vicinity of various kinds of electromagnetic lenses, with physically accurate and relativistically corrected dynamics. Allows for custom mesh sizes using the finite difference method, and is incredibly performant due to integrations with PyAMG, Numba, and Joblib. Works on all operating systems, is unit-tested, works locally and on Jupyter Notebooks, and all of the examples in the gallery are with under 100 lines of code and generated in under a minute of time.  
+Electron optics in electric and magnetic lenses. Uses the axisymmetric view, computes static E- and B-fields, enables the parameterization of ion and electron beams, and allows you to view their trajectories in the vicinity of various kinds of electromagnetic lenses, with physically accurate and relativistically corrected dynamics. Allows for custom mesh sizes using the finite difference method, and is incredibly performant due to integrations with PyAMG, Numba, and Joblib. Works on all operating systems, is unit-tested, and works locally and on Jupyter Notebook with all dependencies handled by PyPi.
 
 ## Installation
 ```bash
@@ -10,7 +10,9 @@ pip install picht
 
 ## Gallery
 
-All API documentation, computational physics methods, and tutorials can be found at the official website: https://rolypolytoy.github.io/picht/. Look at CONTRIBUTING.MD if you want to begin adding code to the codebase, which is in picht/core.py. 
+API documentation, computational physics methods, and tutorials can be found at the official website: https://rolypolytoy.github.io/picht/. 
+
+All of the examples in the gallery were scripted with under 100 lines of code and generated in under a minute of time.
 
 ### Electric Lens
 Focusing electrons with a cylindrical electrostatic lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/01_example_cylindrical_lens.html)
