@@ -45,7 +45,7 @@ To compute the electric field, we solve Laplace's equation first:
 
 $$\nabla^2 V = 0$$
 
-Where V is electric potential  [jackson1999classical]. We use Dirichlet masking to set the exact voltage amount the user specified, in the selected geometry of the lens, and then the above equation is computed using numerical methods. From the electric potential field, the electric field can be calculated through the following equation: 
+Where V is electric potential  [jackson1999classical]. We use Dirichlet masking to set the exact voltage amount the user specified at the points they specified, and then compute solutions. From the electric potential field, the electric field can be calculated through the following equation: 
 
 $$E = -\nabla V$$
 
