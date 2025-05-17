@@ -1,5 +1,5 @@
 # Picht
-An open-source electrodynamics and electron optics tool that's intuitive, performant, and physically accurate. Great for simulating the dynamics of electrons and ions through electrostatic and magnetostatic lenses of variable geometries. Calculates and visualizes electric fields and particle trajectories, using multigrid methods for FDM.
+An open-source electrodynamics and electron optics tool that's intuitive, performant, and physically accurate. Great for simulating the dynamics of electrons and ions through electrostatic and magnetostatic lenses of variable geometries. Calculates and visualizes electric and magnetic fields, and electrodynamics through those fields, using multigrid methods for FDM.
 
 ## Installation
 ```bash
