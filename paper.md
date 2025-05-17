@@ -29,7 +29,7 @@ We then use the energy-momentum formalism of special relativity to calculate rad
 Picht can generate electron and ion beams of varying sizes- from filling the entire space radially, to generating a beam of electrons microns wide, to enable beams on the order of magnitude of those produced from a tungsten (W) source [@LI2023111837]. Additional parameterizations Picht enables includes a parameterization of the geometry of electrodes and the voltage this is held at, the ability to parameterize magnetomotive force and relative permeability, and the ability to toggle viewing the electric and magnetic fields, to provide a user-friendly UI to interface with. 
 
 
-# Statement of need
+# Statement of Need
 
 
 
