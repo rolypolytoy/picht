@@ -26,4 +26,5 @@ Focusing electrons with three electrodes in a unipotential lens arrangement. Ref
 
 ### Scanning Electron Microscope
 Controlling electrons with a Wehnelt cylinder, cathode/anode, a condenser (einzel) lens and an objective (einzel) lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/04_example_sem.html).
+
 ![sem5](https://github.com/user-attachments/assets/4d6d943f-faa6-4b7e-8e78-7df707f885b3)
