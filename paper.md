@@ -11,8 +11,8 @@ authors:
     equal-contrib: true
     affiliation: 1
 affiliations:
-   index: 1
- - name: None
+  - index: 1
+    name: None
 date: 17 May 2025
 bibliography: paper.bib
 ---
