@@ -15,15 +15,17 @@ affiliations:
  - name: None
 date: 17 May 2025
 bibliography: paper.bib
+---
 
 # Summary
 
+Electron optics is the field of physics that deals with the study of electron and ion beams under the influence of electric and magnetic 'lenses'. Electromagnetic lenses are called 'lenses' because they make charged particle beams converge, diverge and reflect, in a way analogous to how optical lenses affect beams of light. Simulating and designing systems of electron optics are important to modern materials science and nanotechnology, since the design of many integral components used in their research, like electron microscopes, ion implantation and milling machines, and mass spectrometers, requires 'computational electrodynamics' tools like Picht- namely, tools which compute the dynamics of electrically charged particles. 
 
 # Statement of Need
 
 
 
-# State of the Field
+# Computational Physics
 
 
 
