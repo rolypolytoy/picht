@@ -12,7 +12,7 @@ pip install picht
 
 API documentation, computational physics methods, and tutorials can be found at the official website: https://rolypolytoy.github.io/picht/. 
 
-All of the examples in the gallery were scripted with under 100 lines of code and generated in under a minute of time.
+All of the examples in the gallery were scripted with under 100 lines of code and generated in under a minute of real time.
 
 ### Electric Lens
 Focusing electrons with a cylindrical electrostatic lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/01_example_cylindrical_lens.html)
