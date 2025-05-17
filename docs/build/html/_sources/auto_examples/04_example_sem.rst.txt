@@ -127,8 +127,8 @@ Three total crossover points of increasing tightness.
         start_z=0.025, #We begin at z = 0.025, or 25 grid units in the z-direction so that there's a bit of Wehnelt Cylinder behind this
         r_range=(0.0499925, 0.0500075), #15 micron thick beam, which is a realistic amount
         angle_range=(-2, 2), #very high initial angular divergence to mimic thermionic emission
-        num_particles=6, #increasing this won't improve visualization, because the beams are artificially forced into an axisymmetric path because of the electrode configurations
-        simulation_time=1e-8 #empirically found value for when the full simulation completes
+        num_particles=100, #increasing this won't improve visualization, because the beams are artificially forced into an axisymmetric path because of the electrode configurations
+        simulation_time=2e-8 #empirically found value for when the full simulation completes
     )
 
     figure = system.visualize_system(
@@ -139,7 +139,7 @@ Three total crossover points of increasing tightness.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.449 seconds)
+   **Total running time of the script:** (0 minutes 8.311 seconds)
 
 
 .. _sphx_glr_download_auto_examples_04_example_sem.py:

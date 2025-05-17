@@ -28,7 +28,7 @@ both to DC electromagnets and permanent magnets.
 
 Since the paraxial ray equation can sometimes create harmless artefacts at the middle particle's trajectories, feel free to increase nr and nz more than you would for electrostatic lenses. The multigrid handler can take it.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-42
+.. GENERATED FROM PYTHON SOURCE LINES 12-41
 
 
 
@@ -42,8 +42,7 @@ Since the paraxial ray equation can sometimes create harmless artefacts at the m
 
 
 .. code-block:: Python
-   :lineno-start: 13
-
+   :lineno-start: 12
 
     import numpy as np
     from picht import IonOpticsSystem, ElectrodeConfig, MagneticLensConfig
@@ -70,7 +69,7 @@ Since the paraxial ray equation can sometimes create harmless artefacts at the m
         r_range=(0.042, 0.058),
         angle_range=(0, 0),
         num_particles=20,
-        simulation_time=1e-9
+        simulation_time=2e-9
     )
 
     fig = system.visualize_system(trajectories=trajectories)
@@ -78,7 +77,7 @@ Since the paraxial ray equation can sometimes create harmless artefacts at the m
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.576 seconds)
+   **Total running time of the script:** (0 minutes 4.248 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_example_magnetic.py:

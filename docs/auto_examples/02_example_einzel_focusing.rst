@@ -78,7 +78,7 @@ either negative to negative, or positive to positive. We'll thus set it to -500V
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.466 seconds)
+   **Total running time of the script:** (0 minutes 5.357 seconds)
 
 
 .. _sphx_glr_download_auto_examples_02_example_einzel_focusing.py:

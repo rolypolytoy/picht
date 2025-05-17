@@ -35,7 +35,7 @@ trajectories = system.simulate_beam(
     r_range=(0.04, 0.06),
     angle_range=(0, 0),
     num_particles=10,
-    simulation_time=1e-8
+    simulation_time=2e-8
 )
 
 figure = system.visualize_system(

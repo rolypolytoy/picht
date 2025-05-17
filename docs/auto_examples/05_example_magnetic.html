@@ -96,39 +96,39 @@ to download the full example code.</p>
 MMF is the magnetomotive force- sometimes referred to as ampere-turns. This is the magnetic analogue to voltage. By specifying MMF and Mu_r you control the properties of the magnet, especially since these are applicable
 both to DC electromagnets and permanent magnets.</p>
 <p>Since the paraxial ray equation can sometimes create harmless artefacts at the middle particle’s trajectories, feel free to increase nr and nz more than you would for electrostatic lenses. The multigrid handler can take it.</p>
-<img src="../_images/sphx_glr_05_example_magnetic_001.png" srcset="../_images/sphx_glr_05_example_magnetic_001.png" alt="Picht, Display Options" class = "sphx-glr-single-img"/><div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="linenos">13</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="linenos">14</span> <span class="kn">from</span><span class="w"> </span><span class="nn">picht</span><span class="w"> </span><span class="kn">import</span> <span class="n">IonOpticsSystem</span><span class="p">,</span> <span class="n">ElectrodeConfig</span><span class="p">,</span> <span class="n">MagneticLensConfig</span>
-<span class="linenos">15</span> <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="linenos">16</span>
-<span class="linenos">17</span> <span class="n">system</span> <span class="o">=</span> <span class="n">IonOpticsSystem</span><span class="p">(</span><span class="n">nr</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">axial_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">radial_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-<span class="linenos">18</span>
-<span class="linenos">19</span> <span class="n">mag_config</span> <span class="o">=</span> <span class="n">MagneticLensConfig</span><span class="p">(</span>
-<span class="linenos">20</span>     <span class="n">start</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-<span class="linenos">21</span>     <span class="n">length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-<span class="linenos">22</span>     <span class="n">ap_start</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
-<span class="linenos">23</span>     <span class="n">ap_width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
-<span class="linenos">24</span>     <span class="n">outer_diameter</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-<span class="linenos">25</span>     <span class="n">mu_r</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-<span class="linenos">26</span>     <span class="n">mmf</span><span class="o">=</span><span class="mi">200</span>
-<span class="linenos">27</span> <span class="p">)</span>
-<span class="linenos">28</span> <span class="n">system</span><span class="o">.</span><span class="n">add_magnetic_lens</span><span class="p">(</span><span class="n">mag_config</span><span class="p">)</span>
-<span class="linenos">29</span>
-<span class="linenos">30</span> <span class="n">system</span><span class="o">.</span><span class="n">solve_fields</span><span class="p">()</span>
-<span class="linenos">31</span>
-<span class="linenos">32</span> <span class="n">trajectories</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">simulate_beam</span><span class="p">(</span>
-<span class="linenos">33</span>     <span class="n">energy_eV</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
-<span class="linenos">34</span>     <span class="n">start_z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="linenos">35</span>     <span class="n">r_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.042</span><span class="p">,</span> <span class="mf">0.058</span><span class="p">),</span>
-<span class="linenos">36</span>     <span class="n">angle_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-<span class="linenos">37</span>     <span class="n">num_particles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-<span class="linenos">38</span>     <span class="n">simulation_time</span><span class="o">=</span><span class="mf">1e-9</span>
-<span class="linenos">39</span> <span class="p">)</span>
-<span class="linenos">40</span>
-<span class="linenos">41</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">visualize_system</span><span class="p">(</span><span class="n">trajectories</span><span class="o">=</span><span class="n">trajectories</span><span class="p">)</span>
-<span class="linenos">42</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<img src="../_images/sphx_glr_05_example_magnetic_001.png" srcset="../_images/sphx_glr_05_example_magnetic_001.png" alt="Picht, Display Options" class = "sphx-glr-single-img"/><div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="linenos">12</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="linenos">13</span> <span class="kn">from</span><span class="w"> </span><span class="nn">picht</span><span class="w"> </span><span class="kn">import</span> <span class="n">IonOpticsSystem</span><span class="p">,</span> <span class="n">ElectrodeConfig</span><span class="p">,</span> <span class="n">MagneticLensConfig</span>
+<span class="linenos">14</span> <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span> <span class="n">system</span> <span class="o">=</span> <span class="n">IonOpticsSystem</span><span class="p">(</span><span class="n">nr</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">axial_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">radial_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span> <span class="n">mag_config</span> <span class="o">=</span> <span class="n">MagneticLensConfig</span><span class="p">(</span>
+<span class="linenos">19</span>     <span class="n">start</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="linenos">20</span>     <span class="n">length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="linenos">21</span>     <span class="n">ap_start</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+<span class="linenos">22</span>     <span class="n">ap_width</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+<span class="linenos">23</span>     <span class="n">outer_diameter</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+<span class="linenos">24</span>     <span class="n">mu_r</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+<span class="linenos">25</span>     <span class="n">mmf</span><span class="o">=</span><span class="mi">200</span>
+<span class="linenos">26</span> <span class="p">)</span>
+<span class="linenos">27</span> <span class="n">system</span><span class="o">.</span><span class="n">add_magnetic_lens</span><span class="p">(</span><span class="n">mag_config</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span> <span class="n">system</span><span class="o">.</span><span class="n">solve_fields</span><span class="p">()</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span> <span class="n">trajectories</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">simulate_beam</span><span class="p">(</span>
+<span class="linenos">32</span>     <span class="n">energy_eV</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+<span class="linenos">33</span>     <span class="n">start_z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">34</span>     <span class="n">r_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.042</span><span class="p">,</span> <span class="mf">0.058</span><span class="p">),</span>
+<span class="linenos">35</span>     <span class="n">angle_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+<span class="linenos">36</span>     <span class="n">num_particles</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="linenos">37</span>     <span class="n">simulation_time</span><span class="o">=</span><span class="mf">2e-9</span>
+<span class="linenos">38</span> <span class="p">)</span>
+<span class="linenos">39</span>
+<span class="linenos">40</span> <span class="n">fig</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">visualize_system</span><span class="p">(</span><span class="n">trajectories</span><span class="o">=</span><span class="n">trajectories</span><span class="p">)</span>
+<span class="linenos">41</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.576 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 4.248 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-05-example-magnetic-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/4671a1bdd606c88a81621e90969b58f5/05_example_magnetic.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">05_example_magnetic.ipynb</span></code></a></p>

@@ -180,8 +180,8 @@ Three total crossover points of increasing tightness.</p>
 <span class="linenos"> 92</span>     <span class="n">start_z</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span> <span class="c1">#We begin at z = 0.025, or 25 grid units in the z-direction so that there&#39;s a bit of Wehnelt Cylinder behind this</span>
 <span class="linenos"> 93</span>     <span class="n">r_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0499925</span><span class="p">,</span> <span class="mf">0.0500075</span><span class="p">),</span> <span class="c1">#15 micron thick beam, which is a realistic amount</span>
 <span class="linenos"> 94</span>     <span class="n">angle_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c1">#very high initial angular divergence to mimic thermionic emission</span>
-<span class="linenos"> 95</span>     <span class="n">num_particles</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="c1">#increasing this won&#39;t improve visualization, because the beams are artificially forced into an axisymmetric path because of the electrode configurations</span>
-<span class="linenos"> 96</span>     <span class="n">simulation_time</span><span class="o">=</span><span class="mf">1e-8</span> <span class="c1">#empirically found value for when the full simulation completes</span>
+<span class="linenos"> 95</span>     <span class="n">num_particles</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="c1">#increasing this won&#39;t improve visualization, because the beams are artificially forced into an axisymmetric path because of the electrode configurations</span>
+<span class="linenos"> 96</span>     <span class="n">simulation_time</span><span class="o">=</span><span class="mf">2e-8</span> <span class="c1">#empirically found value for when the full simulation completes</span>
 <span class="linenos"> 97</span> <span class="p">)</span>
 <span class="linenos"> 98</span>
 <span class="linenos"> 99</span> <span class="n">figure</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">visualize_system</span><span class="p">(</span>
@@ -191,7 +191,7 @@ Three total crossover points of increasing tightness.</p>
 <span class="linenos">103</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.449 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.311 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-04-example-sem-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/92fee720cf131965b53d4c2fda262d49/04_example_sem.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">04_example_sem.ipynb</span></code></a></p>

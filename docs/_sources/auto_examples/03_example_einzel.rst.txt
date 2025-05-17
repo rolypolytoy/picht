@@ -76,7 +76,7 @@ between aperture_width and outer_diameter as well, for cleaner field configurati
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.066 seconds)
+   **Total running time of the script:** (0 minutes 1.269 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_example_einzel.py:

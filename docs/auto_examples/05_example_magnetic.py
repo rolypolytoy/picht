@@ -9,7 +9,6 @@ both to DC electromagnets and permanent magnets.
 
 Since the paraxial ray equation can sometimes create harmless artefacts at the middle particle's trajectories, feel free to increase nr and nz more than you would for electrostatic lenses. The multigrid handler can take it.
 """
-
 import numpy as np
 from picht import IonOpticsSystem, ElectrodeConfig, MagneticLensConfig
 import matplotlib.pyplot as plt
@@ -35,7 +34,7 @@ trajectories = system.simulate_beam(
     r_range=(0.042, 0.058),
     angle_range=(0, 0),
     num_particles=20,
-    simulation_time=1e-9
+    simulation_time=2e-9
 )
 
 fig = system.visualize_system(trajectories=trajectories)

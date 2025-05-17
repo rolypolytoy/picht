@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-    version="2.1.0",
+    version="2.1.1",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron and ion optics simulation using the Finite Difference Method (FDM)",
