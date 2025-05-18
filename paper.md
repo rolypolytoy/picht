@@ -59,6 +59,6 @@ $$F_r =  -\frac{q^2 B_z^2}{4m} r$$
 
 Where $F_r$ is the radial component of force, q is the charge of the particle, $B_z$ is the axial component of the magnetic field, m is the mass of the particle, and r is the distance of the particle from the central axis.
 
-Combining this treatment of electric and magnetic components of force enables us to simulate systems with both kinds of lenses in an accurate and performant manner.
+We use second-order (5-stencil) finite difference methods for electric field calculations, and fourth-order (9-stencil) finite difference methods for magnetic field calculations, to provide greater accuracy for magnetic fields to offset some deviations from reality due to using the paraxial ray equation rather than full Lorentz treatment. Combining this treatment of electric and magnetic components of force enables us to simulate systems with both kinds of lenses in an accurate and performant manner.
 
 # References
