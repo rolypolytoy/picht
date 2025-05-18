@@ -13,6 +13,75 @@ from joblib import Parallel, delayed
 import multiprocessing
 import os
 
+@nb.njit
+def get_field(z, r, Ez, Er, axial_size, radial_size, dz, dr, nz, nr):
+    """
+    Provides electric field values at fractional grid positions by
+    picking the value at the nearest neighbor. Necessary because 
+    FDM is discretizing by nature.
+    
+    Parameters:
+        z (float): Z-axis position in meters.
+        r (float): R-axis position in meters.
+        Ez (ndarray): Z-component of the electric field array.
+        Er (ndarray): R-component of the electric field array.
+        axial_size (float): Total size of z-axis in meters.
+        radial_size (float): Total size of r-axis in meters.
+        dz (float): Grid spacing in z-axis, found by dividing nz/z.
+        dr (float): Grid spacing in r-axis, found by dividing nr/r.
+        nz (int): Number of grid points in z-axis.
+        nr (int): Number of grid points in r-axis.
+        
+    Returns:
+        tuple: (Ez, Er) Electric field components at the specified position in V/m.
+    """
+    if 0 <= z < axial_size and 0 <= r < radial_size:
+        i = int(min(max(0, z / dz), nz - 1))
+        j = int(min(max(0, r / dr), nr - 1))
+        return Ez[i, j], Er[i, j]
+    else:
+        return 0.0, 0.0
+
+
+@nb.njit
+def calc_dynamics(z, r, pz, pr, Ez, Er, Bz, Br, q, m, c, r_axis=0.0):
+    """    
+    Calculates the acceleration of charged particles by applying
+    the Lorentz force with special-relativistic corrections. Uses energy
+    momentum formalism for full eV to TeV support.
+
+    Note: F = q^2 Bz^2 /(4m) * r is the paraxial ray equation for small-angle magnetostatics.
+    This is near-necessary if you're simulating things axisymmetrically because you can't simulate 
+    azimuthal velocity, so the paraxial ray equation is necessary for keeping both axisymmetry and
+    accuracy. Since Fr is equivalent to dpr/dt we basically solve for this.
+    
+    Parameters:
+        z (float): Z-axis position in meters.
+        r (float): R-axis position in meters.
+        pz (float): Z-axis momentum in kg * m/s.
+        pr (float): R-axis momentum in kg * m/s.
+        Ez (float): Z-axis electric field in volts per meter.
+        Er (float): R-axis electric field in volts per meter.
+        Bz (float): Z-axis magnetic field in Tesla.
+        Br (float): R-axis electric field in Tesla.
+        q (float): Charge of the particle.
+        mass (float): Particle mass in kg.
+        c (float): Speed of light in a vacuum in meters per second.
+        
+    Returns:
+        ndarray: Array containing [vz, vr, dpz_dt, dpr_dt], representing velocity and force
+                components in the z and r directions for complete kinematic information (force is dp/dt).
+    """
+    p_sq = pz**2 + pr**2
+    E = np.sqrt((p_sq * c**2) + (m * c**2)**2)
+    vz = pz * c**2 / E
+    vr = pr * c**2 / E    
+    dpz_dt = q * Ez
+    dpr_dt = q * Er    
+    r_from_axis = r - r_axis
+    dpr_dt += -((q**2) * Bz**2 / (4 * m)) * r_from_axis
+    return np.array([vz, vr, dpz_dt, dpr_dt])
+
 @dataclass
 class MagneticLensConfig:
     """
@@ -363,75 +432,6 @@ class ElectrodeConfig:
     ap_width: float
     outer_diameter: float
     voltage: float
-
-@nb.njit
-def get_field(z, r, Ez, Er, axial_size, radial_size, dz, dr, nz, nr):
-    """
-    Provides electric field values at fractional grid positions by
-    picking the value at the nearest neighbor. Necessary because 
-    FDM is discretizing by nature.
-    
-    Parameters:
-        z (float): Z-axis position in meters.
-        r (float): R-axis position in meters.
-        Ez (ndarray): Z-component of the electric field array.
-        Er (ndarray): R-component of the electric field array.
-        axial_size (float): Total size of z-axis in meters.
-        radial_size (float): Total size of r-axis in meters.
-        dz (float): Grid spacing in z-axis, found by dividing nz/z.
-        dr (float): Grid spacing in r-axis, found by dividing nr/r.
-        nz (int): Number of grid points in z-axis.
-        nr (int): Number of grid points in r-axis.
-        
-    Returns:
-        tuple: (Ez, Er) Electric field components at the specified position in V/m.
-    """
-    if 0 <= z < axial_size and 0 <= r < radial_size:
-        i = int(min(max(0, z / dz), nz - 1))
-        j = int(min(max(0, r / dr), nr - 1))
-        return Ez[i, j], Er[i, j]
-    else:
-        return 0.0, 0.0
-
-
-@nb.njit
-def calc_dynamics(z, r, pz, pr, Ez, Er, Bz, Br, q, m, c, r_axis=0.0):
-    """    
-    Calculates the acceleration of charged particles by applying
-    the Lorentz force with special-relativistic corrections. Uses energy
-    momentum formalism for full eV to TeV support.
-
-    Note: F = q^2 Bz^2 /(4m) * r is the paraxial ray equation for small-angle magnetostatics.
-    This is near-necessary if you're simulating things axisymmetrically because you can't simulate 
-    azimuthal velocity, so the paraxial ray equation is necessary for keeping both axisymmetry and
-    accuracy. Since Fr is equivalent to dpr/dt we basically solve for this.
-    
-    Parameters:
-        z (float): Z-axis position in meters.
-        r (float): R-axis position in meters.
-        pz (float): Z-axis momentum in kg * m/s.
-        pr (float): R-axis momentum in kg * m/s.
-        Ez (float): Z-axis electric field in volts per meter.
-        Er (float): R-axis electric field in volts per meter.
-        Bz (float): Z-axis magnetic field in Tesla.
-        Br (float): R-axis electric field in Tesla.
-        q (float): Charge of the particle.
-        mass (float): Particle mass in kg.
-        c (float): Speed of light in a vacuum in meters per second.
-        
-    Returns:
-        ndarray: Array containing [vz, vr, dpz_dt, dpr_dt], representing velocity and force
-                components in the z and r directions for complete kinematic information (force is dp/dt).
-    """
-    p_sq = pz**2 + pr**2
-    E = np.sqrt((p_sq * c**2) + (m * c**2)**2)
-    vz = pz * c**2 / E
-    vr = pr * c**2 / E    
-    dpz_dt = q * Ez
-    dpr_dt = q * Er    
-    r_from_axis = r - r_axis
-    dpr_dt += -((q**2) * Bz**2 / (4 * m)) * r_from_axis
-    return np.array([vz, vr, dpz_dt, dpr_dt])
 
 class ElectricField:
     """
