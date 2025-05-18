@@ -16,39 +16,40 @@ if picht_dir not in sys.path:
     sys.path.insert(0, picht_dir)
 
 from core import (
-    PotentialField, 
+    ElectricField, 
     ElectrodeConfig, 
     EinzelLens, 
     IonOpticsSystem, 
     ParticleTracer,
     MagneticField,
-    MagneticLensConfig
+    MagneticLensConfig,
+    Export
 )
 
 @pytest.fixture
-def potential_field():
-    return PotentialField(100, 50, 0.1, 0.05)
+def electric_field():
+    return ElectricField(100, 50, 0.1, 0.05)
 @pytest.fixture
 def ion_optics_system():
     return IonOpticsSystem(50, 100, 0.1, 0.05)
 @pytest.fixture
-def particle_tracer(potential_field):
-    return ParticleTracer(potential_field)
+def particle_tracer(electric_field):
+    return ParticleTracer(electric_field)
 
-#tests if the PotentialField class is properly using the discretization values from ionopticssystem
-def test_potential_field_initialization(potential_field):
-    assert potential_field.nz == 100
-    assert potential_field.nr == 50
-    assert potential_field.axial_size == 0.1
-    assert potential_field.radial_size == 0.05
-    assert potential_field.dz == 0.001
-    assert potential_field.dr == 0.001
-    assert potential_field.potential.shape == (100, 50)
-    assert potential_field.Ez.shape == (100, 50)
-    assert potential_field.Er.shape == (100, 50)
+#tests if the ElectricField class is properly using the discretization values from ionopticssystem
+def test_electric_field_initialization(electric_field):
+    assert electric_field.nz == 100
+    assert electric_field.nr == 50
+    assert electric_field.axial_size == 0.1
+    assert electric_field.radial_size == 0.05
+    assert electric_field.dz == 0.001
+    assert electric_field.dr == 0.001
+    assert electric_field.potential.shape == (100, 50)
+    assert electric_field.Ez.shape == (100, 50)
+    assert electric_field.Er.shape == (100, 50)
 
 #tests if the dirichlet masking of electrodes is correctly done
-def test_electrode_addition(potential_field):
+def test_electrode_addition(electric_field):
     config = ElectrodeConfig(
         start=10,
         width=5,
@@ -57,9 +58,9 @@ def test_electrode_addition(potential_field):
         outer_diameter=30,
         voltage=100
     )
-    potential_field.add_electrode(config)
-    assert np.any(potential_field.potential != 0)
-    assert np.any(potential_field.electrode_mask)
+    electric_field.add_electrode(config)
+    assert np.any(electric_field.potential != 0)
+    assert np.any(electric_field.electrode_mask)
 
 #tests if the grounded, voltage, grounded electrode configuration of einzel lenses is correctly done
 def test_einzel_lens_creation():
@@ -77,7 +78,7 @@ def test_einzel_lens_creation():
     assert lens.electrode3.voltage == 0
 
 #tests if electrodes with nonzero voltage cause nonzero values in electric field
-def test_potential_solving(potential_field):
+def test_potential_solving(electric_field):
     config = ElectrodeConfig(
         start=10,
         width=5,
@@ -86,10 +87,10 @@ def test_potential_solving(potential_field):
         outer_diameter=30,
         voltage=100
     )
-    potential_field.add_electrode(config)
-    result = potential_field.solve_potential(max_iterations=10, convergence_threshold=1e-3)
-    assert np.any(potential_field.Ez != 0)
-    assert np.any(potential_field.Er != 0)
+    electric_field.add_electrode(config)
+    result = electric_field.solve_potential(max_iterations=10, convergence_threshold=1e-3)
+    assert np.any(electric_field.Ez != 0)
+    assert np.any(electric_field.Er != 0)
     assert result.shape == (100, 50)
 
 #does a basic sanity test on velocity calculations- makes sure an electron at 1000eV is faster than 100eV, and 100eV is faster than 0, as well as makes sure heavier objects move slower than lighter ones at fixed energies
