@@ -38,7 +38,7 @@ class MagneticLensConfig:
 class MagneticField:
    """
    This class handles everything related to the magnetic vector potential field, including
-   adding magnetic lenses, and solving for the magnetic field. Analagous to PotentialField
+   adding magnetic lenses, and solving for the magnetic field. Analagous to ElectricField
    but solves the magnetic field instead of the electric field.
    
    Attributes:
@@ -83,10 +83,10 @@ class MagneticField:
        self.Br = np.zeros((self.nz, self.nr))
        self.lens_config = None
       
-   def add_magnetic_lens(self, config: MagneticLensConfig):
+   def add_magnetic_lens(self, config):
        """
        Adds a magnetic lens to the field and handles all necessary calculations.
-       Analagous to add_electrode() in PotentialField.
+       Analagous to add_electrode() in ElectricField.
 
        Parameters:
            config (MagneticLensConfig): Configuration parameters for the magnetic lens.
@@ -121,7 +121,7 @@ class MagneticField:
        Builds a sparse matrix for the Laplacian ∇²A = -μ₀μᵣJ, 
        and implements Neumann boundary conditions at all boundaries, to simulate
        how magnetic fields behave at metal boundaries. Identical implementation
-       details as build_laplacian_matrix() in PotentialField.
+       details as build_laplacian_matrix() in ElectricField.
 
        Parameters:
            mask (ndarray): Boolean array, true where magnetic materials exist, false elsewhere.
@@ -140,6 +140,11 @@ class MagneticField:
        def idx(i, j):
            return i * self.nr + j
 
+       def harmonic_mean(a, b):
+           if a == 0 or b == 0:
+               return 0
+           return 2 * a * b / (a + b)
+
        ap_center = (self.lens_config.ap_start + self.lens_config.ap_width / 2) if self.lens_config else 0
        epsilon = 1e-10
 
@@ -147,49 +152,85 @@ class MagneticField:
            for j in range(self.nr):
                k = idx(i, j)
                
-               if i == 0:
+               if i < 2 or i >= self.nz - 2:
                    A[k, k] = -1.0
-                   A[k, idx(i+1, j)] = 1.0
+                   if i == 0:
+                       A[k, idx(min(i+1, self.nz-1), j)] = 1.0
+                   elif i == 1:
+                       A[k, idx(min(i+1, self.nz-1), j)] = 1.0
+                   elif i == self.nz - 2:
+                       A[k, idx(max(i-1, 0), j)] = 1.0
+                   else:
+                       A[k, idx(max(i-1, 0), j)] = 1.0
                    b[k] = 0.0
-               elif i == self.nz - 1:
+               elif j < 2 or j >= self.nr - 2:
                    A[k, k] = -1.0
-                   A[k, idx(i-1, j)] = 1.0
-                   b[k] = 0.0
-               elif j == 0:
-                   A[k, k] = -1.0
-                   A[k, idx(i, j+1)] = 1.0
-                   b[k] = 0.0
-               elif j == self.nr - 1:
-                   A[k, k] = -1.0
-                   A[k, idx(i, j-1)] = 1.0
+                   if j == 0:
+                       A[k, idx(i, min(j+1, self.nr-1))] = 1.0
+                   elif j == 1:
+                       A[k, idx(i, min(j+1, self.nr-1))] = 1.0
+                   elif j == self.nr - 2:
+                       A[k, idx(i, max(j-1, 0))] = 1.0
+                   else:
+                       A[k, idx(i, max(j-1, 0))] = 1.0
                    b[k] = 0.0
                else:
                    mu_center = self.mu_r[i, j]
-                   mu_left = self.mu_r[i-1, j]
-                   mu_right = self.mu_r[i+1, j]
-                   mu_down = self.mu_r[i, j-1]
-                   mu_up = self.mu_r[i, j+1]
+                   mu_left2 = self.mu_r[i-2, j]
+                   mu_left1 = self.mu_r[i-1, j]
+                   mu_right1 = self.mu_r[i+1, j]
+                   mu_right2 = self.mu_r[i+2, j]
+                   mu_down2 = self.mu_r[i, j-2]
+                   mu_down1 = self.mu_r[i, j-1]
+                   mu_up1 = self.mu_r[i, j+1]
+                   mu_up2 = self.mu_r[i, j+2]
+                   
+                   mu_interface_left2 = harmonic_mean(mu_center, mu_left2)
+                   mu_interface_left1 = harmonic_mean(mu_center, mu_left1)
+                   mu_interface_right1 = harmonic_mean(mu_center, mu_right1)
+                   mu_interface_right2 = harmonic_mean(mu_center, mu_right2)
+                   mu_interface_down2 = harmonic_mean(mu_center, mu_down2)
+                   mu_interface_down1 = harmonic_mean(mu_center, mu_down1)
+                   mu_interface_up1 = harmonic_mean(mu_center, mu_up1)
+                   mu_interface_up2 = harmonic_mean(mu_center, mu_up2)
                    
                    r_from_axis = (j - ap_center) * self.dr
                    r_abs = max(abs(r_from_axis), epsilon)
                    
                    if r_from_axis > 0:
-                       r_deriv_coeff_down = -1/(2*r_abs*self.dr)
-                       r_deriv_coeff_up = 1/(2*r_abs*self.dr)
+                       r_deriv_coeff_down2 = -1/(12*r_abs*self.dr)
+                       r_deriv_coeff_down1 = 8/(12*r_abs*self.dr)
+                       r_deriv_coeff_up1 = -8/(12*r_abs*self.dr)
+                       r_deriv_coeff_up2 = 1/(12*r_abs*self.dr)
                    else:
-                       r_deriv_coeff_down = 1/(2*r_abs*self.dr)
-                       r_deriv_coeff_up = -1/(2*r_abs*self.dr)
+                       r_deriv_coeff_down2 = 1/(12*r_abs*self.dr)
+                       r_deriv_coeff_down1 = -8/(12*r_abs*self.dr)
+                       r_deriv_coeff_up1 = 8/(12*r_abs*self.dr)
+                       r_deriv_coeff_up2 = -1/(12*r_abs*self.dr)
                    
-                   coeff_center = -(mu_left/self.dz**2 + mu_right/self.dz**2 + 
-                                  mu_down/self.dr**2 + mu_up/self.dr**2 + 
-                                  mu_down*r_deriv_coeff_down + mu_up*r_deriv_coeff_up + 
+                   coeff_left2 = -mu_interface_left2 / (12*self.dz**2)
+                   coeff_left1 = 16*mu_interface_left1 / (12*self.dz**2)
+                   coeff_right1 = 16*mu_interface_right1 / (12*self.dz**2)
+                   coeff_right2 = -mu_interface_right2 / (12*self.dz**2)
+                   
+                   coeff_down2 = -mu_interface_down2 / (12*self.dr**2) + mu_interface_down2 * r_deriv_coeff_down2
+                   coeff_down1 = 16*mu_interface_down1 / (12*self.dr**2) + mu_interface_down1 * r_deriv_coeff_down1
+                   coeff_up1 = 16*mu_interface_up1 / (12*self.dr**2) + mu_interface_up1 * r_deriv_coeff_up1
+                   coeff_up2 = -mu_interface_up2 / (12*self.dr**2) + mu_interface_up2 * r_deriv_coeff_up2
+                   
+                   coeff_center = -(coeff_left2 + coeff_left1 + coeff_right1 + coeff_right2 + 
+                                  coeff_down2 + coeff_down1 + coeff_up1 + coeff_up2 + 
                                   mu_center/r_abs**2)
                    
                    A[k, k] = coeff_center
-                   A[k, idx(i-1, j)] = mu_left/self.dz**2
-                   A[k, idx(i+1, j)] = mu_right/self.dz**2
-                   A[k, idx(i, j-1)] = mu_down/self.dr**2 + mu_down*r_deriv_coeff_down
-                   A[k, idx(i, j+1)] = mu_up/self.dr**2 + mu_up*r_deriv_coeff_up
+                   A[k, idx(i-2, j)] = coeff_left2
+                   A[k, idx(i-1, j)] = coeff_left1
+                   A[k, idx(i+1, j)] = coeff_right1
+                   A[k, idx(i+2, j)] = coeff_right2
+                   A[k, idx(i, j-2)] = coeff_down2
+                   A[k, idx(i, j-1)] = coeff_down1
+                   A[k, idx(i, j+1)] = coeff_up1
+                   A[k, idx(i, j+2)] = coeff_up2
                    
                    if self.current_density[i, j] != 0:
                        b[k] = -mu_0 * mu_center * self.current_density[i, j]
@@ -203,7 +244,7 @@ class MagneticField:
        Solves the magnetic vector potential field using Multigrid methods with PyAMG. It first 
        creates a CSR matrix for the Laplacian operator for the vector potential field, and uses
        PyAMG to solve for ∇²A = -μ₀μᵣJ. Then, it calculates B = ∇ × A to find the magnetic field.
-       This is functionally identical to how solve_potential() in PotentialField calculates the 
+       This is functionally identical to how solve_potential() in ElectricField calculates the 
        electric field.
        
        Parameters:
@@ -245,36 +286,47 @@ class MagneticField:
        
        for i in range(self.nz):
            for j in range(self.nr):
-               if 0 < i < self.nz - 1:
-                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i-1, j]) / (2*self.dz)
+               if 2 <= i <= self.nz - 3:
+                   self.Br[i, j] = -((-self.vector_potential[i+2, j] + 8*self.vector_potential[i+1, j] - 
+                                    8*self.vector_potential[i-1, j] + self.vector_potential[i-2, j]) / (12*self.dz))
                elif i == 0:
                    self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i, j]) / self.dz
+               elif i == 1:
+                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i-1, j]) / (2*self.dz)
+               elif i == self.nz - 2:
+                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i-1, j]) / (2*self.dz)
                else:
                    self.Br[i, j] = -(self.vector_potential[i, j] - self.vector_potential[i-1, j]) / self.dz
                
                r_dist = max(abs((j - ap_center) * self.dr), epsilon)
                r_signed = (j - ap_center) * self.dr
                
-               if 0 < j < self.nr - 1:
-                   dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j-1]) / (2*self.dr)
-               elif j == 0 or j == self.nr - 1:
-                   if j == 0:
-                       if j+2 < self.nr:
-                           dA_dr = (-3*self.vector_potential[i, j] + 4*self.vector_potential[i, j+1] - self.vector_potential[i, j+2]) / (2*self.dr)
-                       else:
-                           dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j]) / self.dr
+               if 2 <= j <= self.nr - 3:
+                   dA_dr = (-self.vector_potential[i, j+2] + 8*self.vector_potential[i, j+1] - 
+                           8*self.vector_potential[i, j-1] + self.vector_potential[i, j-2]) / (12*self.dr)
+               elif j == 0:
+                   if j+2 < self.nr:
+                       dA_dr = (-3*self.vector_potential[i, j] + 4*self.vector_potential[i, j+1] - 
+                               self.vector_potential[i, j+2]) / (2*self.dr)
                    else:
-                       if j-2 >= 0:
-                           dA_dr = (3*self.vector_potential[i, j] - 4*self.vector_potential[i, j-1] + self.vector_potential[i, j-2]) / (2*self.dr)
-                       else:
-                           dA_dr = (self.vector_potential[i, j] - self.vector_potential[i, j-1]) / self.dr
+                       dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j]) / self.dr
+               elif j == 1:
+                   dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j-1]) / (2*self.dr)
+               elif j == self.nr - 2:
+                   dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j-1]) / (2*self.dr)
+               else:
+                   if j-2 >= 0:
+                       dA_dr = (3*self.vector_potential[i, j] - 4*self.vector_potential[i, j-1] + 
+                               self.vector_potential[i, j-2]) / (2*self.dr)
+                   else:
+                       dA_dr = (self.vector_potential[i, j] - self.vector_potential[i, j-1]) / self.dr
                
                if r_signed < 0:
                    dA_dr = -dA_dr
                
                self.Bz[i, j] = dA_dr + self.vector_potential[i, j] / r_dist
   
-   def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
+   def get_field_at_position(self, z: float, r: float):
        """
        Returns the magnetic field components at a specific position.
        
@@ -291,7 +343,7 @@ class MagneticField:
            return self.Bz[i, j], self.Br[i, j]
        else:
            return 0.0, 0.0
-                             
+                                          
 @dataclass
 class ElectrodeConfig:
     """
@@ -381,7 +433,7 @@ def calc_dynamics(z, r, pz, pr, Ez, Er, Bz, Br, q, m, c, r_axis=0.0):
     dpr_dt += -((q**2) * Bz**2 / (4 * m)) * r_from_axis
     return np.array([vz, vr, dpz_dt, dpr_dt])
 
-class PotentialField:
+class ElectricField:
     """
     This class handles everything related to the electric potential field, including
     adding electrodes and einzel lenses, and solving for the electric field.
@@ -541,7 +593,7 @@ class ParticleTracer:
     Handles trajectory dynamics calculations and visualizations.
     
     Attributes:
-        field (PotentialField): The potential field class, which has most of the information required
+        field (ElectricField): The electric field class, which has most of the information required
         to calculate particle trajectories.
         current_ion (dict): A dictionary with selected information about the charged particle.
         q_m (float): Charge-to-mass ratio of the charged particle.
@@ -555,14 +607,14 @@ class ParticleTracer:
     ELECTRON_MASS = 9.1093837e-31
     SPEED_OF_LIGHT = 299792458.0
 
-    def __init__(self, potential_field: PotentialField):
+    def __init__(self, electric_field: ElectricField):
         """
-        Initializes a potential field with the class.
+        Initializes an electric field with the class.
         
         Parameters:
-            potential_field (PotentialField): The electric potential field required to calculate particle dynamics.
+            electric_field (ElectricField): The electric field required to calculate particle dynamics.
         """
-        self.field = potential_field
+        self.field = electric_field
         self.current_ion = {
             'symbol': 'e-',
             'atomic_number': 0,
@@ -759,10 +811,10 @@ class EinzelLens:
             voltage=0 
         )
     
-    def add_to_field(self, field: PotentialField):
+    def add_to_field(self, field: ElectricField):
         """        
         Parameters:
-            field (PotentialField): Initializes a PotentialField so it can add three electrodes to it as defined by __init__().
+            field (ElectricField): Initializes an ElectricField so it can add three electrodes to it as defined by __init__().
         """
         field.add_electrode(self.electrode1)
         field.add_electrode(self.electrode2)
@@ -776,7 +828,7 @@ class IonOpticsSystem:
   reason.
   
   Attributes:
-      field (PotentialField): The potential field initialized in the simulation.
+      field (ElectricField): The electric field initialized in the simulation.
       tracer (ParticleTracer): The trajectory calcuation tracer.
       elements (list): List of all electrodes and lenses inside the system.
   """
@@ -792,7 +844,7 @@ class IonOpticsSystem:
           axial_size (float, optional): Length of the system in the z-direction in meters.
           radial_size (float, optional): Length of the system in the r-direction in meters.
       """
-      self.field = PotentialField(nz, nr, axial_size, radial_size)
+      self.field = ElectricField(nz, nr, axial_size, radial_size)
       self.tracer = ParticleTracer(self.field)
       self.elements = []
       self.magnetic_lenses = None

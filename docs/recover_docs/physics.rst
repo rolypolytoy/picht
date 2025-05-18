@@ -69,6 +69,6 @@ The system employs Dirichlet boundaries for lens masking and the electric field 
 Auxiliary Information
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Picht uses Joblib for CPU parallelization, handles special relativity using the energy-momentum formalism, and has several planned additions including using beam envelope methods to incorporate Coulomb effects (with corrections for the stochastic Boersch effect). Once this is done, benchmarking against found solutions is also on the cards.
+Picht uses Joblib for CPU parallelization, handles special relativity using the energy-momentum formalism. There are no more planned updates.
 
 If you want to contribute to Picht, it's recommended that you fork the repository and add new classes rather than touching the existing ones- there are many interconnections and dependencies that require careful handling.

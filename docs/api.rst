@@ -37,10 +37,10 @@ MagneticLensConfig
    :param float mu_r: Relative magnetic permeability of the lens material in dimensionless units
    :param float mmf: Magnetomotive force of the lens in ampere-turns
 
-PotentialField
+ElectricField
 ~~~~~~~~~~~~~~
 
-.. class:: PotentialField(nz, nr, axial_size, radial_size)
+.. class:: ElectricField(nz, nr, axial_size, radial_size)
 
    Manages electric potential fields, electrode configurations, and field solving operations.
    
@@ -262,13 +262,13 @@ MagneticField
 ParticleTracer
 ~~~~~~~~~~~~~~
 
-.. class:: ParticleTracer(potential_field)
+.. class:: ParticleTracer(electric_field)
 
    Handles charged particle trajectory calculations and dynamics simulations.
    
    **Parameters**
    
-   :param PotentialField potential_field: Electric potential field for particle simulation
+   :param ElectricField electric_field: Electric field for particle simulation
    
    **Class Constants**
    
@@ -290,7 +290,7 @@ ParticleTracer
    **Attributes**
    
    .. attribute:: field
-      :type: PotentialField
+      :type: ElectricField
       
       Associated potential field instance
    
@@ -391,9 +391,9 @@ EinzelLens
    
    .. method:: add_to_field(field)
    
-      Adds all three electrodes to the potential field.
+      Adds all three electrodes to the electric field.
       
-      :param PotentialField field: Target potential field
+      :param ElectricField field: Target electric field
 
 IonOpticsSystem
 ~~~~~~~~~~~~~~~
@@ -413,9 +413,9 @@ IonOpticsSystem
    **Attributes**
    
    .. attribute:: field
-      :type: PotentialField
+      :type: ElectricField
       
-      Potential field instance
+      Electric field instance
    
    .. attribute:: tracer
       :type: ParticleTracer
@@ -430,7 +430,7 @@ IonOpticsSystem
    .. attribute:: magnetic_lenses
       :type: MagneticField
       
-      Magnetic field instance if magnetic lenses are present
+      Magnetic field instance
    
    **Methods**
    
