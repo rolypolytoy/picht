@@ -60,15 +60,3 @@ Which is not computationally intensive. Then, instead of using the Lorentz equat
    F_r = -\frac{q^2 B_z^2}{4m} r
 
 Where $F_r$ is the radial component of focusing, r is the distance from the center axis of the magnetic lens, $q^2$ is of course the square of the charge and $B_z$ is the axial component of the magnetic field, and m is the mass of the particle.
-
-Boundary Handling
-~~~~~~~~~~~~~~~~~~~
-
-The system employs Dirichlet boundaries for lens masking and the electric field edges, and Neumann boundaries for magnetic field edges. What does this mean? We set the boundaries to 0V, but allow magnetic fields to pass through like it's an infinite space- this simulates how grounded metal containers behave, so your simulation space is in effect identical to a cylindrical container, which is more realistic than the all-Neumann boundary conditions most software packages contain.
-
-Auxiliary Information
-~~~~~~~~~~~~~~~~~~~~~~
-
-Picht uses Joblib for CPU parallelization, handles special relativity using the energy-momentum formalism. There are no more planned updates.
-
-If you want to contribute to Picht, it's recommended that you fork the repository and add new classes rather than touching the existing ones- there are many interconnections and dependencies that require careful handling.

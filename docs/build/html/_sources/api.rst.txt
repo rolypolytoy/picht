@@ -143,13 +143,13 @@ ElectricField
 MagneticField
 ~~~~~~~~~~~~~
 
-.. class:: MagneticField(ion_optics_system)
+.. class:: MagneticField(electron_optics)
 
    Manages magnetic vector potential fields, magnetic lens configurations, and field solving operations.
    
    **Parameters**
    
-   :param IonOpticsSystem ion_optics_system: The parent ion optics system containing field dimensions and grid parameters
+   :param ElectronOptics electron_optics: The parent electron optics system containing field dimensions and grid parameters
    
    **Attributes**
    
@@ -395,12 +395,12 @@ EinzelLens
       
       :param ElectricField field: Target electric field
 
-IonOpticsSystem
+ElectronOptics
 ~~~~~~~~~~~~~~~
 
-.. class:: IonOpticsSystem(nr, nz, axial_size=0.1, radial_size=0.1)
+.. class:: ElectronOptics(nr, nz, axial_size=0.1, radial_size=0.1)
 
-   Complete ion optics simulation environment integrating field calculations,
+   Complete electron optics simulation environment integrating field calculations,
    particle tracing, and visualization capabilities.
    
    **Parameters**
@@ -494,19 +494,19 @@ IonOpticsSystem
 Export
 ~~~~~~
 
-.. class:: Export(ion_optics_system)
+.. class:: Export(electron_optics)
 
    Handles data export to HDF5 and CAD formats.
    
    **Parameters**
    
-   :param IonOpticsSystem ion_optics_system: System instance to export
+   :param ElectronOptics electron_optics: System instance to export
    
    **Attributes**
    
    .. attribute:: system
       
-      Reference to the ion optics system
+      Reference to the electron optics system
    
    .. attribute:: field
       

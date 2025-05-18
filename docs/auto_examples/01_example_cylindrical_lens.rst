@@ -27,9 +27,9 @@ length of the domain in meters in the z-dimension, and radial_size is the same f
 This means the grid resolution in the z-dimension is axial_size/nz, and in the r-dimension is radial_size/nr. You should, if using nonstandard values for these,
 ensure you're aware of these so you can properly convert from grid units to meters.
 
-You can initialize a cylindrical electrode with -5000V focus voltage and 10keV energy per electron as follows:
+You can initialize a two-cylinder lens with -5000V and 0V respectively as follows:
 
-.. GENERATED FROM PYTHON SOURCE LINES 13-45
+.. GENERATED FROM PYTHON SOURCE LINES 13-55
 
 
 
@@ -46,26 +46,36 @@ You can initialize a cylindrical electrode with -5000V focus voltage and 10keV e
    :lineno-start: 13
 
     import numpy as np
-    from picht import IonOpticsSystem, ElectrodeConfig
+    from picht import ElectronOptics, ElectrodeConfig
     import matplotlib.pyplot as plt
 
-    system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
+    system = ElectronOptics(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 
     electrode = ElectrodeConfig(
         start=30,
-        width=200,
+        width=100,
         ap_start=30,
         ap_width=40,
         outer_diameter = 50,
-        voltage=-2000
+        voltage=-5000
     )
 
     system.add_electrode(electrode)
+    electrode1 = ElectrodeConfig(
+        start=160,
+        width=100,
+        ap_start=30,
+        ap_width=40,
+        outer_diameter = 50,
+        voltage=0
+    )
+
+    system.add_electrode(electrode1)
 
     potential = system.solve_fields()
 
     trajectories = system.simulate_beam(
-        energy_eV= 10000,  
+        energy_eV= 1000,  
         start_z=0,
         r_range=(0.04, 0.06),
         angle_range=(0, 0),
@@ -81,7 +91,7 @@ You can initialize a cylindrical electrode with -5000V focus voltage and 10keV e
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.448 seconds)
+   **Total running time of the script:** (0 minutes 5.215 seconds)
 
 
 .. _sphx_glr_download_auto_examples_01_example_cylindrical_lens.py:

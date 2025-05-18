@@ -5,7 +5,7 @@ from .core import (
     ParticleTracer,
     ElectrodeConfig,
     EinzelLens,
-    IonOpticsSystem,
+    ElectronOptics,
     MagneticField,
     MagneticLensConfig,
     Export,

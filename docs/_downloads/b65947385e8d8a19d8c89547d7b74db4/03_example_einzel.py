@@ -7,10 +7,10 @@ Whenever chaining several einzel lenses, this problem becomes especially pertine
 between aperture_width and outer_diameter as well, for cleaner field configurations.
 """
 import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig
+from picht import ElectronOptics, ElectrodeConfig
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
+system = ElectronOptics(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
 
 
 system.add_einzel_lens(

@@ -15,10 +15,10 @@ A -7200V condenser lens and a -10,000V objective lens.
 Three total crossover points of increasing tightness.
 """
 import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig
+from picht import ElectronOptics, ElectrodeConfig
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
+system = ElectronOptics(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
 
 
 #Wehnelt Cylinders- responsible for the first crossover
@@ -69,15 +69,14 @@ system.add_einzel_lens(
     aperture_center=50.0,
     aperture_width=48.0,
     outer_diameter=50.0,
-    focus_voltage=-7200
+    focus_voltage=-8000
 )
 
-#A Beam-Limiting Aperture comes between the lenses to add a demagnification ratio
-
 #Objective Lens- Provides final focusing mere millimeters after its end
+
 system.add_einzel_lens(
-    position= 142.0,
-    width=63.0,
+    position= 210.0,
+    width=57.0,
     aperture_center=50.0,
     aperture_width=48.0,
     outer_diameter=50.0,

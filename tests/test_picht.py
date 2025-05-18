@@ -19,7 +19,7 @@ from core import (
     ElectricField, 
     ElectrodeConfig, 
     EinzelLens, 
-    IonOpticsSystem, 
+    ElectronOptics, 
     ParticleTracer,
     MagneticField,
     MagneticLensConfig,
@@ -30,13 +30,13 @@ from core import (
 def electric_field():
     return ElectricField(100, 50, 0.1, 0.05)
 @pytest.fixture
-def ion_optics_system():
-    return IonOpticsSystem(50, 100, 0.1, 0.05)
+def electron_optics():
+    return ElectronOptics(50, 100, 0.1, 0.05)
 @pytest.fixture
 def particle_tracer(electric_field):
     return ParticleTracer(electric_field)
 
-#tests if the ElectricField class is properly using the discretization values from ionopticssystem
+#tests if the ElectricField class is properly using the discretization values from electron_optics
 def test_electric_field_initialization(electric_field):
     assert electric_field.nz == 100
     assert electric_field.nr == 50
@@ -120,18 +120,18 @@ def test_trace_trajectory(mock_solve_ivp, particle_tracer):
     assert mock_solve_ivp.called
     assert result == mock_solution
 
-#tests if the previously initialized ionopticsystem has the correct discretization and size values and is empty
-def test_ion_optics_system_initialization(ion_optics_system):
-    assert ion_optics_system.field.nz == 100
-    assert ion_optics_system.field.nr == 50
-    assert ion_optics_system.field.axial_size == 0.1
-    assert ion_optics_system.field.radial_size == 0.05
-    assert isinstance(ion_optics_system.tracer, ParticleTracer)
-    assert len(ion_optics_system.elements) == 0
+#tests if the previously initialized electronoptics has the correct discretization and size values and is empty
+def test_electron_optics_initialization(electron_optics):
+    assert electron_optics.field.nz == 100
+    assert electron_optics.field.nr == 50
+    assert electron_optics.field.axial_size == 0.1
+    assert electron_optics.field.radial_size == 0.05
+    assert isinstance(electron_optics.tracer, ParticleTracer)
+    assert len(electron_optics.elements) == 0
 
-#tests if magneticfield is using the ionopticssystem's discretization initialization for the shape of the vector potential A's grid
-def test_magnetic_field_initialization(ion_optics_system):
-    magnetic_field = MagneticField(ion_optics_system)
+#tests if magneticfield is using the electronoptics's discretization initialization for the shape of the vector potential A's grid
+def test_magnetic_field_initialization(electron_optics):
+    magnetic_field = MagneticField(electron_optics)
     assert magnetic_field.nz == 100
     assert magnetic_field.nr == 50
     assert magnetic_field.axial_size == 0.1
@@ -141,7 +141,7 @@ def test_magnetic_field_initialization(ion_optics_system):
     assert magnetic_field.Br.shape == (100, 50)
 
 #tests if magnetic lens's dirichlet masking affects permeability and magnetomotive force properly
-def test_magnetic_lens_addition(ion_optics_system):
+def test_magnetic_lens_addition(electron_optics):
     config = MagneticLensConfig(
         start=10,
         length=10,
@@ -151,15 +151,15 @@ def test_magnetic_lens_addition(ion_optics_system):
         mu_r=1000,
         mmf=1000
     )
-    ion_optics_system.add_magnetic_lens(config)
-    assert ion_optics_system.magnetic_lenses is not None
-    assert np.any(ion_optics_system.magnetic_lenses.magnetic_mask)
-    assert np.any(ion_optics_system.magnetic_lenses.mu_r != 1)
-    assert np.any(ion_optics_system.magnetic_lenses.current_density != 0)
+    electron_optics.add_magnetic_lens(config)
+    assert electron_optics.magnetic_lenses is not None
+    assert np.any(electron_optics.magnetic_lenses.magnetic_mask)
+    assert np.any(electron_optics.magnetic_lenses.mu_r != 1)
+    assert np.any(electron_optics.magnetic_lenses.current_density != 0)
 
 #tests if beam parameterization happens correctly
 @patch('core.Parallel')
-def test_simulate_beam(mock_parallel, ion_optics_system):
+def test_simulate_beam(mock_parallel, electron_optics):
     mock_results = [MagicMock() for _ in range(5)]
     
     def side_effect(*args, **kwargs):
@@ -169,7 +169,7 @@ def test_simulate_beam(mock_parallel, ion_optics_system):
     
     mock_parallel.side_effect = side_effect
     
-    trajectories = ion_optics_system.simulate_beam(
+    trajectories = electron_optics.simulate_beam(
         energy_eV=1000,
         start_z=0.01,
         r_range=(0.01, 0.02),

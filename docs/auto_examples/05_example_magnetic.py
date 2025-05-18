@@ -10,10 +10,10 @@ both to DC electromagnets and permanent magnets.
 Since the paraxial ray equation can sometimes create harmless artefacts at the middle particle's trajectories, feel free to increase nr and nz more than you would for electrostatic lenses. The multigrid handler can take it.
 """
 import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig, MagneticLensConfig
+from picht import ElectronOptics, MagneticLensConfig
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=200, nz=400, axial_size=0.1, radial_size=0.1)
+system = ElectronOptics(nr=200, nz=400, axial_size=0.1, radial_size=0.1)
 
 mag_config = MagneticLensConfig(
     start=100,

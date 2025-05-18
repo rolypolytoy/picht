@@ -1,8 +1,8 @@
 import numpy as np
-from core import IonOpticsSystem, ElectrodeConfig, MagneticLensConfig, Export
+from core import ElectronOptics, ElectrodeConfig, MagneticLensConfig, Export
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=1000, nz=4000, axial_size=0.4, radial_size = 0.01)
+system = ElectronOptics(nr=1000, nz=4000, axial_size=0.4, radial_size = 0.01)
 
 #Electron Gun- Finished.
 wehnelt1 = ElectrodeConfig(

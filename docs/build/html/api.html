@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Documentation &mdash; picht 2.1.0 documentation</title>
+  <title>API Documentation &mdash; picht 2.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
@@ -17,7 +17,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=20623aea"></script>
+      <script src="_static/documentation_options.js?v=179ab080"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -75,8 +75,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#EinzelLens"><code class="docutils literal notranslate"><span class="pre">EinzelLens</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ionopticssystem">IonOpticsSystem</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#IonOpticsSystem"><code class="docutils literal notranslate"><span class="pre">IonOpticsSystem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#electronoptics">ElectronOptics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ElectronOptics"><code class="docutils literal notranslate"><span class="pre">ElectronOptics</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#export">Export</a><ul>
@@ -327,12 +327,12 @@ Complexity is O(N) with grid size.</p>
 <h3>MagneticField<a class="headerlink" href="#magneticfield" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="MagneticField">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MagneticField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_optics_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MagneticField" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MagneticField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_optics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MagneticField" title="Link to this definition"></a></dt>
 <dd><p>Manages magnetic vector potential fields, magnetic lens configurations, and field solving operations.</p>
 <p><strong>Parameters</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ion_optics_system</strong> (<a class="reference internal" href="recover_docs/api.html#IonOpticsSystem" title="IonOpticsSystem"><em>IonOpticsSystem</em></a>) – The parent ion optics system containing field dimensions and grid parameters</p>
+<dd class="field-odd"><p><strong>electron_optics</strong> (<a class="reference internal" href="recover_docs/api.html#ElectronOptics" title="ElectronOptics"><em>ElectronOptics</em></a>) – The parent electron optics system containing field dimensions and grid parameters</p>
 </dd>
 </dl>
 <p><strong>Attributes</strong></p>
@@ -695,12 +695,12 @@ Uses relativistic equations of motion.</p>
 </dd></dl>
 
 </section>
-<section id="ionopticssystem">
-<h3>IonOpticsSystem<a class="headerlink" href="#ionopticssystem" title="Link to this heading"></a></h3>
+<section id="electronoptics">
+<h3>ElectronOptics<a class="headerlink" href="#electronoptics" title="Link to this heading"></a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="IonOpticsSystem">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IonOpticsSystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axial_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radial_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem" title="Link to this definition"></a></dt>
-<dd><p>Complete ion optics simulation environment integrating field calculations,
+<dt class="sig sig-object py" id="ElectronOptics">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronOptics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axial_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radial_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics" title="Link to this definition"></a></dt>
+<dd><p>Complete electron optics simulation environment integrating field calculations,
 particle tracing, and visualization capabilities.</p>
 <p><strong>Parameters</strong></p>
 <dl class="field-list simple">
@@ -715,33 +715,33 @@ particle tracing, and visualization capabilities.</p>
 </dl>
 <p><strong>Attributes</strong></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="IonOpticsSystem.field">
-<span class="sig-name descname"><span class="pre">field</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="recover_docs/api.html#ElectricField" title="ElectricField"><span class="pre">ElectricField</span></a></em><a class="headerlink" href="#IonOpticsSystem.field" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.field">
+<span class="sig-name descname"><span class="pre">field</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="recover_docs/api.html#ElectricField" title="ElectricField"><span class="pre">ElectricField</span></a></em><a class="headerlink" href="#ElectronOptics.field" title="Link to this definition"></a></dt>
 <dd><p>Electric field instance</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="IonOpticsSystem.tracer">
-<span class="sig-name descname"><span class="pre">tracer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="recover_docs/api.html#ParticleTracer" title="ParticleTracer"><span class="pre">ParticleTracer</span></a></em><a class="headerlink" href="#IonOpticsSystem.tracer" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.tracer">
+<span class="sig-name descname"><span class="pre">tracer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="recover_docs/api.html#ParticleTracer" title="ParticleTracer"><span class="pre">ParticleTracer</span></a></em><a class="headerlink" href="#ElectronOptics.tracer" title="Link to this definition"></a></dt>
 <dd><p>Particle trajectory calculator</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="IonOpticsSystem.elements">
-<span class="sig-name descname"><span class="pre">elements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#IonOpticsSystem.elements" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.elements">
+<span class="sig-name descname"><span class="pre">elements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#ElectronOptics.elements" title="Link to this definition"></a></dt>
 <dd><p>List of all system electrodes and lenses</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="IonOpticsSystem.magnetic_lenses">
-<span class="sig-name descname"><span class="pre">magnetic_lenses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="recover_docs/api.html#MagneticField" title="MagneticField"><span class="pre">MagneticField</span></a></em><a class="headerlink" href="#IonOpticsSystem.magnetic_lenses" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.magnetic_lenses">
+<span class="sig-name descname"><span class="pre">magnetic_lenses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="recover_docs/api.html#MagneticField" title="MagneticField"><span class="pre">MagneticField</span></a></em><a class="headerlink" href="#ElectronOptics.magnetic_lenses" title="Link to this definition"></a></dt>
 <dd><p>Magnetic field instance</p>
 </dd></dl>
 
 <p><strong>Methods</strong></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="IonOpticsSystem.add_magnetic_lens">
-<span class="sig-name descname"><span class="pre">add_magnetic_lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem.add_magnetic_lens" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.add_magnetic_lens">
+<span class="sig-name descname"><span class="pre">add_magnetic_lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics.add_magnetic_lens" title="Link to this definition"></a></dt>
 <dd><p>Adds a magnetic lens to the system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -751,8 +751,8 @@ particle tracing, and visualization capabilities.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="IonOpticsSystem.add_electrode">
-<span class="sig-name descname"><span class="pre">add_electrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem.add_electrode" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.add_electrode">
+<span class="sig-name descname"><span class="pre">add_electrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics.add_electrode" title="Link to this definition"></a></dt>
 <dd><p>Adds an electrode to the system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -762,8 +762,8 @@ particle tracing, and visualization capabilities.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="IonOpticsSystem.add_einzel_lens">
-<span class="sig-name descname"><span class="pre">add_einzel_lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture_center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focus_voltage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem.add_einzel_lens" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.add_einzel_lens">
+<span class="sig-name descname"><span class="pre">add_einzel_lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture_center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focus_voltage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics.add_einzel_lens" title="Link to this definition"></a></dt>
 <dd><p>Adds an einzel lens to the system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -781,8 +781,8 @@ particle tracing, and visualization capabilities.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="IonOpticsSystem.solve_fields">
-<span class="sig-name descname"><span class="pre">solve_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem.solve_fields" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.solve_fields">
+<span class="sig-name descname"><span class="pre">solve_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics.solve_fields" title="Link to this definition"></a></dt>
 <dd><p>Solves the potential and/or vector potential fields using PyAMG multigrid solver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -795,8 +795,8 @@ particle tracing, and visualization capabilities.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="IonOpticsSystem.simulate_beam">
-<span class="sig-name descname"><span class="pre">simulate_beam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem.simulate_beam" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.simulate_beam">
+<span class="sig-name descname"><span class="pre">simulate_beam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics.simulate_beam" title="Link to this definition"></a></dt>
 <dd><p>Simulates a particle beam with specified parameters.
 Uses parallel processing for multiple trajectories.</p>
 <dl class="field-list simple">
@@ -821,8 +821,8 @@ Uses parallel processing for multiple trajectories.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="IonOpticsSystem.visualize_system">
-<span class="sig-name descname"><span class="pre">visualize_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(16,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Picht'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#IonOpticsSystem.visualize_system" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ElectronOptics.visualize_system">
+<span class="sig-name descname"><span class="pre">visualize_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(16,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Picht'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ElectronOptics.visualize_system" title="Link to this definition"></a></dt>
 <dd><p>Creates interactive visualization of the system and particle trajectories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -849,19 +849,19 @@ Uses parallel processing for multiple trajectories.</p>
 <h3>Export<a class="headerlink" href="#export" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="Export">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_optics_system</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Export" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_optics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Export" title="Link to this definition"></a></dt>
 <dd><p>Handles data export to HDF5 and CAD formats.</p>
 <p><strong>Parameters</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ion_optics_system</strong> (<a class="reference internal" href="recover_docs/api.html#IonOpticsSystem" title="IonOpticsSystem"><em>IonOpticsSystem</em></a>) – System instance to export</p>
+<dd class="field-odd"><p><strong>electron_optics</strong> (<a class="reference internal" href="recover_docs/api.html#ElectronOptics" title="ElectronOptics"><em>ElectronOptics</em></a>) – System instance to export</p>
 </dd>
 </dl>
 <p><strong>Attributes</strong></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="Export.system">
 <span class="sig-name descname"><span class="pre">system</span></span><a class="headerlink" href="#Export.system" title="Link to this definition"></a></dt>
-<dd><p>Reference to the ion optics system</p>
+<dd><p>Reference to the electron optics system</p>
 </dd></dl>
 
 <dl class="py attribute">

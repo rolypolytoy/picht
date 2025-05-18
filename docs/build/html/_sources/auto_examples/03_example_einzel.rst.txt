@@ -42,10 +42,10 @@ between aperture_width and outer_diameter as well, for cleaner field configurati
    :lineno-start: 9
 
     import numpy as np
-    from picht import IonOpticsSystem, ElectrodeConfig
+    from picht import ElectronOptics, ElectrodeConfig
     import matplotlib.pyplot as plt
 
-    system = IonOpticsSystem(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
+    system = ElectronOptics(nr=100, nz=400, axial_size=0.4, radial_size = 0.1)
 
 
     system.add_einzel_lens(
@@ -76,7 +76,7 @@ between aperture_width and outer_diameter as well, for cleaner field configurati
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.358 seconds)
+   **Total running time of the script:** (0 minutes 1.670 seconds)
 
 
 .. _sphx_glr_download_auto_examples_03_example_einzel.py:

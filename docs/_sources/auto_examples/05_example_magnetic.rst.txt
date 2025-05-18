@@ -45,10 +45,10 @@ Since the paraxial ray equation can sometimes create harmless artefacts at the m
    :lineno-start: 12
 
     import numpy as np
-    from picht import IonOpticsSystem, ElectrodeConfig, MagneticLensConfig
+    from picht import ElectronOptics, MagneticLensConfig
     import matplotlib.pyplot as plt
 
-    system = IonOpticsSystem(nr=200, nz=400, axial_size=0.1, radial_size=0.1)
+    system = ElectronOptics(nr=200, nz=400, axial_size=0.1, radial_size=0.1)
 
     mag_config = MagneticLensConfig(
         start=100,
@@ -77,7 +77,7 @@ Since the paraxial ray equation can sometimes create harmless artefacts at the m
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 4.669 seconds)
+   **Total running time of the script:** (0 minutes 4.648 seconds)
 
 
 .. _sphx_glr_download_auto_examples_05_example_magnetic.py:

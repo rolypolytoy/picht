@@ -13,6 +13,305 @@ from joblib import Parallel, delayed
 import multiprocessing
 import os
 
+@dataclass
+class MagneticLensConfig:
+    """
+    Parameterizes a simple magnetic lens.
+    
+    Attributes:
+        start (float): Position where the magnetic lens begins on the z-axis in grid units.
+        length (float): Length of the magnetic lens on the z-axis in grid units.
+        ap_start (float): Starting position of the aperture on the r-axis in grid units.
+        ap_width (float): Width of the aperture in the lens on the r-axis in grid units.
+        outer_diameter (float): Diameter of the magnetic lens on the r-axis in grid units.
+        mu_r (float): Relative magnetic permeability of the lens material in dimensionless units.
+        mmf (float): Magnetomotive force of the lens in ampere-turns.
+    """
+    start: float
+    length: float
+    ap_start: float
+    ap_width: float
+    outer_diameter: float
+    mu_r: float
+    mmf: float
+
+class MagneticField:
+   """
+   This class handles everything related to the magnetic vector potential field, including
+   adding magnetic lenses, and solving for the magnetic field. Analagous to ElectricField
+   but solves the magnetic field instead of the electric field.
+   
+   Attributes:
+       nz (int): Number of grid points in the z-axis.
+       nr (int): Number of grid points in the r-axis.
+       axial_size (float): Size of the z-axis in meters.
+       radial_size (float): Size of the r-axis in meters.
+       dz (float): Grid spacing in z-axis per z-unit, in meters, found by axial_size/nz.
+       dr (float): Grid spacing in r-axis per r-unit, in meters, found by radial_size/nr.
+       vector_potential (ndarray): 2D array with magnetic vector potential values in Tesla-meters.
+       magnetic_mask (ndarray): Boolean mask for magnetic material positions.
+       mu_r (ndarray): 2D array of relative permeability values.
+       current_density (ndarray): 2D array of current density values in amperes per square meter.
+       Bz (ndarray): Z-component of magnetic field in Tesla.
+       Br (ndarray): R-component of magnetic field in Tesla.
+       lens_config (MagneticLensConfig): Configuration of the magnetic lens.
+   """
+  
+   def __init__(self, electron_optics):
+       """
+       Initializes the magnetic field with the specific dimensions. Generally when
+       calculating magnetic lenses, you need to have finer meshes than with solely
+       electrostatic lenses, because there are more discretization artefacts
+       because of the paraxial ray equation. Since we use multigrid methods 
+       this isn't exceptionally costly.
+       
+       Parameters:
+           electron_optics (ElectronOptics): The parent ion optics system containing
+               field dimensions and grid parameters.
+       """
+       self.nz = electron_optics.field.nz
+       self.nr = electron_optics.field.nr
+       self.axial_size = electron_optics.field.axial_size
+       self.radial_size = electron_optics.field.radial_size
+       self.dz = electron_optics.field.dz
+       self.dr = electron_optics.field.dr
+       self.vector_potential = np.zeros((self.nz, self.nr))
+       self.magnetic_mask = np.zeros((self.nz, self.nr), dtype=bool)
+       self.mu_r = np.ones((self.nz, self.nr))
+       self.current_density = np.zeros((self.nz, self.nr))
+       self.Bz = np.zeros((self.nz, self.nr))
+       self.Br = np.zeros((self.nz, self.nr))
+       self.lens_config = None
+      
+   def add_magnetic_lens(self, config: MagneticLensConfig):
+       """
+       Adds a magnetic lens to the field and handles all necessary calculations.
+       Analagous to add_electrode() in ElectricField.
+
+       Parameters:
+           config (MagneticLensConfig): Configuration parameters for the magnetic lens.
+       """
+       self.lens_config = config
+       start = int(config.start)
+       end = int(config.start + config.length)
+       ap_center = config.ap_start + config.ap_width / 2
+       bore_radius = int(config.ap_width / 2)
+       outer_radius = int(config.outer_diameter / 2)
+       
+       area = 0
+       for i in range(start, end):
+           for j in range(self.nr):
+               r_from_axis = abs(j - ap_center)
+               if bore_radius <= r_from_axis <= outer_radius:
+                   area += 1
+       
+       area_physical = area * self.dz * self.dr
+       current_density = config.mmf / area_physical if area_physical > 0 else 0
+       
+       for i in range(start, end):
+           for j in range(self.nr):
+               r_from_axis = abs(j - ap_center)
+               if bore_radius <= r_from_axis <= outer_radius:
+                   self.mu_r[i, j] = config.mu_r
+                   self.current_density[i, j] = current_density
+                   self.magnetic_mask[i, j] = True
+  
+   def build_laplacian_matrix(self, mask, dirichlet_values=None):
+       """
+       Builds a sparse matrix for the Laplacian ∇²A = -μ₀μᵣJ, 
+       and implements Neumann boundary conditions at all boundaries, to simulate
+       how magnetic fields behave at metal boundaries. Identical implementation
+       details as build_laplacian_matrix() in ElectricField.
+
+       Parameters:
+           mask (ndarray): Boolean array, true where magnetic materials exist, false elsewhere.
+           dirichlet_values (ndarray, optional): Vector potential values where mask is True.
+
+       Returns:
+           A (scipy.sparse.csr_matrix): A sparse matrix representation of the Laplacian operator
+           on vector potential. Its shape is (nz * nr, nz * nr).
+           b (ndarray): Contains the source terms from current density and boundary conditions.
+       """
+       n = self.nz * self.nr
+       A = lil_matrix((n, n))
+       b = np.zeros(n)
+       mu_0 = 4*np.pi*1e-7
+
+       def idx(i, j):
+           return i * self.nr + j
+
+       ap_center = (self.lens_config.ap_start + self.lens_config.ap_width / 2) if self.lens_config else 0
+       epsilon = 1e-10
+
+       for i in range(self.nz):
+           for j in range(self.nr):
+               k = idx(i, j)
+               
+               if i == 0:
+                   A[k, k] = -1.0
+                   A[k, idx(i+1, j)] = 1.0
+                   b[k] = 0.0
+               elif i == self.nz - 1:
+                   A[k, k] = -1.0
+                   A[k, idx(i-1, j)] = 1.0
+                   b[k] = 0.0
+               elif j == 0:
+                   A[k, k] = -1.0
+                   A[k, idx(i, j+1)] = 1.0
+                   b[k] = 0.0
+               elif j == self.nr - 1:
+                   A[k, k] = -1.0
+                   A[k, idx(i, j-1)] = 1.0
+                   b[k] = 0.0
+               else:
+                   mu_center = self.mu_r[i, j]
+                   mu_left = self.mu_r[i-1, j]
+                   mu_right = self.mu_r[i+1, j]
+                   mu_down = self.mu_r[i, j-1]
+                   mu_up = self.mu_r[i, j+1]
+                   
+                   r_from_axis = (j - ap_center) * self.dr
+                   r_abs = max(abs(r_from_axis), epsilon)
+                   
+                   if r_from_axis > 0:
+                       r_deriv_coeff_down = -1/(2*r_abs*self.dr)
+                       r_deriv_coeff_up = 1/(2*r_abs*self.dr)
+                   else:
+                       r_deriv_coeff_down = 1/(2*r_abs*self.dr)
+                       r_deriv_coeff_up = -1/(2*r_abs*self.dr)
+                   
+                   coeff_center = -(mu_left/self.dz**2 + mu_right/self.dz**2 + 
+                                  mu_down/self.dr**2 + mu_up/self.dr**2 + 
+                                  mu_down*r_deriv_coeff_down + mu_up*r_deriv_coeff_up + 
+                                  mu_center/r_abs**2)
+                   
+                   A[k, k] = coeff_center
+                   A[k, idx(i-1, j)] = mu_left/self.dz**2
+                   A[k, idx(i+1, j)] = mu_right/self.dz**2
+                   A[k, idx(i, j-1)] = mu_down/self.dr**2 + mu_down*r_deriv_coeff_down
+                   A[k, idx(i, j+1)] = mu_up/self.dr**2 + mu_up*r_deriv_coeff_up
+                   
+                   if self.current_density[i, j] != 0:
+                       b[k] = -mu_0 * mu_center * self.current_density[i, j]
+                   else:
+                       b[k] = 0.0
+                      
+       return A.tocsr(), b
+
+   def solve_vector_potential(self, max_iterations: float = 500, convergence_threshold: float = 1e-6):
+       """
+       Solves the magnetic vector potential field using Multigrid methods with PyAMG. It first 
+       creates a CSR matrix for the Laplacian operator for the vector potential field, and uses
+       PyAMG to solve for ∇²A = -μ₀μᵣJ. Then, it calculates B = ∇ × A to find the magnetic field.
+       This is functionally identical to how solve_potential() in ElectricField calculates the 
+       electric field.
+       
+       Parameters:
+           max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 500.
+           convergence_threshold (float, optional): Convergence criterion for the solution. Defaults to 1e-6.
+           
+       Returns:
+           ndarray: The solved vector potential field.
+       """
+       A, b = self.build_laplacian_matrix(self.magnetic_mask, self.vector_potential)
+       
+       scale_factor = 1.0 / max(np.max(np.abs(A.data)), 1e-10)
+       A_scaled = A * scale_factor
+       b_scaled = b * scale_factor
+       
+       ml = pyamg.smoothed_aggregation_solver(
+           A_scaled, 
+           max_coarse=10,
+           strength='symmetric',
+           smooth='jacobi',
+           improve_candidates=None
+       )
+       
+       x0 = np.zeros_like(b_scaled)
+       x = ml.solve(b_scaled, x0=x0, tol=convergence_threshold, maxiter=int(max_iterations))
+       self.vector_potential = x.reshape((self.nz, self.nr))
+       
+       self.calculate_b_from_a()
+       
+       return self.vector_potential
+  
+   def calculate_b_from_a(self):
+       """
+       Calculates the magnetic field components from the vector potential using B = ∇ × A, with special
+       handling of differentiation at boundaries and at r = 0.        
+       """
+       ap_center = (self.lens_config.ap_start + self.lens_config.ap_width / 2) if self.lens_config else 0
+       epsilon = 1e-10
+       
+       for i in range(self.nz):
+           for j in range(self.nr):
+               if 0 < i < self.nz - 1:
+                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i-1, j]) / (2*self.dz)
+               elif i == 0:
+                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i, j]) / self.dz
+               else:
+                   self.Br[i, j] = -(self.vector_potential[i, j] - self.vector_potential[i-1, j]) / self.dz
+               
+               r_dist = max(abs((j - ap_center) * self.dr), epsilon)
+               r_signed = (j - ap_center) * self.dr
+               
+               if 0 < j < self.nr - 1:
+                   dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j-1]) / (2*self.dr)
+               elif j == 0 or j == self.nr - 1:
+                   if j == 0:
+                       if j+2 < self.nr:
+                           dA_dr = (-3*self.vector_potential[i, j] + 4*self.vector_potential[i, j+1] - self.vector_potential[i, j+2]) / (2*self.dr)
+                       else:
+                           dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j]) / self.dr
+                   else:
+                       if j-2 >= 0:
+                           dA_dr = (3*self.vector_potential[i, j] - 4*self.vector_potential[i, j-1] + self.vector_potential[i, j-2]) / (2*self.dr)
+                       else:
+                           dA_dr = (self.vector_potential[i, j] - self.vector_potential[i, j-1]) / self.dr
+               
+               if r_signed < 0:
+                   dA_dr = -dA_dr
+               
+               self.Bz[i, j] = dA_dr + self.vector_potential[i, j] / r_dist
+  
+   def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
+       """
+       Returns the magnetic field components at a specific position.
+       
+       Parameters:
+           z (float): Position along the z-axis in meters.
+           r (float): Position along the r-axis in meters.
+           
+       Returns:
+           Tuple[float, float]: The magnetic field components (Bz, Br) at the specified position.
+       """
+       if 0 <= z < self.axial_size and 0 <= r < self.radial_size:
+           i = int(min(max(0, z / self.dz), self.nz - 1))
+           j = int(min(max(0, r / self.dr), self.nr - 1))
+           return self.Bz[i, j], self.Br[i, j]
+       else:
+           return 0.0, 0.0
+                             
+@dataclass
+class ElectrodeConfig:
+    """
+    Parameterizes a simple electrostatic lens.
+    
+    Attributes:
+        start (float): Position where the electrode begins on the z-axis in grid units.
+        width (float): Width of the electrode on the z-axis in grid units.
+        ap_start (float): Starting position of the aperture on the r-axis in grid units.
+        ap_width (float): Width of the aperture on the r-axis in grid units.
+        outer_diameter (float): Full diameter of the electrode on the r-axis in grid units.
+        voltage (float): Voltage of the electrode in volts.
+    """
+    start: float
+    width: float
+    ap_start: float
+    ap_width: float
+    outer_diameter: float
+    voltage: float
+
 @nb.njit
 def get_field(z, r, Ez, Er, axial_size, radial_size, dz, dr, nz, nr):
     """
@@ -82,357 +381,6 @@ def calc_dynamics(z, r, pz, pr, Ez, Er, Bz, Br, q, m, c, r_axis=0.0):
     dpr_dt += -((q**2) * Bz**2 / (4 * m)) * r_from_axis
     return np.array([vz, vr, dpz_dt, dpr_dt])
 
-@dataclass
-class MagneticLensConfig:
-    """
-    Parameterizes a simple magnetic lens.
-    
-    Attributes:
-        start (float): Position where the magnetic lens begins on the z-axis in grid units.
-        length (float): Length of the magnetic lens on the z-axis in grid units.
-        ap_start (float): Starting position of the aperture on the r-axis in grid units.
-        ap_width (float): Width of the aperture in the lens on the r-axis in grid units.
-        outer_diameter (float): Diameter of the magnetic lens on the r-axis in grid units.
-        mu_r (float): Relative magnetic permeability of the lens material in dimensionless units.
-        mmf (float): Magnetomotive force of the lens in ampere-turns.
-    """
-    start: float
-    length: float
-    ap_start: float
-    ap_width: float
-    outer_diameter: float
-    mu_r: float
-    mmf: float
-
-class MagneticField:
-   """
-   This class handles everything related to the magnetic vector potential field, including
-   adding magnetic lenses, and solving for the magnetic field. Analagous to ElectricField
-   but solves the magnetic field instead of the electric field.
-   
-   Attributes:
-       nz (int): Number of grid points in the z-axis.
-       nr (int): Number of grid points in the r-axis.
-       axial_size (float): Size of the z-axis in meters.
-       radial_size (float): Size of the r-axis in meters.
-       dz (float): Grid spacing in z-axis per z-unit, in meters, found by axial_size/nz.
-       dr (float): Grid spacing in r-axis per r-unit, in meters, found by radial_size/nr.
-       vector_potential (ndarray): 2D array with magnetic vector potential values in Tesla-meters.
-       magnetic_mask (ndarray): Boolean mask for magnetic material positions.
-       mu_r (ndarray): 2D array of relative permeability values.
-       current_density (ndarray): 2D array of current density values in amperes per square meter.
-       Bz (ndarray): Z-component of magnetic field in Tesla.
-       Br (ndarray): R-component of magnetic field in Tesla.
-       lens_config (MagneticLensConfig): Configuration of the magnetic lens.
-   """
-  
-   def __init__(self, ion_optics_system):
-       """
-       Initializes the magnetic field with the specific dimensions. Generally when
-       calculating magnetic lenses, you need to have finer meshes than with solely
-       electrostatic lenses, because there are more discretization artefacts
-       because of the paraxial ray equation. Since we use multigrid methods 
-       this isn't exceptionally costly.
-       
-       Parameters:
-           ion_optics_system (IonOpticsSystem): The parent ion optics system containing
-               field dimensions and grid parameters.
-       """
-       self.nz = ion_optics_system.field.nz
-       self.nr = ion_optics_system.field.nr
-       self.axial_size = ion_optics_system.field.axial_size
-       self.radial_size = ion_optics_system.field.radial_size
-       self.dz = ion_optics_system.field.dz
-       self.dr = ion_optics_system.field.dr
-       self.vector_potential = np.zeros((self.nz, self.nr))
-       self.magnetic_mask = np.zeros((self.nz, self.nr), dtype=bool)
-       self.mu_r = np.ones((self.nz, self.nr))
-       self.current_density = np.zeros((self.nz, self.nr))
-       self.Bz = np.zeros((self.nz, self.nr))
-       self.Br = np.zeros((self.nz, self.nr))
-       self.lens_config = None
-      
-   def add_magnetic_lens(self, config):
-       """
-       Adds a magnetic lens to the field and handles all necessary calculations.
-       Analagous to add_electrode() in ElectricField.
-
-       Parameters:
-           config (MagneticLensConfig): Configuration parameters for the magnetic lens.
-       """
-       self.lens_config = config
-       start = int(config.start)
-       end = int(config.start + config.length)
-       ap_center = config.ap_start + config.ap_width / 2
-       bore_radius = int(config.ap_width / 2)
-       outer_radius = int(config.outer_diameter / 2)
-       
-       area = 0
-       for i in range(start, end):
-           for j in range(self.nr):
-               r_from_axis = abs(j - ap_center)
-               if bore_radius <= r_from_axis <= outer_radius:
-                   area += 1
-       
-       area_physical = area * self.dz * self.dr
-       current_density = config.mmf / area_physical if area_physical > 0 else 0
-       
-       for i in range(start, end):
-           for j in range(self.nr):
-               r_from_axis = abs(j - ap_center)
-               if bore_radius <= r_from_axis <= outer_radius:
-                   self.mu_r[i, j] = config.mu_r
-                   self.current_density[i, j] = current_density
-                   self.magnetic_mask[i, j] = True
-  
-   def build_laplacian_matrix(self, mask, dirichlet_values=None):
-       """
-       Builds a sparse matrix for the Laplacian ∇²A = -μ₀μᵣJ, 
-       and implements Neumann boundary conditions at all boundaries, to simulate
-       how magnetic fields behave at metal boundaries. Identical implementation
-       details as build_laplacian_matrix() in ElectricField.
-
-       Parameters:
-           mask (ndarray): Boolean array, true where magnetic materials exist, false elsewhere.
-           dirichlet_values (ndarray, optional): Vector potential values where mask is True.
-
-       Returns:
-           A (scipy.sparse.csr_matrix): A sparse matrix representation of the Laplacian operator
-           on vector potential. Its shape is (nz * nr, nz * nr).
-           b (ndarray): Contains the source terms from current density and boundary conditions.
-       """
-       n = self.nz * self.nr
-       A = lil_matrix((n, n))
-       b = np.zeros(n)
-       mu_0 = 4*np.pi*1e-7
-
-       def idx(i, j):
-           return i * self.nr + j
-
-       def harmonic_mean(a, b):
-           if a == 0 or b == 0:
-               return 0
-           return 2 * a * b / (a + b)
-
-       ap_center = (self.lens_config.ap_start + self.lens_config.ap_width / 2) if self.lens_config else 0
-       epsilon = 1e-10
-
-       for i in range(self.nz):
-           for j in range(self.nr):
-               k = idx(i, j)
-               
-               if i < 2 or i >= self.nz - 2:
-                   A[k, k] = -1.0
-                   if i == 0:
-                       A[k, idx(min(i+1, self.nz-1), j)] = 1.0
-                   elif i == 1:
-                       A[k, idx(min(i+1, self.nz-1), j)] = 1.0
-                   elif i == self.nz - 2:
-                       A[k, idx(max(i-1, 0), j)] = 1.0
-                   else:
-                       A[k, idx(max(i-1, 0), j)] = 1.0
-                   b[k] = 0.0
-               elif j < 2 or j >= self.nr - 2:
-                   A[k, k] = -1.0
-                   if j == 0:
-                       A[k, idx(i, min(j+1, self.nr-1))] = 1.0
-                   elif j == 1:
-                       A[k, idx(i, min(j+1, self.nr-1))] = 1.0
-                   elif j == self.nr - 2:
-                       A[k, idx(i, max(j-1, 0))] = 1.0
-                   else:
-                       A[k, idx(i, max(j-1, 0))] = 1.0
-                   b[k] = 0.0
-               else:
-                   mu_center = self.mu_r[i, j]
-                   mu_left2 = self.mu_r[i-2, j]
-                   mu_left1 = self.mu_r[i-1, j]
-                   mu_right1 = self.mu_r[i+1, j]
-                   mu_right2 = self.mu_r[i+2, j]
-                   mu_down2 = self.mu_r[i, j-2]
-                   mu_down1 = self.mu_r[i, j-1]
-                   mu_up1 = self.mu_r[i, j+1]
-                   mu_up2 = self.mu_r[i, j+2]
-                   
-                   mu_interface_left2 = harmonic_mean(mu_center, mu_left2)
-                   mu_interface_left1 = harmonic_mean(mu_center, mu_left1)
-                   mu_interface_right1 = harmonic_mean(mu_center, mu_right1)
-                   mu_interface_right2 = harmonic_mean(mu_center, mu_right2)
-                   mu_interface_down2 = harmonic_mean(mu_center, mu_down2)
-                   mu_interface_down1 = harmonic_mean(mu_center, mu_down1)
-                   mu_interface_up1 = harmonic_mean(mu_center, mu_up1)
-                   mu_interface_up2 = harmonic_mean(mu_center, mu_up2)
-                   
-                   r_from_axis = (j - ap_center) * self.dr
-                   r_abs = max(abs(r_from_axis), epsilon)
-                   
-                   if r_from_axis > 0:
-                       r_deriv_coeff_down2 = -1/(12*r_abs*self.dr)
-                       r_deriv_coeff_down1 = 8/(12*r_abs*self.dr)
-                       r_deriv_coeff_up1 = -8/(12*r_abs*self.dr)
-                       r_deriv_coeff_up2 = 1/(12*r_abs*self.dr)
-                   else:
-                       r_deriv_coeff_down2 = 1/(12*r_abs*self.dr)
-                       r_deriv_coeff_down1 = -8/(12*r_abs*self.dr)
-                       r_deriv_coeff_up1 = 8/(12*r_abs*self.dr)
-                       r_deriv_coeff_up2 = -1/(12*r_abs*self.dr)
-                   
-                   coeff_left2 = -mu_interface_left2 / (12*self.dz**2)
-                   coeff_left1 = 16*mu_interface_left1 / (12*self.dz**2)
-                   coeff_right1 = 16*mu_interface_right1 / (12*self.dz**2)
-                   coeff_right2 = -mu_interface_right2 / (12*self.dz**2)
-                   
-                   coeff_down2 = -mu_interface_down2 / (12*self.dr**2) + mu_interface_down2 * r_deriv_coeff_down2
-                   coeff_down1 = 16*mu_interface_down1 / (12*self.dr**2) + mu_interface_down1 * r_deriv_coeff_down1
-                   coeff_up1 = 16*mu_interface_up1 / (12*self.dr**2) + mu_interface_up1 * r_deriv_coeff_up1
-                   coeff_up2 = -mu_interface_up2 / (12*self.dr**2) + mu_interface_up2 * r_deriv_coeff_up2
-                   
-                   coeff_center = -(coeff_left2 + coeff_left1 + coeff_right1 + coeff_right2 + 
-                                  coeff_down2 + coeff_down1 + coeff_up1 + coeff_up2 + 
-                                  mu_center/r_abs**2)
-                   
-                   A[k, k] = coeff_center
-                   A[k, idx(i-2, j)] = coeff_left2
-                   A[k, idx(i-1, j)] = coeff_left1
-                   A[k, idx(i+1, j)] = coeff_right1
-                   A[k, idx(i+2, j)] = coeff_right2
-                   A[k, idx(i, j-2)] = coeff_down2
-                   A[k, idx(i, j-1)] = coeff_down1
-                   A[k, idx(i, j+1)] = coeff_up1
-                   A[k, idx(i, j+2)] = coeff_up2
-                   
-                   if self.current_density[i, j] != 0:
-                       b[k] = -mu_0 * mu_center * self.current_density[i, j]
-                   else:
-                       b[k] = 0.0
-                      
-       return A.tocsr(), b
-
-   def solve_vector_potential(self, max_iterations: float = 500, convergence_threshold: float = 1e-6):
-       """
-       Solves the magnetic vector potential field using Multigrid methods with PyAMG. It first 
-       creates a CSR matrix for the Laplacian operator for the vector potential field, and uses
-       PyAMG to solve for ∇²A = -μ₀μᵣJ. Then, it calculates B = ∇ × A to find the magnetic field.
-       This is functionally identical to how solve_potential() in ElectricField calculates the 
-       electric field.
-       
-       Parameters:
-           max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 500.
-           convergence_threshold (float, optional): Convergence criterion for the solution. Defaults to 1e-6.
-           
-       Returns:
-           ndarray: The solved vector potential field.
-       """
-       A, b = self.build_laplacian_matrix(self.magnetic_mask, self.vector_potential)
-       
-       scale_factor = 1.0 / max(np.max(np.abs(A.data)), 1e-10)
-       A_scaled = A * scale_factor
-       b_scaled = b * scale_factor
-       
-       ml = pyamg.smoothed_aggregation_solver(
-           A_scaled, 
-           max_coarse=10,
-           strength='symmetric',
-           smooth='jacobi',
-           improve_candidates=None
-       )
-       
-       x0 = np.zeros_like(b_scaled)
-       x = ml.solve(b_scaled, x0=x0, tol=convergence_threshold, maxiter=int(max_iterations))
-       self.vector_potential = x.reshape((self.nz, self.nr))
-       
-       self.calculate_b_from_a()
-       
-       return self.vector_potential
-  
-   def calculate_b_from_a(self):
-       """
-       Calculates the magnetic field components from the vector potential using B = ∇ × A, with special
-       handling of differentiation at boundaries and at r = 0.        
-       """
-       ap_center = (self.lens_config.ap_start + self.lens_config.ap_width / 2) if self.lens_config else 0
-       epsilon = 1e-10
-       
-       for i in range(self.nz):
-           for j in range(self.nr):
-               if 2 <= i <= self.nz - 3:
-                   self.Br[i, j] = -((-self.vector_potential[i+2, j] + 8*self.vector_potential[i+1, j] - 
-                                    8*self.vector_potential[i-1, j] + self.vector_potential[i-2, j]) / (12*self.dz))
-               elif i == 0:
-                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i, j]) / self.dz
-               elif i == 1:
-                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i-1, j]) / (2*self.dz)
-               elif i == self.nz - 2:
-                   self.Br[i, j] = -(self.vector_potential[i+1, j] - self.vector_potential[i-1, j]) / (2*self.dz)
-               else:
-                   self.Br[i, j] = -(self.vector_potential[i, j] - self.vector_potential[i-1, j]) / self.dz
-               
-               r_dist = max(abs((j - ap_center) * self.dr), epsilon)
-               r_signed = (j - ap_center) * self.dr
-               
-               if 2 <= j <= self.nr - 3:
-                   dA_dr = (-self.vector_potential[i, j+2] + 8*self.vector_potential[i, j+1] - 
-                           8*self.vector_potential[i, j-1] + self.vector_potential[i, j-2]) / (12*self.dr)
-               elif j == 0:
-                   if j+2 < self.nr:
-                       dA_dr = (-3*self.vector_potential[i, j] + 4*self.vector_potential[i, j+1] - 
-                               self.vector_potential[i, j+2]) / (2*self.dr)
-                   else:
-                       dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j]) / self.dr
-               elif j == 1:
-                   dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j-1]) / (2*self.dr)
-               elif j == self.nr - 2:
-                   dA_dr = (self.vector_potential[i, j+1] - self.vector_potential[i, j-1]) / (2*self.dr)
-               else:
-                   if j-2 >= 0:
-                       dA_dr = (3*self.vector_potential[i, j] - 4*self.vector_potential[i, j-1] + 
-                               self.vector_potential[i, j-2]) / (2*self.dr)
-                   else:
-                       dA_dr = (self.vector_potential[i, j] - self.vector_potential[i, j-1]) / self.dr
-               
-               if r_signed < 0:
-                   dA_dr = -dA_dr
-               
-               self.Bz[i, j] = dA_dr + self.vector_potential[i, j] / r_dist
-  
-   def get_field_at_position(self, z: float, r: float):
-       """
-       Returns the magnetic field components at a specific position.
-       
-       Parameters:
-           z (float): Position along the z-axis in meters.
-           r (float): Position along the r-axis in meters.
-           
-       Returns:
-           Tuple[float, float]: The magnetic field components (Bz, Br) at the specified position.
-       """
-       if 0 <= z < self.axial_size and 0 <= r < self.radial_size:
-           i = int(min(max(0, z / self.dz), self.nz - 1))
-           j = int(min(max(0, r / self.dr), self.nr - 1))
-           return self.Bz[i, j], self.Br[i, j]
-       else:
-           return 0.0, 0.0
-                                          
-@dataclass
-class ElectrodeConfig:
-    """
-    Parameterizes a simple electrostatic lens.
-    
-    Attributes:
-        start (float): Position where the electrode begins on the z-axis in grid units.
-        width (float): Width of the electrode on the z-axis in grid units.
-        ap_start (float): Starting position of the aperture on the r-axis in grid units.
-        ap_width (float): Width of the aperture on the r-axis in grid units.
-        outer_diameter (float): Full diameter of the electrode on the r-axis in grid units.
-        voltage (float): Voltage of the electrode in volts.
-    """
-    start: float
-    width: float
-    ap_start: float
-    ap_width: float
-    outer_diameter: float
-    voltage: float
-
 class ElectricField:
     """
     This class handles everything related to the electric potential field, including
@@ -496,8 +444,8 @@ class ElectricField:
     def build_laplacian_matrix(self, mask, dirichlet_values=None):
         """
         Builds a sparse matrix for the Laplacian ∇²V = 0, 
-        and implements Neumann boundary conditions at all boundaries,
-        to simulate insulated boundaries. First uses List of Lists matrices for
+        and implements Neumann (zero normal derivative) boundary conditions at all boundaries,
+        to simulate natural electric field boundary behavior. First uses List of Lists matrices for
         the linear system, and converts to Compressed Sparse Row for rapid solving
         with PyAMG. 
 
@@ -521,56 +469,33 @@ class ElectricField:
         for i in range(self.nz):
             for j in range(self.nr):
                 k = idx(i, j)
-                
                 if mask[i, j]:
                     A[k, k] = 1.0
                     if dirichlet_values is not None:
                         b[k] = dirichlet_values[i, j]
-                
-                elif i == 0 or i == self.nz - 1 or j == 0 or j == self.nr - 1:
-                    if (i == 0 and j == 0) or (i == 0 and j == self.nr - 1) or \
-                       (i == self.nz - 1 and j == 0) or (i == self.nz - 1 and j == self.nr - 1):
-                        neighbor_count = 0
-                        A[k, k] = -1.0
-                        
-                        if i > 0:
-                            A[k, idx(i-1, j)] = 1.0
-                            neighbor_count += 1
-                        if i < self.nz - 1:
-                            A[k, idx(i+1, j)] = 1.0
-                            neighbor_count += 1
-                        if j > 0:
-                            A[k, idx(i, j-1)] = 1.0
-                            neighbor_count += 1
-                        if j < self.nr - 1:
-                            A[k, idx(i, j+1)] = 1.0
-                            neighbor_count += 1
-                        
-                        A[k, k] = -neighbor_count
                     
-                    elif i == 0:
-                        A[k, k] = -1.0
-                        A[k, idx(i+1, j)] = 1.0 
-                    elif i == self.nz - 1:
-                        A[k, k] = -1.0
-                        A[k, idx(i-1, j)] = 1.0
-                    elif j == 0:
-                        A[k, k] = -1.0
-                        A[k, idx(i, j+1)] = 1.0
-                    elif j == self.nr - 1:
-                        A[k, k] = -1.0
-                        A[k, idx(i, j-1)] = 1.0 
-                    
+                elif i == 0:
+                    A[k, k] = -1.0
+                    A[k, idx(i+1, j)] = 1.0
                     b[k] = 0.0
-                
+                elif i == self.nz - 1:
+                    A[k, k] = -1.0
+                    A[k, idx(i-1, j)] = 1.0
+                    b[k] = 0.0
+                elif j == 0:
+                    A[k, k] = -1.0
+                    A[k, idx(i, j+1)] = 1.0
+                    b[k] = 0.0
+                elif j == self.nr - 1:
+                    A[k, k] = -1.0
+                    A[k, idx(i, j-1)] = 1.0
+                    b[k] = 0.0
                 else:
                     A[k, k] = -4.0
                     A[k, idx(i-1, j)] = 1.0
                     A[k, idx(i+1, j)] = 1.0
                     A[k, idx(i, j-1)] = 1.0
                     A[k, idx(i, j+1)] = 1.0
-                    b[k] = 0.0
-        
         return A.tocsr(), b
 
     def solve_potential(self, max_iterations: float = 500, convergence_threshold: float = 1e-6):
@@ -581,18 +506,15 @@ class ElectricField:
         uses PyAMG to actually solve for Laplace's equation ∇²V = 0. Then, it finds the gradient E = -∇V and 
         thus finds the electric field.
         
-        Note: With Neumann boundary conditions, the solution is only determined up to a constant.
-        The solver will find a solution, but you may want to fix the potential at one point to
-        get a unique solution.
-        
         Parameters:
-            max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 500.
+            max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 2000.
             convergence_threshold (float, optional): Convergence criterion for the solution. Defaults to 1e-6.
             
         Returns:
             ndarray: The solved potential field.
         """
-        A, b = self.build_laplacian_matrix(self.electrode_mask, self.potential)        
+        A, b = self.build_laplacian_matrix(self.electrode_mask, self.potential)
+        
         scale_factor = 1.0 / max(np.max(np.abs(A.data)), 1e-10)
         A_scaled = A * scale_factor
         b_scaled = b * scale_factor
@@ -626,7 +548,7 @@ class ElectricField:
         """
         return get_field(z, r, self.Ez, self.Er, self.axial_size, self.radial_size, 
                          self.dz, self.dr, self.nz, self.nr)
-    
+
 class ParticleTracer:
     """
     Handles trajectory dynamics calculations and visualizations.
@@ -648,10 +570,10 @@ class ParticleTracer:
 
     def __init__(self, electric_field: ElectricField):
         """
-        Initializes an electric field with the class.
+        Initializes a potential field with the class.
         
         Parameters:
-            electric_field (ElectricField): The electric field required to calculate particle dynamics.
+            electric_field (ElectricField): The electric potential field required to calculate particle dynamics.
         """
         self.field = electric_field
         self.current_ion = {
@@ -859,15 +781,15 @@ class EinzelLens:
         field.add_electrode(self.electrode2)
         field.add_electrode(self.electrode3)
 
-class IonOpticsSystem:
+class ElectronOptics:
   """
-  Initializes the potential field, particle tracing, and visualization
+  Initializes the potential fields, particle tracing, and visualization
   components to provide a complete environment for designing and analyzing
   ion/electron optics systems. Contains a lot of referential code for this
   reason.
   
   Attributes:
-      field (ElectricField): The electric field initialized in the simulation.
+      field (ElectricField): The potential field initialized in the simulation.
       tracer (ParticleTracer): The trajectory calcuation tracer.
       elements (list): List of all electrodes and lenses inside the system.
   """
@@ -896,7 +818,7 @@ class IonOpticsSystem:
 
   def add_electrode(self, config: ElectrodeConfig):
       """
-      Adds a single electrode to the ion optics system when ElectrodeConfig is used
+      Adds a single electrode to the electron optics system when ElectrodeConfig is used
       by calling on the pre-existing add_electrode() function.
       
       Parameters:
@@ -1279,16 +1201,16 @@ class Export:
         field: Electric field
         magnetic_lenses: Magnetic field
     """
-    def __init__(self, ion_optics_system):
+    def __init__(self, electron_optics):
         """
-        Creates the export handler by initializing/pulling from the IonOpticsSystem.
+        Creates the export handler by initializing/pulling from ElectronOptics.
         
         Parameters:
-            ion_optics_system: IonOpticsSystem instance to export data from
+            electron_optics: ElectronOptics instance to export data from
         """
-        self.system = ion_optics_system
-        self.field = ion_optics_system.field
-        self.magnetic_lenses = ion_optics_system.magnetic_lenses
+        self.system = electron_optics
+        self.field = electron_optics.field
+        self.magnetic_lenses = electron_optics.magnetic_lenses
    
     def export_traj(self, trajectories):
         """
@@ -1388,7 +1310,7 @@ class Export:
     def cad_export(self):
         """
         Exports lens geometry to the .step file format, by converting the
-        full IonOpticsSystem geometry into actual CAD files with cadquery.
+        full ElectronOptics geometry into actual CAD files with cadquery.
         
         Output:
             save.step file, saved in the same directory as the script run.

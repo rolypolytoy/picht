@@ -10,10 +10,10 @@ either negative to negative, or positive to positive. We'll thus set it to -500V
 """
 
 import numpy as np
-from picht import IonOpticsSystem, ElectrodeConfig
+from picht import ElectronOptics, ElectrodeConfig
 import matplotlib.pyplot as plt
 
-system = IonOpticsSystem(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
+system = ElectronOptics(nr=100, nz=600, axial_size=0.6, radial_size = 0.1)
 
 system.add_einzel_lens(
     position=20.0,

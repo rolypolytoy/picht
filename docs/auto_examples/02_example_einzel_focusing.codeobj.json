@@ -1,25 +1,25 @@
 {
- "IonOpticsSystem": [
+ "ElectronOptics": [
   {
    "is_class": true,
    "is_explicit": false,
    "module": "picht.core",
    "module_short": "picht",
-   "name": "IonOpticsSystem"
+   "name": "ElectronOptics"
   },
   {
    "is_class": true,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem"
+   "name": "ElectronOptics"
   },
   {
    "is_class": false,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem"
+   "name": "ElectronOptics"
   }
  ],
  "figure": [
@@ -69,14 +69,14 @@
    "is_explicit": false,
    "module": "picht.core",
    "module_short": "picht",
-   "name": "IonOpticsSystem"
+   "name": "ElectronOptics"
   },
   {
    "is_class": false,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem"
+   "name": "ElectronOptics"
   }
  ],
  "system.add_einzel_lens": [
@@ -85,14 +85,14 @@
    "is_explicit": false,
    "module": "picht.core",
    "module_short": "picht",
-   "name": "IonOpticsSystem.add_einzel_lens"
+   "name": "ElectronOptics.add_einzel_lens"
   },
   {
    "is_class": false,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem.add_einzel_lens"
+   "name": "ElectronOptics.add_einzel_lens"
   }
  ],
  "system.simulate_beam": [
@@ -101,14 +101,14 @@
    "is_explicit": false,
    "module": "picht.core",
    "module_short": "picht",
-   "name": "IonOpticsSystem.simulate_beam"
+   "name": "ElectronOptics.simulate_beam"
   },
   {
    "is_class": false,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem.simulate_beam"
+   "name": "ElectronOptics.simulate_beam"
   }
  ],
  "system.solve_fields": [
@@ -117,14 +117,14 @@
    "is_explicit": false,
    "module": "picht.core",
    "module_short": "picht",
-   "name": "IonOpticsSystem.solve_fields"
+   "name": "ElectronOptics.solve_fields"
   },
   {
    "is_class": false,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem.solve_fields"
+   "name": "ElectronOptics.solve_fields"
   }
  ],
  "system.visualize_system": [
@@ -133,14 +133,14 @@
    "is_explicit": false,
    "module": "picht.core",
    "module_short": "picht",
-   "name": "IonOpticsSystem.visualize_system"
+   "name": "ElectronOptics.visualize_system"
   },
   {
    "is_class": false,
    "is_explicit": false,
    "module": "picht",
    "module_short": "picht",
-   "name": "IonOpticsSystem.visualize_system"
+   "name": "ElectronOptics.visualize_system"
   }
  ],
  "trajectories": [
