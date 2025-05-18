@@ -496,8 +496,8 @@ class ElectricField:
     def build_laplacian_matrix(self, mask, dirichlet_values=None):
         """
         Builds a sparse matrix for the Laplacian ∇²V = 0, 
-        and implements Dirichlet (0 Volts) boundary conditions at all boundaries,
-        to simulate a grounded metal boundary. First uses List of Lists matrices for
+        and implements Neumann boundary conditions at all boundaries,
+        to simulate insulated boundaries. First uses List of Lists matrices for
         the linear system, and converts to Compressed Sparse Row for rapid solving
         with PyAMG. 
 
@@ -521,20 +521,56 @@ class ElectricField:
         for i in range(self.nz):
             for j in range(self.nr):
                 k = idx(i, j)
+                
                 if mask[i, j]:
                     A[k, k] = 1.0
                     if dirichlet_values is not None:
                         b[k] = dirichlet_values[i, j]
-                    
+                
                 elif i == 0 or i == self.nz - 1 or j == 0 or j == self.nr - 1:
-                    A[k, k] = 1.0
+                    if (i == 0 and j == 0) or (i == 0 and j == self.nr - 1) or \
+                       (i == self.nz - 1 and j == 0) or (i == self.nz - 1 and j == self.nr - 1):
+                        neighbor_count = 0
+                        A[k, k] = -1.0
+                        
+                        if i > 0:
+                            A[k, idx(i-1, j)] = 1.0
+                            neighbor_count += 1
+                        if i < self.nz - 1:
+                            A[k, idx(i+1, j)] = 1.0
+                            neighbor_count += 1
+                        if j > 0:
+                            A[k, idx(i, j-1)] = 1.0
+                            neighbor_count += 1
+                        if j < self.nr - 1:
+                            A[k, idx(i, j+1)] = 1.0
+                            neighbor_count += 1
+                        
+                        A[k, k] = -neighbor_count
+                    
+                    elif i == 0:
+                        A[k, k] = -1.0
+                        A[k, idx(i+1, j)] = 1.0 
+                    elif i == self.nz - 1:
+                        A[k, k] = -1.0
+                        A[k, idx(i-1, j)] = 1.0
+                    elif j == 0:
+                        A[k, k] = -1.0
+                        A[k, idx(i, j+1)] = 1.0
+                    elif j == self.nr - 1:
+                        A[k, k] = -1.0
+                        A[k, idx(i, j-1)] = 1.0 
+                    
                     b[k] = 0.0
+                
                 else:
                     A[k, k] = -4.0
                     A[k, idx(i-1, j)] = 1.0
                     A[k, idx(i+1, j)] = 1.0
                     A[k, idx(i, j-1)] = 1.0
                     A[k, idx(i, j+1)] = 1.0
+                    b[k] = 0.0
+        
         return A.tocsr(), b
 
     def solve_potential(self, max_iterations: float = 500, convergence_threshold: float = 1e-6):
@@ -545,15 +581,18 @@ class ElectricField:
         uses PyAMG to actually solve for Laplace's equation ∇²V = 0. Then, it finds the gradient E = -∇V and 
         thus finds the electric field.
         
+        Note: With Neumann boundary conditions, the solution is only determined up to a constant.
+        The solver will find a solution, but you may want to fix the potential at one point to
+        get a unique solution.
+        
         Parameters:
-            max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 2000.
+            max_iterations (float, optional): Maximum number of iterations for the solver. Defaults to 500.
             convergence_threshold (float, optional): Convergence criterion for the solution. Defaults to 1e-6.
             
         Returns:
             ndarray: The solved potential field.
         """
-        A, b = self.build_laplacian_matrix(self.electrode_mask, self.potential)
-        
+        A, b = self.build_laplacian_matrix(self.electrode_mask, self.potential)        
         scale_factor = 1.0 / max(np.max(np.abs(A.data)), 1e-10)
         A_scaled = A * scale_factor
         b_scaled = b * scale_factor
@@ -587,7 +626,7 @@ class ElectricField:
         """
         return get_field(z, r, self.Ez, self.Er, self.axial_size, self.radial_size, 
                          self.dz, self.dr, self.nz, self.nr)
-
+    
 class ParticleTracer:
     """
     Handles trajectory dynamics calculations and visualizations.
