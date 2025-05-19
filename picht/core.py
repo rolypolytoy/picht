@@ -154,20 +154,16 @@ class MagneticField:
                k = idx(i, j)
                
                if i == 0:
-                   A[k, k] = -1.0
-                   A[k, idx(i+1, j)] = 1.0
+                   A[k, k] = 1.0
                    b[k] = 0.0
                elif i == self.nz - 1:
-                   A[k, k] = -1.0
-                   A[k, idx(i-1, j)] = 1.0
+                   A[k, k] = 1.0
                    b[k] = 0.0
                elif j == 0:
-                   A[k, k] = -1.0
-                   A[k, idx(i, j+1)] = 1.0
+                   A[k, k] = 1.0
                    b[k] = 0.0
                elif j == self.nr - 1:
-                   A[k, k] = -1.0
-                   A[k, idx(i, j-1)] = 1.0
+                   A[k, k] = 1.0
                    b[k] = 0.0
                else:
                    mu_center = self.mu_r[i, j]
@@ -328,7 +324,7 @@ class MagneticField:
            return Bz, Br
        else:
            return 0.0, 0.0
-                                           
+                                                  
 @dataclass
 class ElectrodeConfig:
     """
