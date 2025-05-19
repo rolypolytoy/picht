@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="picht",
-    version="2.1.6",
+    version="2.1.7",
     author="Rishiit Sharma",
     author_email="rishiitsharma@gmail.com",
     description="Electron optics simulation tool",

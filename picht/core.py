@@ -35,6 +35,12 @@ class MagneticLensConfig:
     mu_r: float
     mmf: float
 
+def sanitize_field_values(field_array, max_value=1e12):
+    field_array = np.nan_to_num(field_array, nan=0.0)
+    field_array = np.nan_to_num(field_array, posinf=max_value, neginf=-max_value)
+    field_array = np.clip(field_array, -max_value, max_value)
+    return field_array
+
 class MagneticField:
    """
    This class handles everything related to the magnetic vector potential field, including
@@ -215,21 +221,36 @@ class MagneticField:
        """
        A, b = self.build_laplacian_matrix(self.magnetic_mask, self.vector_potential)
        
+       if np.any(np.isnan(A.data)) or np.any(np.isinf(A.data)):
+           A.data = sanitize_field_values(A.data, 1e12)
+       
+       if np.any(np.isnan(b)) or np.any(np.isinf(b)):
+           b = sanitize_field_values(b, 1e12)
+       
        scale_factor = 1.0 / max(np.max(np.abs(A.data)), 1e-10)
        A_scaled = A * scale_factor
        b_scaled = b * scale_factor
        
-       ml = pyamg.smoothed_aggregation_solver(
-           A_scaled, 
-           max_coarse=10,
-           strength='symmetric',
-           smooth='jacobi',
-           improve_candidates=None
-       )
+       A_scaled.data = sanitize_field_values(A_scaled.data, 1e12)
+       b_scaled = sanitize_field_values(b_scaled, 1e12)
        
-       x0 = np.zeros_like(b_scaled)
-       x = ml.solve(b_scaled, x0=x0, tol=convergence_threshold, maxiter=int(max_iterations))
-       self.vector_potential = x.reshape((self.nz, self.nr))
+       try:
+           ml = pyamg.smoothed_aggregation_solver(
+               A_scaled, 
+               max_coarse=10,
+               strength='symmetric',
+               smooth='jacobi',
+               improve_candidates=None
+           )
+           
+           x0 = np.zeros_like(b_scaled)
+           x = ml.solve(b_scaled, x0=x0, tol=convergence_threshold, maxiter=int(max_iterations))
+           
+           x = sanitize_field_values(x, 1e12)
+           self.vector_potential = x.reshape((self.nz, self.nr))
+           
+       except Exception as e:
+           self.vector_potential = sanitize_field_values(self.vector_potential, 1e12)
        
        self.calculate_b_from_a()
        
@@ -242,6 +263,7 @@ class MagneticField:
        """
        ap_center = (self.lens_config.ap_start + self.lens_config.ap_width / 2) if self.lens_config else 0
        epsilon = 1e-10
+       max_field = 1e6
        
        for i in range(self.nz):
            for j in range(self.nr):
@@ -273,6 +295,10 @@ class MagneticField:
                    dA_dr = -dA_dr
                
                self.Bz[i, j] = dA_dr + self.vector_potential[i, j] / r_dist
+       
+       self.Bz = sanitize_field_values(self.Bz, max_field)
+       self.Br = sanitize_field_values(self.Br, max_field)
+       self.vector_potential = sanitize_field_values(self.vector_potential, max_field)
   
    def get_field_at_position(self, z: float, r: float) -> Tuple[float, float]:
        """
@@ -288,10 +314,18 @@ class MagneticField:
        if 0 <= z < self.axial_size and 0 <= r < self.radial_size:
            i = int(min(max(0, z / self.dz), self.nz - 1))
            j = int(min(max(0, r / self.dr), self.nr - 1))
-           return self.Bz[i, j], self.Br[i, j]
+           Bz = self.Bz[i, j]
+           Br = self.Br[i, j]
+           
+           if np.isnan(Bz) or np.isinf(Bz):
+               Bz = 0.0
+           if np.isnan(Br) or np.isinf(Br):
+               Br = 0.0
+               
+           return Bz, Br
        else:
            return 0.0, 0.0
-                             
+                                    
 @dataclass
 class ElectrodeConfig:
     """
@@ -371,8 +405,24 @@ def calc_dynamics(z, r, pz, pr, Ez, Er, Bz, Br, q, m, c, r_axis=0.0):
         ndarray: Array containing [vz, vr, dpz_dt, dpr_dt], representing velocity and force
                 components in the z and r directions for complete kinematic information (force is dp/dt).
     """
+    if not (np.isfinite(Ez) and np.isfinite(Er) and np.isfinite(Bz) and np.isfinite(Br)):
+        Ez = 0.0 if not np.isfinite(Ez) else Ez
+        Er = 0.0 if not np.isfinite(Er) else Er
+        Bz = 0.0 if not np.isfinite(Bz) else Bz
+        Br = 0.0 if not np.isfinite(Br) else Br
+    
+    max_field = 1e9
+    Ez = max(-max_field, min(max_field, Ez))
+    Er = max(-max_field, min(max_field, Er))
+    Bz = max(-max_field, min(max_field, Bz))
+    Br = max(-max_field, min(max_field, Br))
+    
     p_sq = pz**2 + pr**2
     E = np.sqrt((p_sq * c**2) + (m * c**2)**2)
+    
+    if E < 1e-20:
+        return np.array([0.0, 0.0, 0.0, 0.0])
+    
     vz = pz * c**2 / E
     vr = pr * c**2 / E    
     dpz_dt = q * Ez
@@ -515,23 +565,42 @@ class ElectricField:
         """
         A, b = self.build_laplacian_matrix(self.electrode_mask, self.potential)
         
+        if np.any(np.isnan(A.data)) or np.any(np.isinf(A.data)):
+            A.data = sanitize_field_values(A.data, 1e12)
+        
+        if np.any(np.isnan(b)) or np.any(np.isinf(b)):
+            b = sanitize_field_values(b, 1e12)
+        
         scale_factor = 1.0 / max(np.max(np.abs(A.data)), 1e-10)
         A_scaled = A * scale_factor
         b_scaled = b * scale_factor
         
-        ml = pyamg.smoothed_aggregation_solver(
-            A_scaled, 
-            max_coarse=10,
-            strength='symmetric',
-            smooth='jacobi',
-            improve_candidates=None
-        )
+        A_scaled.data = sanitize_field_values(A_scaled.data, 1e12)
+        b_scaled = sanitize_field_values(b_scaled, 1e12)
         
-        x0 = np.zeros_like(b_scaled)
-        x = ml.solve(b_scaled, x0=x0, tol=convergence_threshold, maxiter=int(max_iterations))
-        self.potential = x.reshape((self.nz, self.nr))
+        try:
+            ml = pyamg.smoothed_aggregation_solver(
+                A_scaled, 
+                max_coarse=10,
+                strength='symmetric',
+                smooth='jacobi',
+                improve_candidates=None
+            )
+            
+            x0 = np.zeros_like(b_scaled)
+            x = ml.solve(b_scaled, x0=x0, tol=convergence_threshold, maxiter=int(max_iterations))
+            
+            x = sanitize_field_values(x, 1e12)
+            self.potential = x.reshape((self.nz, self.nr))
+            
+        except Exception as e:
+            self.potential = sanitize_field_values(self.potential, 1e12)
         
-        self.Ez, self.Er = np.gradient(-self.potential, self.dz, self.dr)
+        Ez_raw, Er_raw = np.gradient(-self.potential, self.dz, self.dr)
+        
+        max_efield = 1e9
+        self.Ez = sanitize_field_values(Ez_raw, max_efield)
+        self.Er = sanitize_field_values(Er_raw, max_efield)
         
         return self.potential
     
@@ -546,9 +615,21 @@ class ElectricField:
         Returns:
             Tuple[float, float]: The electric field components (Ez, Er) at the specified position.
         """
-        return get_field(z, r, self.Ez, self.Er, self.axial_size, self.radial_size, 
-                         self.dz, self.dr, self.nz, self.nr)
-
+        if 0 <= z < self.axial_size and 0 <= r < self.radial_size:
+            i = int(min(max(0, z / self.dz), self.nz - 1))
+            j = int(min(max(0, r / self.dr), self.nr - 1))
+            Ez = self.Ez[i, j]
+            Er = self.Er[i, j]
+            
+            if np.isnan(Ez) or np.isinf(Ez):
+                Ez = 0.0
+            if np.isnan(Er) or np.isinf(Er):
+                Er = 0.0
+                
+            return Ez, Er
+        else:
+            return 0.0, 0.0
+        
 class ParticleTracer:
     """
     Handles trajectory dynamics calculations and visualizations.
