@@ -101,14 +101,14 @@ class MagneticField:
        start = int(config.start)
        end = int(config.start + config.length)
        ap_center = config.ap_start + config.ap_width / 2
-       bore_radius = int(config.ap_width / 2)
-       outer_radius = int(config.outer_diameter / 2)
+       bore_radius = config.ap_width / 2
+       outer_radius = config.outer_diameter / 2
        
        area = 0
        for i in range(start, end):
            for j in range(self.nr):
                r_from_axis = abs(j - ap_center)
-               if bore_radius <= r_from_axis <= outer_radius:
+               if bore_radius < r_from_axis <= outer_radius:
                    area += 1
        
        area_physical = area * self.dz * self.dr
@@ -117,7 +117,7 @@ class MagneticField:
        for i in range(start, end):
            for j in range(self.nr):
                r_from_axis = abs(j - ap_center)
-               if bore_radius <= r_from_axis <= outer_radius:
+               if bore_radius < r_from_axis <= outer_radius:
                    self.mu_r[i, j] = config.mu_r
                    self.current_density[i, j] = current_density
                    self.magnetic_mask[i, j] = True
@@ -294,7 +294,10 @@ class MagneticField:
                if r_signed < 0:
                    dA_dr = -dA_dr
                
-               self.Bz[i, j] = dA_dr + self.vector_potential[i, j] / r_dist
+               if abs(r_signed) < epsilon:
+                   self.Bz[i, j] = 2 * dA_dr
+               else:
+                   self.Bz[i, j] = dA_dr + self.vector_potential[i, j] / r_dist
        
        self.Bz = sanitize_field_values(self.Bz, max_field)
        self.Br = sanitize_field_values(self.Br, max_field)
@@ -325,7 +328,7 @@ class MagneticField:
            return Bz, Br
        else:
            return 0.0, 0.0
-                                    
+                                           
 @dataclass
 class ElectrodeConfig:
     """
@@ -996,8 +999,8 @@ class ElectronOptics:
           list: List of trajectory solutions for all simulated particles.            
       """
       velocity_magnitude = self.tracer.get_velocity_from_energy(energy_eV)
-      min_angle_rad = np.radians(angle_range[0])
-      max_angle_rad = np.radians(angle_range[1])
+      min_angle_rad = angle_range[0]
+      max_angle_rad = angle_range[1]
       angles = np.linspace(min_angle_rad, max_angle_rad, int(num_particles))
       r_positions = np.linspace(r_range[0], r_range[1], int(num_particles))
       particle_params = []
