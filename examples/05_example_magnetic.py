@@ -39,3 +39,6 @@ trajectories = system.simulate_beam(
 
 fig = system.visualize_system(trajectories=trajectories)
 plt.show()
+
+#exporter = Export(system)
+#exporter.cad_export()
