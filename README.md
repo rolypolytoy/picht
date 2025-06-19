@@ -1,6 +1,8 @@
 ### Picht
 Electron optics in electric and magnetic lenses. Uses the axisymmetric view, computes static E- and B-fields, enables the parameterization of ion and electron beams, and allows you to view their trajectories in the vicinity of various kinds of electromagnetic lenses, with physically accurate and relativistically corrected dynamics. Allows for custom mesh sizes using the finite difference method, and is incredibly performant due to integrations with PyAMG, Numba, and Joblib. Works on all operating systems, is unit-tested, and works locally and on Jupyter Notebook with all dependencies handled by PyPi.
 
+Currently under peer review at [PyOpenSci](https://github.com/pyOpenSci/software-submission/issues/242#issuecomment-2860427120) and the Journal of Open Source Software (JOSS), having successfully passed editorial pre-review. Built as the official simulation tool of the [Hume S1](https://github.com/rolypolytoy/S1), an in-progress, high-resolution, low-cost SEM.
+
 ## Installation
 ```bash
 pip install picht
@@ -30,5 +32,3 @@ Focusing electrons with three electrodes in a unipotential lens arrangement. Ref
 Controlling electrons with a Wehnelt cylinder, cathode/anode, a condenser (einzel) lens and an objective (einzel) lens. Reference implementation [here](https://rolypolytoy.github.io/picht/auto_examples/04_example_sem.html).
 
 ![sem5](https://github.com/user-attachments/assets/4d6d943f-faa6-4b7e-8e78-7df707f885b3)
-
-Currently under peer review at [PyOpenSci](https://github.com/pyOpenSci/software-submission/issues/242#issuecomment-2860427120) and the Journal of Open Source Software (JOSS), having successfully passed editorial pre-review. 
